@@ -21,8 +21,8 @@ class UserSubscription extends BaseModel
     public function validator(array $data, int $id = NULL)
     {
         return Validator::make($data, [
-            'from'    => ['required'],
-            'to'      => ['required'],
+            'from'    => ['required', 'date_format:H:i:s'],
+            'to'      => ['required', 'date_format:H:i:s'],
             'user_id' => ['required', 'integer', 'exists:' . User::getTableName() . ',id']
         ]);
     }
