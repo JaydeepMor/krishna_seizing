@@ -21,7 +21,6 @@ class CreateUsersTable extends Migration
             $table->string('contact_number')->nullable();
             $table->string('team_leader')->nullable();
             $table->string('imei_number');
-            $table->string('imei_number');
             $table->string('password')->nullable();
             $table->enum('status', ['0', '1'])->default('0')->comment('0: Inactive, 1: Active');
             $table->enum('is_admin', ['0', '1'])->default('0')->comment('0: Nope, 1: Yes');
