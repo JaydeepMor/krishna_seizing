@@ -9,7 +9,7 @@ use App\ApiKey;
 class AuthApi
 {
     private $excludedRoutes = [
-        
+        'api/user/register'
     ];
 
     /**
