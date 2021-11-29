@@ -23,6 +23,11 @@ class VehiclesImport implements ToModel, WithStartRow
         return 2;
     }
 
+    public function chunkSize(): int
+    {
+        return 20000;
+    }
+
     /**
     * @param array $row
     *
