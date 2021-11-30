@@ -7,6 +7,7 @@ use App\UserVehicleFieldPermission;
 use App\User;
 use App\ApiKey;
 use App\UserActivity;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 
@@ -16,8 +17,21 @@ class ApiController extends BaseController
     {
         $userId = $request->get('user_id', NULL);
 
+        $pageNo = $request->get('page_number', 1);
+
         // Get all vehicles.
-        $vehicles = Vehicle::all();
+        $vehiclesData = collect();
+        $vehicles     = Vehicle::paginate(1000, ['*'], 'page', $pageNo);
+
+        if (!empty($vehicles) && !$vehicles->isEmpty()) {
+            foreach ($vehicles->toArray() as $field => &$value) {
+                if (in_array($field, ['first_page_url', 'last_page_url', 'next_page_url', 'path', 'prev_page_url', 'from', 'to'])) {
+                    continue;
+                }
+
+                $vehiclesData->put($field, $value);
+            }
+        }
 
         // Get current user field permissions.
         $userFieldPermissions = UserVehicleFieldPermission::where('user_id', $userId)->get();
@@ -25,7 +39,7 @@ class ApiController extends BaseController
         // Get current user subscriptions.
         $currentUser = User::find($userId);
 
-        return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehicles, 'user_field_permissions' => $userFieldPermissions, 'user_subscriptions' => $currentUser->getCurrentSubscription(), 'api_key' => $currentUser->getApiKey()]);
+        return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehiclesData, 'user_field_permissions' => $userFieldPermissions, 'user_subscriptions' => $currentUser->getCurrentSubscription(), 'api_key' => $currentUser->getApiKey()]);
     }
 
     public function userRegister(Request $request)

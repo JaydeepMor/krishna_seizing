@@ -5,8 +5,10 @@ namespace App\Imports;
 use App\Vehicle;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class VehiclesImport implements ToModel, WithStartRow
+class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQueue
 {
     private $lotNumber;
 
@@ -24,6 +26,11 @@ class VehiclesImport implements ToModel, WithStartRow
     }
 
     public function chunkSize(): int
+    {
+        return 20000;
+    }
+
+    public function batchSize(): int
     {
         return 20000;
     }
