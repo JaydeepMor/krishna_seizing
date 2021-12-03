@@ -30,6 +30,16 @@ class UserActivity extends BaseModel
         ]);
     }
 
+    public function validators(array $data, int $id = NULL)
+    {
+        return Validator::make($data, [
+            '*.user_id'    => ['required', 'integer', 'exists:' . User::getTableName() . ',id'],
+            '*.vehicle_id' => ['required', 'integer', 'exists:' . Vehicle::getTableName() . ',id'],
+            '*.latitude'   => ['required'],
+            '*.longitude'  => ['required']
+        ]);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

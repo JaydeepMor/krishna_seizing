@@ -67,9 +67,9 @@ class ApiController extends BaseController
                 $userVehicleFieldPermissionModal::create($userVehicleFieldPermissionData);
             }
 
-            $apiKey = ApiKey::generateKey($create->id);
+            ApiKey::generateKey($create->id);
 
-            return $this->returnSuccess(__('Record added successfully!'), ['api_key' => $apiKey]);
+            return $this->getGlobalResponse($create->id, true);
         }
 
         return $this->returnError(__('Something went wrong. Please try again later or contact superadmin.'));
@@ -77,15 +77,35 @@ class ApiController extends BaseController
 
     public function userActivity(Request $request)
     {
-        $modal = new UserActivity();
+        $modal  = new UserActivity();
 
-        $data  = $request->all();
+        $data   = $request->all();
 
-        $validator = $modal->validator($data, NULL, true);
+        $userId = $request->get('user_id', NULL);
+
+        if (empty($data['data'])) {
+            return $this->returnError(__('Provide at least one data to add.'));
+        }
+
+        $activityData = [];
+        foreach ($data['data'] as $row) {
+            $rowArray               = json_decode($row, true);
+
+            $rowArray['vehicle_id'] = empty($rowArray['vehicle_id']) ? NULL : $rowArray['vehicle_id'];
+            $rowArray['latitude']   = empty($rowArray['latitude']) ? NULL : $rowArray['latitude'];
+            $rowArray['longitude']  = empty($rowArray['longitude']) ? NULL : $rowArray['longitude'];
+            $rowArray['user_id']    = $userId;
+
+            $activityData[]         = $rowArray;
+        }
+
+        $validator = $modal->validators($activityData, NULL, true);
 
         if ($validator->fails()) {
             return $this->returnError($validator->errors()->first());
         }
+
+        dd($activityData);
 
         $create = $modal::create($data);
 
@@ -94,5 +114,33 @@ class ApiController extends BaseController
         }
 
         return $this->returnError(__('Something went wrong. Please try again later or contact superadmin.'));
+    }
+
+    public function getUserInfo(Request $request)
+    {
+        $userId = $request->get('user_id', NULL);
+
+        return $this->getGlobalResponse($userId);
+    }
+
+    public function getGlobalResponse(int $userId, $isCreate = false)
+    {
+        $modal = new User();
+
+        $user  = $modal::getGlobalResponse($userId);
+
+        if (!empty($user)) {
+            if ($isCreate) {
+                return $this->returnSuccess(__('Record added successfully!'), $user);
+            }
+
+            return $this->returnSuccess(__('User information get successfully!'), $user);
+        } else {
+            if ($isCreate) {
+                return $this->returnError(__('Record added successfully! But user not found.'));
+            }
+
+            return $this->returnError(__('User not found.'));
+        }
     }
 }

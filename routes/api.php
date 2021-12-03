@@ -23,5 +23,7 @@ Route::group(['middleware' => ['web.auth.api'], 'namespace' => 'Api'], function 
 
     Route::post('user/register', 'ApiController@userRegister');
 
+    Route::get('user/info/get', 'ApiController@getUserInfo');
+
     Route::post('user/activity', 'ApiController@userActivity');
 });

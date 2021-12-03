@@ -61,7 +61,7 @@ class User extends Authenticatable
         self::STATUS_INACTIVE => "Inactive"
     ];
 
-    public $appends = ['current_subscription', 'is_subscribed'];
+    public $appends = ['current_subscription', 'is_subscribed', 'api_key'];
 
     public function validator(array $data, int $id = NULL, $isApi = false)
     {
@@ -141,5 +141,21 @@ class User extends Authenticatable
     public function getApiKey()
     {
         return ApiKey::getApiKey($this->id);
+    }
+
+    public function getApiKeyAttribute()
+    {
+        return $this->getApiKey();
+    }
+
+    public static function getGlobalResponse(int $userId)
+    {
+        $user = User::find($userId);
+
+        if (empty($user->api_key)) {
+            ApiKey::generateKey($userId);
+        }
+
+        return $user;
     }
 }
