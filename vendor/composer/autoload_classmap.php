@@ -5401,6 +5401,7 @@ return array(
     'TijsVerkoyen\\CssToInlineStyles\\Css\\Rule\\Rule' => $vendorDir . '/tijsverkoyen/css-to-inline-styles/src/Css/Rule/Rule.php',
     'UnhandledMatchError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
     'ValueError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
+    'VehiclesSeeder' => $baseDir . '/database/seeds/VehiclesSeeder.php',
     'Webmozart\\Assert\\Assert' => $vendorDir . '/webmozart/assert/src/Assert.php',
     'Webmozart\\Assert\\InvalidArgumentException' => $vendorDir . '/webmozart/assert/src/InvalidArgumentException.php',
     'Webmozart\\Assert\\Mixin' => $vendorDir . '/webmozart/assert/src/Mixin.php',
