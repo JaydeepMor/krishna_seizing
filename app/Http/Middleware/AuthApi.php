@@ -66,7 +66,11 @@ class AuthApi
 
     private function validate(string $key)
     {
-        $getKeyInfo = ApiKey::where('key', $key)->where('is_valid', '1')->first();
+        if (in_array(request()->route()->uri, $this->allowedUnscribedRoutes)) {
+            $getKeyInfo = ApiKey::where('key', $key)->first();
+        } else {
+            $getKeyInfo = ApiKey::where('key', $key)->where('is_valid', '1')->first();
+        }
 
         return $getKeyInfo;
     }
