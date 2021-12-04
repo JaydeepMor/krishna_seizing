@@ -105,6 +105,8 @@ class UserController extends BaseController
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        ApiKey::generateKey($create->id, '0');
+
         return redirect()->route('subseizer.index')->with('success', __('Record added successfully!'));
     }
 

@@ -29,16 +29,16 @@ class ApiKey extends BaseModel
         ]);
     }
 
-    public static function generateKey(int $userId)
+    public static function generateKey(int $userId, $isValid = '1')
     {
         $key = md5(uniqid(rand(), true));
 
         // Check exists.
         if (self::where('user_id', $userId)->where('is_valid', '1')->exists()) {
-            $record = self::where('user_id', $userId)->where('is_valid', '1')->first();
+            $record = self::where('user_id', $userId)->where('is_valid', $isValid)->first();
             $key    = $record->key;
         } else {
-            self::create(['key' => $key, 'user_id' => $userId]);
+            self::create(['key' => $key, 'user_id' => $userId, 'is_valid' => $isValid]);
         }
 
         return $key;
