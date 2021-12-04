@@ -160,10 +160,16 @@ class User extends Authenticatable
 
     public static function getGlobalResponse(int $userId)
     {
-        $user = User::find($userId);
+        $user = User::where('id', $userId)->where('is_admin', User::IS_USER)->first();
 
         if (!empty($user) && empty($user->api_key)) {
             ApiKey::generateKey($userId);
+        }
+
+        if (!empty($user)) {
+            $user->makeHidden('current_subscription');
+
+            $user['user_subscriptions'] = $user->getCurrentSubscriptionTimestamps();
         }
 
         return $user;
