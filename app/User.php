@@ -150,7 +150,7 @@ class User extends Authenticatable
 
     public function getApiKey()
     {
-        return ApiKey::getAllApiKey($this->id);
+        return ApiKey::getApiKey($this->id, false);
     }
 
     public function getApiKeyAttribute()

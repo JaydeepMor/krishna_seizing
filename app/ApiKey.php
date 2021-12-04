@@ -44,20 +44,13 @@ class ApiKey extends BaseModel
         return $key;
     }
 
-    public static function getApiKey(int $userId)
+    public static function getApiKey(int $userId, $isValid = true)
     {
-        $record = self::where('user_id', $userId)->where('is_valid', '1')->first();
-
-        if (!empty($record)) {
-            return $record->key;
+        if ($isValid) {
+            $record = self::where('user_id', $userId)->where('is_valid', '1')->first();
+        } else {
+            $record = self::where('user_id', $userId)->first();
         }
-
-        return NULL;
-    }
-
-    public static function getAllApiKey(int $userId)
-    {
-        $record = self::where('user_id', $userId)->first();
 
         if (!empty($record)) {
             return $record->key;
