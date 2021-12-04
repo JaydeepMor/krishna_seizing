@@ -10,6 +10,7 @@ use App\UserActivity;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
+use Carbon\Carbon;
 
 class ApiController extends BaseController
 {
@@ -34,12 +35,12 @@ class ApiController extends BaseController
         }
 
         // Get current user field permissions.
-        $userFieldPermissions = UserVehicleFieldPermission::where('user_id', $userId)->get();
+        $userFieldPermissions = UserVehicleFieldPermission::select('vehicle_allowed_fields')->where('user_id', $userId)->first();
 
         // Get current user subscriptions.
         $currentUser = User::find($userId);
 
-        return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehiclesData, 'user_field_permissions' => $userFieldPermissions, 'user_subscriptions' => $currentUser->getCurrentSubscription(), 'api_key' => $currentUser->getApiKey()]);
+        return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehiclesData, 'user_field_permissions' => $userFieldPermissions, 'user_subscriptions' => $currentUser->getCurrentSubscriptionTimestamps(), 'api_key' => $currentUser->getApiKey()]);
     }
 
     public function userRegister(Request $request)
@@ -83,6 +84,8 @@ class ApiController extends BaseController
 
         $userId = $request->get('user_id', NULL);
 
+        $now    = Carbon::now();
+
         if (empty($data['data'])) {
             return $this->returnError(__('Provide at least one data to add.'));
         }
@@ -95,6 +98,9 @@ class ApiController extends BaseController
             $rowArray['latitude']   = empty($rowArray['latitude']) ? NULL : $rowArray['latitude'];
             $rowArray['longitude']  = empty($rowArray['longitude']) ? NULL : $rowArray['longitude'];
             $rowArray['user_id']    = $userId;
+            $rowArray['created_at'] = $now;
+            $rowArray['updated_at'] = $now;
+
 
             $activityData[]         = $rowArray;
         }
@@ -105,12 +111,10 @@ class ApiController extends BaseController
             return $this->returnError($validator->errors()->first());
         }
 
-        dd($activityData);
-
-        $create = $modal::create($data);
+        $create = $modal::insert($activityData);
 
         if ($create) {
-            return $this->returnSuccess(__('Record added successfully!'), $create);
+            return $this->returnSuccess(__('Record added successfully!'), User::getGlobalResponse($userId));
         }
 
         return $this->returnError(__('Something went wrong. Please try again later or contact superadmin.'));

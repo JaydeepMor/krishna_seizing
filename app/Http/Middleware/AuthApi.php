@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Repositories\ApiKeyRepository;
 use Closure;
 use App\ApiKey;
+use App\User;
 
 class AuthApi
 {
@@ -43,6 +44,13 @@ class AuthApi
             ]);
         }
 
+        if (!$this->isSubscribed($getKeyInfo->user_id)) {
+            return response()->json([
+                'code' => 401,
+                'msg'  => __('This user not subscribed or complete subscription. Please contact admin for a new subscription.')
+            ]);
+        }
+
         if ($request->has('user_id')) {
             $request->merge(['request_user_id' => $request->get('user_id')]);
         }
@@ -64,5 +72,12 @@ class AuthApi
         $getUsers = ApiKey::where('user_id', $userId)->where('is_valid', '1')->count();
 
         return ($getUsers > config('app.allowed_api_user_logins'));
+    }
+
+    private function isSubscribed(int $userId):bool
+    {
+        $user = User::where('id', $userId)->where('is_admin', User::IS_USER)->first();
+
+        return (!empty($user) && $user->is_subscribed);
     }
 }

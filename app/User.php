@@ -123,6 +123,16 @@ class User extends Authenticatable
         return $this->getCurrentSubscription();
     }
 
+    public function getCurrentSubscriptionTimestamps()
+    {
+        $subscriptions = $this->getCurrentSubscription();
+
+        return [
+            'from' => (!empty($subscriptions['from']) && strtotime($subscriptions['from']) > 0) ? (strtotime($subscriptions['from']) * 1000) : $subscriptions['from'],
+            'to'   => (!empty($subscriptions['to']) && strtotime($subscriptions['to']) > 0) ? (strtotime($subscriptions['to']) * 1000) : $subscriptions['to']
+        ];
+    }
+
     public function getIsSubscribedAttribute()
     {
         $getCurrentSubscription = $this->getCurrentSubscription();
@@ -152,7 +162,7 @@ class User extends Authenticatable
     {
         $user = User::find($userId);
 
-        if (empty($user->api_key)) {
+        if (!empty($user) && empty($user->api_key)) {
             ApiKey::generateKey($userId);
         }
 
