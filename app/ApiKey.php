@@ -66,4 +66,21 @@ class ApiKey extends BaseModel
 
         return $record;
     }
+
+    /* For re-open removed key. */
+    public static function appendKey(int $userId)
+    {
+        $key    = md5(uniqid(rand(), true));
+
+        $record = false;
+
+        // Check exists.
+        if (self::where('user_id', $userId)->exists()) {
+            $record = self::where('user_id', $userId)->update(['is_valid' => '1']);
+        } else {
+            self::create(['key' => $key, 'user_id' => $userId]);
+        }
+
+        return $record;
+    }
 }

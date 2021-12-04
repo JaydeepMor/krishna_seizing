@@ -251,7 +251,7 @@ class UserController extends BaseController
         $model::where("user_id", $userId)->delete();
 
         // Set new api-key.
-        ApiKey::generateKey($userId);
+        ApiKey::appendKey($userId);
 
         // Add new subscriptions.
         return $model::create(["user_id" => $userId, "from" => $from, "to" => $to]);
