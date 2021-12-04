@@ -55,6 +55,17 @@ class ApiKey extends BaseModel
         return NULL;
     }
 
+    public static function getAllApiKey(int $userId)
+    {
+        $record = self::where('user_id', $userId)->first();
+
+        if (!empty($record)) {
+            return $record->key;
+        }
+
+        return NULL;
+    }
+
     public static function removeKey(int $userId)
     {
         $record = false;

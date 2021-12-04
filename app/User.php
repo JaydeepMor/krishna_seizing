@@ -150,7 +150,7 @@ class User extends Authenticatable
 
     public function getApiKey()
     {
-        return ApiKey::getApiKey($this->id);
+        return ApiKey::getAllApiKey($this->id);
     }
 
     public function getApiKeyAttribute()
@@ -163,7 +163,7 @@ class User extends Authenticatable
         $user = User::where('id', $userId)->where('is_admin', User::IS_USER)->first();
 
         if (!empty($user) && empty($user->api_key)) {
-            ApiKey::generateKey($userId);
+            // ApiKey::generateKey($userId);
         }
 
         if (!empty($user)) {

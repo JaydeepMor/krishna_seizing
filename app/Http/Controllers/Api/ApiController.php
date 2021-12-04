@@ -68,7 +68,7 @@ class ApiController extends BaseController
                 $userVehicleFieldPermissionModal::create($userVehicleFieldPermissionData);
             }
 
-            ApiKey::generateKey($create->id);
+            ApiKey::generateKey($create->id, '0');
 
             return $this->getGlobalResponse($create->id, true);
         }
