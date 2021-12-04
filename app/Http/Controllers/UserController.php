@@ -8,6 +8,7 @@ use App\UserActivity;
 use App\Group;
 use App\UserVehicleFieldPermission;
 use App\Vehicle;
+use App\ApiKey;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -249,6 +250,9 @@ class UserController extends BaseController
         // Remove old subscriptions.
         $model::where("user_id", $userId)->delete();
 
+        // Set new api-key.
+        ApiKey::generateKey($userId);
+
         // Add new subscriptions.
         return $model::create(["user_id" => $userId, "from" => $from, "to" => $to]);
     }
@@ -263,6 +267,9 @@ class UserController extends BaseController
         if (empty($check)) {
             return $this->setSubscribed($userId);
         } else {
+            // Set api-key disabled.
+            ApiKey::removeKey($userId);
+
             $to = date(DEFAULT_DATE_FORMAT, strtotime(date(DEFAULT_DATE_FORMAT)));
 
             return $model::where("user_id", $userId)->update(["to" => $to]);

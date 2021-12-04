@@ -54,4 +54,16 @@ class ApiKey extends BaseModel
 
         return NULL;
     }
+
+    public static function removeKey(int $userId)
+    {
+        $record = false;
+
+        // Check exists.
+        if (self::where('user_id', $userId)->where('is_valid', '1')->exists()) {
+            $record = self::where('user_id', $userId)->where('is_valid', '1')->update(['is_valid' => '0']);
+        }
+
+        return $record;
+    }
 }
