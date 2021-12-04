@@ -16,13 +16,15 @@ class ApiController extends BaseController
 {
     public function getVehicles(Request $request)
     {
-        $userId = $request->get('user_id', NULL);
+        $userId  = $request->get('user_id', NULL);
 
-        $pageNo = $request->get('page_number', 1);
+        $pageNo  = $request->get('page_number', 1);
+
+        $perPage = $request->get('per_page', 1000);
 
         // Get all vehicles.
         $vehiclesData = collect();
-        $vehicles     = Vehicle::paginate(1000, ['*'], 'page', $pageNo);
+        $vehicles     = Vehicle::paginate($perPage, ['*'], 'page', $pageNo);
 
         if (!empty($vehicles) && !$vehicles->isEmpty()) {
             foreach ($vehicles->toArray() as $field => &$value) {
