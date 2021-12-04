@@ -127,6 +127,12 @@ class ApiController extends BaseController
     {
         $userId = $request->get('user_id', NULL);
 
+        $imeiNo = $request->get('imei_number', NULL);
+
+        if (!empty($imeiNo)) {
+            return $this->getGlobalResponseImei($imeiNo);
+        }
+
         return $this->getGlobalResponse($userId);
     }
 
@@ -149,5 +155,19 @@ class ApiController extends BaseController
 
             return $this->returnError(__('User not found.'));
         }
+    }
+
+    public function getGlobalResponseImei(int $imeiNo)
+    {
+        $modal = new User();
+
+        // Get User Id.
+        $user = $modal::where('imei_number', $imeiNo)->first();
+
+        if (!empty($user->id)) {
+            return $this->getGlobalResponse($user->id);
+        }
+
+        return $this->returnError(__('User not found.'));
     }
 }

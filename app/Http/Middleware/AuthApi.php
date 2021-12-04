@@ -10,7 +10,8 @@ use App\User;
 class AuthApi
 {
     private $excludedRoutes = [
-        'api/user/register'
+        'api/user/register',
+        'api/user/info/get'
     ];
 
     private $allowedUnscribedRoutes = [
@@ -28,7 +29,7 @@ class AuthApi
     {
         $apiKey = (!empty($request->header('api-key'))) ? $request->header('api-key') : false;
 
-        if (in_array($request->route()->uri, $this->excludedRoutes)) {
+        if (in_array($request->route()->uri, $this->excludedRoutes) && !in_array($request->route()->uri, $this->allowedUnscribedRoutes)) {
             return $next($request);
         }
 

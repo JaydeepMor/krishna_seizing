@@ -84,7 +84,7 @@ class User extends Authenticatable
         return Validator::make($data, [
             'name'        => ['required', 'max:255'],
             'email'       => ['required', 'unique:' . $this->getTableName() . ',email,' . $id . ',id'],
-            'imei_number' => ['required', 'max:255'],
+            'imei_number' => ['required', 'max:255', 'unique:' . $this->getTableName() . ',imei_number,' . $id . ',id'],
             'status'      => ['in:' . implode(",", array_keys($this->statuses))],
             'group_id'    => ['nullable', 'integer', 'exists:' . Group::getTableName() . ',id'],
             'is_admin'    => ['in:' . implode(",", array_keys($this->isAdmin))],
