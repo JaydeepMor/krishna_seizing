@@ -13,6 +13,10 @@ class AuthApi
         'api/user/register'
     ];
 
+    private $allowedUnscribedRoutes = [
+        'api/user/info/get'
+    ];
+
     /**
      * Handle an incoming request.
      *
@@ -76,6 +80,10 @@ class AuthApi
 
     private function isSubscribed(int $userId):bool
     {
+        if (in_array(request()->route()->uri, $this->allowedUnscribedRoutes)) {
+            return true;
+        }
+
         $user = User::where('id', $userId)->where('is_admin', User::IS_USER)->first();
 
         return (!empty($user) && $user->is_subscribed);

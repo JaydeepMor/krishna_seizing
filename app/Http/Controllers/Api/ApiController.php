@@ -36,11 +36,12 @@ class ApiController extends BaseController
 
         // Get current user field permissions.
         $userFieldPermissions = UserVehicleFieldPermission::select('vehicle_allowed_fields')->where('user_id', $userId)->first();
+        $vehicleAllowedFields = !empty($userFieldPermissions->vehicle_allowed_fields) ? json_decode($userFieldPermissions->vehicle_allowed_fields, true) : [];
 
         // Get current user subscriptions.
         $currentUser = User::find($userId);
 
-        return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehiclesData, 'user_field_permissions' => $userFieldPermissions, 'user_subscriptions' => $currentUser->getCurrentSubscriptionTimestamps(), 'api_key' => $currentUser->getApiKey()]);
+        return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehiclesData, 'user_field_permissions' => $vehicleAllowedFields, 'user_subscriptions' => $currentUser->getCurrentSubscriptionTimestamps(), 'api_key' => $currentUser->getApiKey()]);
     }
 
     public function userRegister(Request $request)
