@@ -125,7 +125,15 @@ class ApiController extends BaseController
 
     public function getUserInfo(Request $request)
     {
-        $userId = $request->get('user_id', NULL);
+        $apiKey     = (!empty($request->header('api-key'))) ? $request->header('api-key') : false;
+
+        $getKeyInfo = $this->validateApiKey($apiKey);
+
+        $userId     = 0;
+
+        if (!empty($getKeyInfo)) {
+            $userId = $getKeyInfo->user_id;
+        }
 
         $imeiNo = $request->get('imei_number', NULL);
 
@@ -134,6 +142,13 @@ class ApiController extends BaseController
         }
 
         return $this->getGlobalResponse($userId);
+    }
+
+    private function validateApiKey(string $key)
+    {
+        $getKeyInfo = ApiKey::where('key', $key)->first();
+
+        return $getKeyInfo;
     }
 
     public function getGlobalResponse(int $userId, $isCreate = false)
@@ -157,7 +172,7 @@ class ApiController extends BaseController
         }
     }
 
-    public function getGlobalResponseImei(int $imeiNo)
+    public function getGlobalResponseImei($imeiNo)
     {
         $modal = new User();
 
