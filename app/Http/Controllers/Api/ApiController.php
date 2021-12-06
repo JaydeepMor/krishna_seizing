@@ -18,9 +18,13 @@ class ApiController extends BaseController
     {
         $userId  = $request->get('user_id', NULL);
 
-        $pageNo  = $request->get('page_number', 1);
+        $pageNo  = (int)$request->get('page_number', 1);
 
-        $perPage = $request->get('per_page', 1000);
+        $pageNo  = empty($pageNo) ? 1 : $pageNo;
+
+        $perPage = (int)$request->get('per_page', 1000);
+
+        $perPage = empty($perPage) ? 1000 : $perPage;
 
         // Get all vehicles.
         $vehiclesData = collect();

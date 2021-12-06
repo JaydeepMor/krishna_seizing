@@ -217,6 +217,10 @@ class UserController extends BaseController
 
         UserVehicleFieldPermission::where('user_id', $id)->delete();
 
+        UserActivity::where('user_id', $id)->delete();
+
+        UserSubscription::where('user_id', $id)->delete();
+
         ApiKey::where('user_id', $id)->delete();
 
         return redirect()->route('subseizer.index')->with('success', __('Record deleted successfully!'));
