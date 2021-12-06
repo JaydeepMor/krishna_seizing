@@ -165,10 +165,10 @@ class ApiController extends BaseController
             return $this->returnSuccess(__('User information get successfully!'), $user);
         } else {
             if ($isCreate) {
-                return $this->returnError(__('Record added successfully! But user not found.'));
+                return $this->returnError(__('Record added successfully! But user not found.'), $this->noUserCode);
             }
 
-            return $this->returnError(__('User not found.'));
+            return $this->returnError(__('User not found.'), $this->noUserCode);
         }
     }
 
@@ -183,6 +183,6 @@ class ApiController extends BaseController
             return $this->getGlobalResponse($user->id);
         }
 
-        return $this->returnError(__('User not found.'));
+        return $this->returnError(__('User not found.'), $this->noUserCode);
     }
 }

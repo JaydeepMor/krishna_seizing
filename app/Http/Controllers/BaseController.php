@@ -12,6 +12,7 @@ class BaseController extends Controller
     const DEFAULT_PAGINATION_SIZE = '20';
 
     public $errorCode   = 401;
+    public $noUserCode  = 402;
     public $successCode = 200;
 
     public function setThemeCookie(Request $request)
