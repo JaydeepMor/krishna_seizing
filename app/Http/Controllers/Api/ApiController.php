@@ -99,7 +99,8 @@ class ApiController extends BaseController
 
         $activityData = [];
         foreach ($data['data'] as $row) {
-            $rowArray               = json_decode($row, true);
+            // $rowArray               = json_decode($row, true);
+            $rowArray               = $row;
 
             $rowArray['vehicle_id'] = empty($rowArray['vehicle_id']) ? NULL : $rowArray['vehicle_id'];
             $rowArray['latitude']   = empty($rowArray['latitude']) ? NULL : $rowArray['latitude'];
