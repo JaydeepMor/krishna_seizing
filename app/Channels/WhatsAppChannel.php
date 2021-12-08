@@ -19,13 +19,19 @@ class WhatsAppChannel
 
         $twilio = new Client(config('services.twilio.sid'), config('services.twilio.token'));
 
-        $create = $twilio->messages->create('whatsapp:' . $to, [
-            "from" => 'whatsapp:' . $from,
-            "body" => $message->content
-        ]);
+        try {
+            $create = $twilio->messages->create('whatsapp:' . $to, [
+                "from" => 'whatsapp:' . $from,
+                "body" => $message->content
+            ]);
+        } catch (\Exception $e) {
+            $create = ['code' => 401, 'msg' => __($e->getMessage())];
+        }
 
-        if ($create) {
+        if (!empty($create) && $create instanceof MessageInstance) {
             $this->storeWhatsappMessage($notifiable, $create);
+
+            $create = ['code' => 200, 'msg' => __("Whatsapp message sent successfully!")];
         }
 
         return $create;

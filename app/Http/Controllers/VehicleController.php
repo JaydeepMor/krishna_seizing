@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Notifications\VehicleConfirmed;
+use App\Channels\WhatsAppChannel;
 
 class VehicleController extends BaseController
 {
@@ -247,7 +248,19 @@ class VehicleController extends BaseController
         if ($isUpdate) {
             // Send WhatsApp message.
             if (!empty($user)) {
-                $user->notify(new VehicleConfirmed($row));
+                $whatsappNotify = (new WhatsAppChannel())->send($user, new VehicleConfirmed($row));
+
+                if (!empty($whatsappNotify['code'])) {
+                    if (!empty($whatsappNotify['msg'])) {
+                        if ($whatsappNotify['code'] == 401) {
+                            return redirect(url()->previous())->with('danger', __('Record updated successfully!') . "<br /> But whatsapp notification not send." . "<br /> Issue is : " . $whatsappNotify['msg']);
+                        }
+
+                        return redirect(url()->previous())->with('success', __('Record updated successfully! <br /> And also sent whatsapp notification to the ') . '<a href="' . route('subseizer.index', ['user_id' => $user->id]) . '" target="_blank">' . $user->name . '</a>');
+                    }
+                } else {
+                    return redirect(url()->previous())->with('danger', __('Record updated successfully!<br /> But whatsapp notification not send.<br /> Please check whatsapp number and try again after sometime.'));
+                }
             }
         }
 

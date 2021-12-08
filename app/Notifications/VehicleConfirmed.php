@@ -10,7 +10,6 @@ use App\Channels\Messages\WhatsAppMessage;
 use App\Channels\WhatsAppChannel;
 use App\Vehicle;
 
-
 class VehicleConfirmed extends Notification
 {
     use Queueable;

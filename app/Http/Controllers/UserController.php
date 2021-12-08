@@ -45,6 +45,10 @@ class UserController extends BaseController
             $query->where($modal::getTableName() . '.contact_number', 'LIKE', '%' . $request->get('contact_number') . '%');
         }
 
+        if ($request->has('user_id') && !empty($request->get('user_id'))) {
+            $query->where($modal::getTableName() . '.id', '=', $request->get('user_id'));
+        }
+
         $users = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
 
         return view('subseizer.index', compact('users'));
