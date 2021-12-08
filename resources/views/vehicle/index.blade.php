@@ -151,6 +151,7 @@
                             <th>{{ __('Branch') }}</th>
                             <th>{{ __('Area') }}</th>
                             <th>{{ __('Region') }}</th>
+                            <th>{{ __('Confirmed Person') }}</th>
                             <th>{{ __('Confirm') }}</th>
                             <th>{{ __('Cancel') }}</th>
                             <th class="text-center">{{ __('Actions') }}</th>
@@ -169,6 +170,7 @@
                                     <td>{{ !empty($vehicle->branch) ? $vehicle->branch : "-" }}</td>
                                     <td>{{ !empty($vehicle->area) ? $vehicle->area : "-" }}</td>
                                     <td>{{ !empty($vehicle->region) ? $vehicle->region : "-" }}</td>
+                                    <td>{{ !empty($vehicle->user) ? $vehicle->user->name : "-" }}</td>
                                     <td>
                                         <label class="switch switch-success">
                                             <form id="confirm-vehicle-form-{{ $vehicle->id }}" action="{{ route('vehicle.confirm', $vehicle->id) }}" method="POST" class="d-none">
@@ -187,7 +189,7 @@
                                                             </div>
 
                                                             <div class="modal-body">
-                                                                <select class="form-control" name="user_id">
+                                                                <select class="form-control" name="user_id" id="confirm-users">
                                                                     <option value="">{{ __('Select Sub Seizer') }}</option>
 
                                                                     @if (!empty($users) && !$users->isEmpty())
@@ -201,7 +203,7 @@
                                                             </div>
 
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-primary confirm-vehicle" data-id="{{ $vehicle->id }}">{{ __('Confirm') }}</button>
+                                                                <button type="button" class="btn btn-primary confirm-vehicle disp-none" data-id="{{ $vehicle->id }}">{{ __('Confirm') }}</button>
                                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
                                                             </div>
                                                         </div>

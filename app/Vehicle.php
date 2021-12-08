@@ -68,4 +68,9 @@ class Vehicle extends BaseModel
 
         return (!empty($lastLotNumber) ? ($lastLotNumber->lot_number + 1) : 1);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

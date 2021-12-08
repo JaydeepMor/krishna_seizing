@@ -125,3 +125,7 @@ input[type="checkbox"] .styled:checked + label::after {
     max-height: 500px;
     overflow: scroll;
 }
+
+.disp-none {
+    display: none;
+}

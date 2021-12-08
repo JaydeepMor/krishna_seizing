@@ -174,4 +174,9 @@ class User extends Authenticatable
 
         return $user;
     }
+
+    public function routeNotificationForWhatsApp()
+    {
+        return $this->contact_number;
+    }
 }

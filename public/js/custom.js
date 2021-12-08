@@ -35,9 +35,27 @@ $(document).ready(function() {
         if (!checkbox.is(':checked') && confirm('Are you sure you want to confirm this vehicle?')) {
             $("#modal-select-seizer-" + id).modal("show");
 
-            checkbox.prop('value', 'on');
+            // Enable / Disable confirm buttons for submit.
+            $("#modal-select-seizer-" + id).find('select#confirm-users').unbind().on("change", function() {
+                let self = $(this);
 
-            checkbox.prop('checked', true);
+                if (self.val() != "") {
+                    $("#modal-select-seizer-" + id).find('.confirm-vehicle').fadeIn(300);
+                } else {
+                    $("#modal-select-seizer-" + id).find('.confirm-vehicle').fadeOut(100);
+                }
+            });
+
+            // Turn off toggle button.
+            $("#modal-select-seizer-" + id).on("hide.bs.modal", function () {
+                checkbox.prop('value', 'off');
+
+                checkbox.prop('checked', false);
+            });
+
+            // checkbox.prop('value', 'on');
+
+            // checkbox.prop('checked', true);
 
             // $('#confirm-vehicle-form-' + id).submit();
 

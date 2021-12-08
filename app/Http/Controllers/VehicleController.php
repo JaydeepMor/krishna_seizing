@@ -8,6 +8,7 @@ use App\Imports\VehiclesImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Notifications\VehicleConfirmed;
 
 class VehicleController extends BaseController
 {
@@ -229,7 +230,9 @@ class VehicleController extends BaseController
 
         $userId    = $request->get('user_id', NULL);
 
-        if ($isConfirm == 'on' && empty($userId)) {
+        $user      = User::find($userId);
+
+        if ($isConfirm == 'on' && (empty($userId) || empty($user))) {
             return redirect(url()->previous())->with('danger', __('No user found!'));
         }
 
@@ -239,7 +242,14 @@ class VehicleController extends BaseController
             return redirect(url()->previous())->with('danger', __('No record found!'));
         }
 
-        $row->update(['is_confirm' => ($isConfirm == 'on' ? $model::CONFIRM : $model::NOT_CONFIRM), 'user_id' => ($isConfirm == 'on' ? $userId : NULL)]);
+        $isUpdate = $row->update(['is_confirm' => ($isConfirm == 'on' ? $model::CONFIRM : $model::NOT_CONFIRM), 'user_id' => ($isConfirm == 'on' ? $userId : NULL)]);
+
+        if ($isUpdate) {
+            // Send WhatsApp message.
+            if (!empty($user)) {
+                $user->notify(new VehicleConfirmed($row));
+            }
+        }
 
         return redirect(url()->previous())->with('success', __('Record updated successfully!'));
     }

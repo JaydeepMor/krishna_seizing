@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '65c34ea40c3ef7371206e095a74eba41b0807c60',
+    'reference' => '55e0da08617e41aff184db1cde1ce287346edd28',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -422,7 +422,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '65c34ea40c3ef7371206e095a74eba41b0807c60',
+      'reference' => '55e0da08617e41aff184db1cde1ce287346edd28',
     ),
     'laravel/tinker' => 
     array (
@@ -1292,6 +1292,15 @@
       array (
       ),
       'reference' => 'b43b05cf43c1b6d849478965062b6ef73e223bb5',
+    ),
+    'twilio/sdk' => 
+    array (
+      'pretty_version' => '6.31.2',
+      'version' => '6.31.2.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'be59275f0fc311cb45d5303d47bffaa06a19d6e5',
     ),
     'vlucas/phpdotenv' => 
     array (
