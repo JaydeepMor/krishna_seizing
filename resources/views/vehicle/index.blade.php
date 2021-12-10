@@ -117,6 +117,9 @@
                                         <button type="submit" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="{{ __('Import') }}">
                                             <i class="gi gi-file_import"></i>
                                         </button>
+                                        <a type="button" data-toggle="tooltip" href="{{ route('vehicle.sample.export') }}" title="" class="btn btn-default" data-original-title="{{ __('Download sample file.') }}" rel="nofollow">
+                                            <i class="fa fa-download"></i>
+                                        </a>
                                     </span>
                                 </div>
                                 @error('excel_import')
@@ -151,7 +154,7 @@
                             <th>{{ __('Branch') }}</th>
                             <th>{{ __('Area') }}</th>
                             <th>{{ __('Region') }}</th>
-                            <th>{{ __('Confirmed Person') }}</th>
+                            <th>{{ __('Confirmed / Cancelled Person') }}</th>
                             <th>{{ __('Confirm') }}</th>
                             <th>{{ __('Cancel') }}</th>
                             <th class="text-center">{{ __('Actions') }}</th>
@@ -170,7 +173,15 @@
                                     <td>{{ !empty($vehicle->branch) ? $vehicle->branch : "-" }}</td>
                                     <td>{{ !empty($vehicle->area) ? $vehicle->area : "-" }}</td>
                                     <td>{{ !empty($vehicle->region) ? $vehicle->region : "-" }}</td>
-                                    <td>{{ !empty($vehicle->user) ? $vehicle->user->name : "-" }}</td>
+                                    <td>
+                                        {{ !empty($vehicle->user) ? $vehicle->user->name : "-" }}
+
+                                        @if ($vehicle->is_confirm == $vehicle::CONFIRM)
+                                            {{ " - " . $vehicle->isConfirm[$vehicle->is_confirm] }}
+                                        @elseif ($vehicle->is_cancel == $vehicle::CANCEL)
+                                            {{ " - " . $vehicle->isCancel[$vehicle->is_cancel] }}
+                                        @endif
+                                    </td>
                                     <td>
                                         <label class="switch switch-success">
                                             <form id="confirm-vehicle-form-{{ $vehicle->id }}" action="{{ route('vehicle.confirm', $vehicle->id) }}" method="POST" class="d-none">
@@ -179,7 +190,7 @@
                                                 <input type="radio" name="is_confirm" {{ $vehicle->is_confirm == $vehicle::CONFIRM ? "checked" : "" }} />
                                                 <span data-toggle="tooltip" title="" class="confirm-vehicle-button" data-original-title="{{ $vehicle->is_confirm == $vehicle::NOT_CONFIRM ? __('Click To Confirm') : __('Confirmed') }}" data-id="{{ $vehicle->id }}" data-cancel="{{ $vehicle->is_cancel }}"></span>
 
-                                                <div class="modal" id="modal-select-seizer-{{ $vehicle->id }}" tabindex="-1" role="dialog">
+                                                <div class="modal" id="modal-confirm-select-seizer-{{ $vehicle->id }}" tabindex="-1" role="dialog">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
@@ -219,6 +230,37 @@
 
                                                 <input type="radio" name="is_cancel" {{ $vehicle->is_cancel == $vehicle::CANCEL ? "checked" : "" }} />
                                                 <span data-toggle="tooltip" title="" class="cancel-vehicle-button" data-original-title="{{ $vehicle->is_cancel == $vehicle::NOT_CANCEL ? __('Click To Cancel') : 'Cancelled' }}" data-id="{{ $vehicle->id }}" data-confirm="{{ $vehicle->is_confirm }}"></span>
+
+                                                <div class="modal" id="modal-cancel-select-seizer-{{ $vehicle->id }}" tabindex="-1" role="dialog">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">
+                                                                    {{ __('Sub Seizer Selection') }}
+                                                                </h5>
+                                                            </div>
+
+                                                            <div class="modal-body">
+                                                                <select class="form-control" name="user_id" id="cancel-users">
+                                                                    <option value="">{{ __('Select Sub Seizer') }}</option>
+
+                                                                    @if (!empty($users) && !$users->isEmpty())
+                                                                        @foreach ($users as $user)
+                                                                            @if (strtotime($user->currentSubscription['to']) >= $todayDate)
+                                                                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    @endif
+                                                                </select>
+                                                            </div>
+
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-primary cancel-vehicle disp-none" data-id="{{ $vehicle->id }}">{{ __('Cancel') }}</button>
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </form>
                                         </label>
                                     </td>
@@ -236,7 +278,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="12" class="text-center">
+                                <td colspan="13" class="text-center">
                                     <mark>{{ __('No record found!') }}</mark>
                                 </td>
                             </tr>

@@ -40,6 +40,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::post('vehicle/cancel/{id}', 'VehicleController@cancelVehicle')->name('vehicle.cancel');
 
+    Route::get('vehicle/excel/sample/export', 'VehicleController@downloadSampleExcel')->name('vehicle.sample.export');
+
     Route::resource('report', 'ReportController');
 
     Route::post('report/export', 'ReportController@export')->name('vehicles.report.export');

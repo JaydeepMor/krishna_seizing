@@ -10,7 +10,7 @@ use App\Channels\Messages\WhatsAppMessage;
 use App\Channels\WhatsAppChannel;
 use App\Vehicle;
 
-class VehicleConfirmed extends Notification
+class VehicleCancelled extends Notification
 {
     use Queueable;
 
@@ -37,7 +37,7 @@ class VehicleConfirmed extends Notification
 
     private function setMessageBody():void
     {
-        $this->messageBody = __("CONFIRMED!" . "\n\n" . 
+        $this->messageBody = __("CANCELLED!" . "\n\n" . 
                                 "Vehicle Number : " . $this->vehicle->registration_number . "\n" . 
                                 "Chassis Number : " . $this->vehicle->chassis_number . "\n" . 
                                 "Vehicle Maker : " . $this->vehicle->model . "\n" . 

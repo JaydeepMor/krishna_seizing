@@ -21,6 +21,12 @@ $(document).ready(function() {
         $('#confirm-vehicle-form-' + id).submit();
     });
 
+    $('.cancel-vehicle').on("click", function() {
+        let id = $(this).attr('data-id');
+
+        $('#cancel-vehicle-form-' + id).submit();
+    });
+
     $('.confirm-vehicle-button').on('click', function() {
         let id       = $(this).attr('data-id'),
             checkbox = $(this).parents('.switch').find('input[type="radio"]'),
@@ -33,21 +39,21 @@ $(document).ready(function() {
         }
 
         if (!checkbox.is(':checked') && confirm('Are you sure you want to confirm this vehicle?')) {
-            $("#modal-select-seizer-" + id).modal("show");
+            $("#modal-confirm-select-seizer-" + id).modal("show");
 
             // Enable / Disable confirm buttons for submit.
-            $("#modal-select-seizer-" + id).find('select#confirm-users').unbind().on("change", function() {
+            $("#modal-confirm-select-seizer-" + id).find('select#confirm-users').unbind().on("change", function() {
                 let self = $(this);
 
                 if (self.val() != "") {
-                    $("#modal-select-seizer-" + id).find('.confirm-vehicle').fadeIn(300);
+                    $("#modal-confirm-select-seizer-" + id).find('.confirm-vehicle').fadeIn(300);
                 } else {
-                    $("#modal-select-seizer-" + id).find('.confirm-vehicle').fadeOut(100);
+                    $("#modal-confirm-select-seizer-" + id).find('.confirm-vehicle').fadeOut(100);
                 }
             });
 
             // Turn off toggle button.
-            $("#modal-select-seizer-" + id).on("hide.bs.modal", function () {
+            $("#modal-confirm-select-seizer-" + id).on("hide.bs.modal", function () {
                 checkbox.prop('value', 'off');
 
                 checkbox.prop('checked', false);
@@ -89,13 +95,33 @@ $(document).ready(function() {
         }
 
         if (!checkbox.is(':checked') && confirm('Are you sure you want to cancel this vehicle?')) {
-            checkbox.prop('value', 'on');
+            /* checkbox.prop('value', 'on');
 
             checkbox.prop('checked', true);
 
             $('#cancel-vehicle-form-' + id).submit();
 
-            return true;
+            return true; */
+
+            $("#modal-cancel-select-seizer-" + id).modal("show");
+
+            // Enable / Disable confirm buttons for submit.
+            $("#modal-cancel-select-seizer-" + id).find('select#cancel-users').unbind().on("change", function() {
+                let self = $(this);
+
+                if (self.val() != "") {
+                    $("#modal-cancel-select-seizer-" + id).find('.cancel-vehicle').fadeIn(300);
+                } else {
+                    $("#modal-cancel-select-seizer-" + id).find('.cancel-vehicle').fadeOut(100);
+                }
+            });
+
+            // Turn off toggle button.
+            $("#modal-cancel-select-seizer-" + id).on("hide.bs.modal", function () {
+                checkbox.prop('value', 'off');
+
+                checkbox.prop('checked', false);
+            });
         } else if (checkbox.is(':checked') && confirm('Are you sure you want to uncancelled this vehicle?')) {
             checkbox.prop('value', 'off');
 

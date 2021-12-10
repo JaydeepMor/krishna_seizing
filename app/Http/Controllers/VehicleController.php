@@ -9,7 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Notifications\VehicleConfirmed;
+use App\Notifications\VehicleCancelled;
 use App\Channels\WhatsAppChannel;
+use Illuminate\Http\Response;
+use Maatwebsite\Excel\HeadingRowImport;
 
 class VehicleController extends BaseController
 {
@@ -105,7 +108,19 @@ class VehicleController extends BaseController
                 if (!empty($storeFile)) {
                     $nextLotNumber = $model::getNextLotNumber();
 
-                    Excel::import(new VehiclesImport($nextLotNumber), $excelVehicles);
+                    $headings          = (new HeadingRowImport)->toArray($excelVehicles);
+
+                    $validatorHeadings = $model->excelHeadingsValidator($headings);
+
+                    if (!empty($validatorHeadings['code']) && $validatorHeadings['code'] == 401) {
+                        return redirect()->route('vehicle.index')->with('danger', $validatorHeadings['msg']);
+                    }
+
+                    try {
+                        Excel::import(new VehiclesImport($nextLotNumber), $excelVehicles);
+                    } catch (\Exception $e) {
+                        return redirect()->route('vehicle.index')->with('danger', __($e->getMessage()));
+                    }
 
                     return redirect()->route('vehicle.index')->with('success', __('Record added successfully!'));
                 }
@@ -273,14 +288,53 @@ class VehicleController extends BaseController
 
         $isCancel = $request->get('is_cancel', $model::NOT_CANCEL);
 
+        $userId    = $request->get('user_id', NULL);
+
+        $user      = User::find($userId);
+
+        if ($isCancel == 'on' && (empty($userId) || empty($user))) {
+            return redirect(url()->previous())->with('danger', __('No user found!'));
+        }
+
         $row      = $model::find($id);
 
         if (empty($row)) {
             return redirect(url()->previous())->with('danger', __('No record found!'));
         }
 
-        $row->update(['is_cancel' => ($isCancel == 'on' ? $model::CANCEL : $model::NOT_CANCEL)]);
+        $isUpdate = $row->update(['is_cancel' => ($isCancel == 'on' ? $model::CANCEL : $model::NOT_CANCEL), 'user_id' => ($isCancel == 'on' ? $userId : NULL)]);
+
+        if ($isUpdate) {
+            // Send WhatsApp message.
+            if (!empty($user)) {
+                $whatsappNotify = (new WhatsAppChannel())->send($user, new VehicleCancelled($row));
+
+                if (!empty($whatsappNotify['code'])) {
+                    if (!empty($whatsappNotify['msg'])) {
+                        if ($whatsappNotify['code'] == 401) {
+                            return redirect(url()->previous())->with('danger', __('Record updated successfully!') . "<br /> But whatsapp notification not send." . "<br /> Issue is : " . $whatsappNotify['msg']);
+                        }
+
+                        return redirect(url()->previous())->with('success', __('Record updated successfully! <br /> And also sent whatsapp notification to the ') . '<a href="' . route('subseizer.index', ['user_id' => $user->id]) . '" target="_blank">' . $user->name . '</a>');
+                    }
+                } else {
+                    return redirect(url()->previous())->with('danger', __('Record updated successfully!<br /> But whatsapp notification not send.<br /> Please check whatsapp number and try again after sometime.'));
+                }
+            }
+        }
 
         return redirect(url()->previous())->with('success', __('Record updated successfully!'));
+    }
+
+    public function downloadSampleExcel()
+    {
+        $model = new Vehicle();
+
+        $file  = storage_path() . "/app/public/vehicle/" . $model->sampleExcelFileName;
+
+        return response()->download($file, $model->sampleExcelFileName, [
+            'Content-Type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'inline; filename="' . $model->sampleExcelFileName . '"'
+        ]);
     }
 }

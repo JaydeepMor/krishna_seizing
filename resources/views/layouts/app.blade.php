@@ -163,10 +163,10 @@
                                     </a>
                                     <ul>
                                         <li>
-                                            <a href="{{ route('subseizer.index') }}" class="{{ request()->is('subseizer*') ? 'active' : '' }}">{{ __('Users') }}</a>
+                                            <a href="{{ route('subseizer.index') }}" class="{{ request()->is('subseizer*') && !request()->is('subseizer/activity') ? 'active' : '' }}">{{ __('Users') }}</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('activity.index') }}" class="{{ request()->is('activity*') ? 'active' : '' }}">{{ __('Activity') }}</a>
+                                            <a href="{{ route('activity.index') }}" class="{{ request()->is('subseizer/activity*') ? 'active' : '' }}">{{ __('Activity') }}</a>
                                         </li>
                                     </ul>
                                 </li>
