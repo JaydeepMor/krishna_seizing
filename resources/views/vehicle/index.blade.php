@@ -97,11 +97,6 @@
                                                     @endforeach
                                                 @endif
                                             </select>
-                                            @error('finance_company_id')
-                                                <em class="color-red error invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </em>
-                                            @enderror
                                         </div>
                                     </fieldset>
                                 </div>
