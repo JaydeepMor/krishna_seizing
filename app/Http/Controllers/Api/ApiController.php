@@ -28,12 +28,20 @@ class ApiController extends BaseController
 
         // Get all vehicles.
         $vehiclesData = collect();
-        $vehicles     = Vehicle::paginate($perPage, ['*'], 'page', $pageNo);
+        $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id'])->paginate($perPage, ['*'], 'page', $pageNo);
 
         if (!empty($vehicles) && !$vehicles->isEmpty()) {
             foreach ($vehicles->toArray() as $field => &$value) {
                 if (in_array($field, ['first_page_url', 'last_page_url', 'next_page_url', 'path', 'prev_page_url', 'from', 'to'])) {
                     continue;
+                }
+
+                if ($field == 'data') {
+                    if (!empty($value)) {
+                        foreach ($value as $key => $row) {
+                            unset($value[$key]['finance_company_id']);
+                        }
+                    }
                 }
 
                 $vehiclesData->put($field, $value);

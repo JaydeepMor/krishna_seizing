@@ -3,6 +3,7 @@
 namespace App;
 
 use App\User;
+use App\FinanceCompany;
 use Illuminate\Support\Facades\Validator;
 
 class Vehicle extends BaseModel
@@ -32,6 +33,7 @@ class Vehicle extends BaseModel
         'region',
         'is_confirm',
         'is_cancel',
+        'finance_company_id',
         'user_id',
         'lot_number'
     ];
@@ -74,11 +76,22 @@ class Vehicle extends BaseModel
         self::CANCEL     => "Cancelled"
     ];
 
+    public $appends = ['finance_company'];
+
+    public function validator(array $data, int $id = NULL)
+    {
+        return Validator::make($data, [
+            'finance_company_id' => ['required', 'integer', 'exists:' . FinanceCompany::getTableName() . ',id'],
+            'user_id'            => ['nullable', 'integer', 'exists:' . User::getTableName() . ',id']
+        ]);
+    }
+
     public function excelValidator(array $data, int $id = NULL)
     {
         return Validator::make($data, [
-            'excel_import' => ['required', 'mimes:' . implode(",", $this->allowedExcelExtensions)],
-            'user_id'      => ['nullable', 'integer', 'exists:' . User::getTableName() . ',id']
+            'excel_import'       => ['required', 'mimes:' . implode(",", $this->allowedExcelExtensions)],
+            'finance_company_id' => ['required', 'integer', 'exists:' . FinanceCompany::getTableName() . ',id'],
+            'user_id'            => ['nullable', 'integer', 'exists:' . User::getTableName() . ',id']
         ]);
     }
 
@@ -103,5 +116,17 @@ class Vehicle extends BaseModel
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function financeCompany()
+    {
+        return $this->belongsTo(FinanceCompany::class);
+    }
+
+    public function getFinanceCompanyAttribute()
+    {
+        $financeCompany = $this->financeCompany()->first();
+
+        return (!empty($financeCompany) && !empty($financeCompany->name)) ? $financeCompany->name : "";
     }
 }

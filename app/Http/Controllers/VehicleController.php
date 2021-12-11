@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Vehicle;
 use App\User;
 use App\Imports\VehiclesImport;
+use App\FinanceCompany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -23,9 +24,11 @@ class VehicleController extends BaseController
      */
     public function index(Request $request)
     {
-        $modal = new Vehicle();
+        $modal               = new Vehicle();
 
-        $query = $modal::query();
+        $modalFinanceCompany = new FinanceCompany();
+
+        $query               = $modal::query();
 
         $query->select($modal::getTableName() . '.*');
 
@@ -61,13 +64,20 @@ class VehicleController extends BaseController
             $query->where($modal::getTableName() . '.region', 'LIKE', '%' . $request->get('region') . '%');
         }
 
-        $users     = User::where('id', '!=', User::ADMIN_ID)->where('status', User::STATUS_ACTIVE)->get();
+        if ($request->has('finance_company_id') && !empty($request->get('finance_company_id'))) {
+            $query->join($modalFinanceCompany::getTableName(), $modal::getTableName() . '.finance_company_id', '=', $modalFinanceCompany::getTableName() . '.id')
+                  ->where($modalFinanceCompany::getTableName() . '.id', '=', (int)$request->get('finance_company_id'));
+        }
 
-        $todayDate = strtotime(date(DEFAULT_DATE_FORMAT));
+        $users            = User::where('id', '!=', User::ADMIN_ID)->where('status', User::STATUS_ACTIVE)->get();
 
-        $vehicles  = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
+        $todayDate        = strtotime(date(DEFAULT_DATE_FORMAT));
 
-        return view('vehicle.index', compact('vehicles', 'users', 'todayDate'));
+        $vehicles         = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
+
+        $financeCompanies = FinanceCompany::all();
+
+        return view('vehicle.index', compact('vehicles', 'users', 'todayDate', 'financeCompanies'));
     }
 
     /**
@@ -77,9 +87,11 @@ class VehicleController extends BaseController
      */
     public function create()
     {
-        $nextLotNumber = Vehicle::getNextLotNumber();
+        $nextLotNumber    = Vehicle::getNextLotNumber();
 
-        return view('vehicle.create', compact('nextLotNumber'));
+        $financeCompanies = FinanceCompany::all();
+
+        return view('vehicle.create', compact('nextLotNumber', 'financeCompanies'));
     }
 
     public function importExcel(Request $request)
@@ -106,7 +118,7 @@ class VehicleController extends BaseController
                 $storeFile = $excelVehicles->storeAs($folder, $fileName, $model->fileSystem);
 
                 if (!empty($storeFile)) {
-                    $nextLotNumber = $model::getNextLotNumber();
+                    $nextLotNumber     = $model::getNextLotNumber();
 
                     $headings          = (new HeadingRowImport)->toArray($excelVehicles);
 
@@ -117,7 +129,7 @@ class VehicleController extends BaseController
                     }
 
                     try {
-                        Excel::import(new VehiclesImport($nextLotNumber), $excelVehicles);
+                        Excel::import(new VehiclesImport($nextLotNumber, $data['finance_company_id']), $excelVehicles);
                     } catch (\Exception $e) {
                         return redirect()->route('vehicle.index')->with('danger', __($e->getMessage()));
                     }
@@ -138,14 +150,20 @@ class VehicleController extends BaseController
      */
     public function store(Request $request)
     {
-        $data    = $request->all();
+        $data      = $request->all();
 
-        $model   = new Vehicle();
+        $model     = new Vehicle();
 
-        $allNull = true;
+        $allNull   = true;
+
+        $validator = $model->validator($data);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
         foreach ($data as $key => $field) {
-            if ($key != "_token" && !empty($field)) {
+            if ($key != "_token" && $key != "finance_company_id" && !empty($field)) {
                 $allNull = false;
             }
         }
@@ -186,7 +204,9 @@ class VehicleController extends BaseController
             return redirect(url()->previous())->with('danger', __('No record found!'));
         }
 
-        return view('vehicle.edit', compact('row'));
+        $financeCompanies = FinanceCompany::all();
+
+        return view('vehicle.edit', compact('row', 'financeCompanies'));
     }
 
     /**
@@ -198,14 +218,20 @@ class VehicleController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $data    = $request->all();
+        $data      = $request->all();
 
-        $model   = new Vehicle();
+        $model     = new Vehicle();
 
-        $allNull = true;
+        $allNull   = true;
+
+        $validator = $model->validator($data);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
         foreach ($data as $key => $field) {
-            if ($key != "_token" && $key != "_method" && !empty($field)) {
+            if ($key != "_token" && $key != "_method" && $key != "finance_company_id" && !empty($field)) {
                 $allNull = false;
             }
         }

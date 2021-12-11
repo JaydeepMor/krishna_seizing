@@ -262,6 +262,29 @@
                             </div>
                             <div class="col-md-6">
                                 <fieldset>
+                                    <legend>* {{ __('Finance Company') }}</legend>
+                                    <div class="form-group">
+                                        <select name="finance_company_id" class="form-control">
+                                            <option value="">{{ __("Select Finance Company") }}</option>
+
+                                            @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                                                @foreach ($financeCompanies as $financeCompany)
+                                                    <option value="{{ $financeCompany->id }}" {{ (old('finance_company_id', $row->finance_company_id) == $financeCompany->id) ? 'selected' : '' }}>{{ $financeCompany->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('finance_company_id')
+                                            <em class="color-red error invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </em>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <fieldset>
                                     <legend>{{ __('Lot Number') }}</legend>
                                     <div class="form-group">
                                         <input type="text" class="form-control" value="{{ $row->lot_number }}" disabled />

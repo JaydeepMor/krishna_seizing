@@ -86,6 +86,26 @@
                                     </fieldset>
                                 </div>
                                 <div class="col-xs-2">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <select name="finance_company_id" class="form-control">
+                                                <option value="">{{ __("Select Finance Company") }}</option>
+
+                                                @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                                                    @foreach ($financeCompanies as $financeCompany)
+                                                        <option value="{{ $financeCompany->id }}" {{ (request('finance_company_id') == $financeCompany->id) ? 'selected' : '' }}>{{ $financeCompany->name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            @error('finance_company_id')
+                                                <em class="color-red error invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </em>
+                                            @enderror
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-xs-2">
                                     <a href="{{ route('vehicle.index', ['page' => request('page')]) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Clear') }}"><i class="fa fa-close"></i></a>
                                     <button type="submit" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Search') }}"><i class="fa fa-search"></i></button>
                                 </div>
@@ -99,37 +119,55 @@
 
     <div class="block">
         <div class="block-title row">
-            <h2 class="col-md-6">
+            <h2 class="col-md-4">
                 <label class="pull-left">{{ __('Listing') }}</label>
             </h2>
 
-            <h2 class="col-md-6">
+            <h2 class="col-md-8">
                 <label class="pull-right">
                     <form action="{{ route('vehicle.import') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row">
-                            <div class="col-xs-8">
-                                <div class="input-group">
-                                    <input type="file" class="form-control" name="excel_import" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                            <div class="col-xs-5">
+                                @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                                    <select name="finance_company_id" class="form-control">
+                                        <option value="">{{ __("Select Finance Company") }}</option>
 
-                                    <span class="input-group-btn">
-                                        <button type="submit" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="{{ __('Import') }}">
-                                            <i class="gi gi-file_import"></i>
-                                        </button>
-                                        <a type="button" data-toggle="tooltip" href="{{ route('vehicle.sample.export') }}" title="" class="btn btn-default" data-original-title="{{ __('Download sample file.') }}" rel="nofollow">
-                                            <i class="fa fa-download"></i>
-                                        </a>
-                                    </span>
-                                </div>
-                                @error('excel_import')
-                                    <em class="color-red error invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </em>
-                                @enderror
+                                        @foreach ($financeCompanies as $financeCompany)
+                                            <option value="{{ $financeCompany->id }}" {{ (old('finance_company_id') == $financeCompany->id) ? 'selected' : '' }}>{{ $financeCompany->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('finance_company_id')
+                                        <em class="color-red error invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </em>
+                                    @enderror
+                                @endif
+                            </div>
+                            <div class="col-xs-5">
+                                @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                                    <div class="input-group">
+                                        <input type="file" class="form-control" name="excel_import" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+
+                                        <span class="input-group-btn">
+                                            <button type="submit" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="{{ __('Import') }}">
+                                                <i class="gi gi-file_import"></i>
+                                            </button>
+                                            <a type="button" data-toggle="tooltip" href="{{ route('vehicle.sample.export') }}" title="" class="btn btn-default" data-original-title="{{ __('Download sample file.') }}" rel="nofollow">
+                                                <i class="fa fa-download"></i>
+                                            </a>
+                                        </span>
+                                    </div>
+                                    @error('excel_import')
+                                        <em class="color-red error invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </em>
+                                    @enderror
+                                @endif
                             </div>
 
-                            <div class="col-xs-4">
+                            <div class="col-xs-2">
                                 <a href="{{ route('vehicle.create') }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Add New') }}">
                                     <i class="fa fa-plus"></i> {{ __('Add New') }}
                                 </a>
@@ -146,14 +184,15 @@
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
+                            <th>{{ __('Loan Number') }}</th>
                             <th>{{ __('Customer Name') }}</th>
                             <th>{{ __('Model') }}</th>
                             <th>{{ __('Registration Number') }}</th>
                             <th>{{ __('Mobile Number') }}</th>
-                            <th>{{ __('Address') }}</th>
                             <th>{{ __('Branch') }}</th>
                             <th>{{ __('Area') }}</th>
-                            <th>{{ __('Region') }}</th>
+                            <th>{{ __('ARM RRM') }}</th>
+                            <th>{{ __('Finance Company') }}</th>
                             <th>{{ __('Confirmed / Cancelled Person') }}</th>
                             <th>{{ __('Confirm') }}</th>
                             <th>{{ __('Cancel') }}</th>
@@ -165,14 +204,15 @@
                             @foreach ($vehicles as $vehicle)
                                 <tr>
                                     <td class="text-center">{{ $vehicle->id }}</td>
+                                    <td>{{ !empty($vehicle->loan_number) ? $vehicle->loan_number : "-" }}</td>
                                     <td>{{ !empty($vehicle->customer_name) ? $vehicle->customer_name : "-" }}</td>
                                     <td>{{ !empty($vehicle->model) ? $vehicle->model : "-" }}</td>
                                     <td>{{ !empty($vehicle->registration_number) ? $vehicle->registration_number : "-" }}</td>
                                     <td>{{ !empty($vehicle->mobile_number) ? $vehicle->mobile_number : "-" }}</td>
-                                    <td>{{ !empty($vehicle->address) ? $vehicle->address : "-" }}</td>
                                     <td>{{ !empty($vehicle->branch) ? $vehicle->branch : "-" }}</td>
                                     <td>{{ !empty($vehicle->area) ? $vehicle->area : "-" }}</td>
-                                    <td>{{ !empty($vehicle->region) ? $vehicle->region : "-" }}</td>
+                                    <td>{{ !empty($vehicle->arm_rrm) ? $vehicle->arm_rrm : "-" }}</td>
+                                    <td>{{ (!empty($vehicle->financeCompany) && !empty($vehicle->financeCompany->name)) ? $vehicle->financeCompany->name : "-" }}</td>
                                     <td>
                                         {{ !empty($vehicle->user) ? $vehicle->user->name : "-" }}
 
@@ -278,7 +318,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="13" class="text-center">
+                                <td colspan="14" class="text-center">
                                     <mark>{{ __('No record found!') }}</mark>
                                 </td>
                             </tr>

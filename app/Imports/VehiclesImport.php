@@ -12,9 +12,13 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
 {
     private $lotNumber;
 
-    public function __construct(int $lotNumber)
+    private $financeCompanyId;
+
+    public function __construct(int $lotNumber, int $financeCompanyId)
     {
-        $this->lotNumber = $lotNumber;
+        $this->lotNumber        = $lotNumber;
+
+        $this->financeCompanyId = $financeCompanyId;
     }
 
     /**
@@ -60,7 +64,8 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
             'bkt'                         => $row[14],
             'area'                        => $row[15],
             'region'                      => $row[16],
-            'lot_number'                  => $this->lotNumber
+            'lot_number'                  => $this->lotNumber,
+            'finance_company_id'          => $this->financeCompanyId
         ]);
     }
 }

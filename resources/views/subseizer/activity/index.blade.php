@@ -85,7 +85,7 @@
                         <tr>
                             <th class="text-center">#</th>
                             <th>{{ __('Name') }}</th>
-                            <th>{{ __('Vehicle') }}</th>
+                            <th>{{ __('Registration Number') }}</th>
                             <th>{{ __('Latitude') }}</th>
                             <th>{{ __('Longitude') }}</th>
                             <th>{{ __('Created At') }}</th>
@@ -98,7 +98,7 @@
                                 <tr>
                                     <td class="text-center">{{ $vehicle->id }}</td>
                                     <td>{{ !empty($vehicle->name) ? $vehicle->name : "-" }}</td>
-                                    <td>{{ !empty($vehicle->model) ? $vehicle->model : "-" }}</td>
+                                    <td>{{ !empty($vehicle->registration_number) ? $vehicle->registration_number : "-" }}</td>
                                     <td>{{ !empty($vehicle->latitude) ? $vehicle->latitude : "-" }}</td>
                                     <td>{{ !empty($vehicle->longitude) ? $vehicle->longitude : "-" }}</td>
                                     <td>{{ !empty($vehicle->created_at) ? date(DEFAULT_DATE_FORMAT, strtotime($vehicle->created_at)) : "-" }}</td>
