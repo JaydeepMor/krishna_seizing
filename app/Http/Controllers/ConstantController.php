@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Constant;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 
 class ConstantController extends BaseController
 {
@@ -100,9 +101,22 @@ class ConstantController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $data      = $request->all();
+        $data        = $request->all();
 
-        $model     = new Constant();
+        $model       = new Constant();
+
+        $uploadedApp = $pathInfos = NULL;
+
+        if (!empty($data['key']) && $data['key'] == 'RELEASED_APPLICATION') {
+            if (!empty($data['value']) && $data['value'] instanceof UploadedFile) {
+                $uploadedApp = $data['value'];
+                $pathInfos   = pathinfo($uploadedApp->getClientOriginalName());
+
+                if (!empty($pathInfos['basename'])) {
+                    $data['value'] = $pathInfos['basename'];
+                }
+            }
+        }
 
         $validator = $model->validator($data, $id);
 
@@ -110,13 +124,33 @@ class ConstantController extends BaseController
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $row       = $model::find($id);
+        $row = $model::find($id);
+
+        if ($data['key'] == 'RELEASED_APPLICATION') {
+            $folder = $model->appPath;
+
+            if (!empty($folder)) {
+                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
+                $storeFile = $uploadedApp->storeAs($folder, $fileName, $model->fileSystem);
+
+                if (!empty($storeFile)) {
+                    $data['value'] = $fileName;
+
+                    $row->update($data);
+
+                    return redirect()->route('constant.index')->with('success', __('Record updated successfully!'));
+                }
+            }
+
+            return redirect()->route('constant.index')->with('danger', __('Something went wrong! Please try again.'));
+        } else {
+            $row->update($data);
+        }
 
         if (empty($row)) {
             return redirect()->route('constant.index')->with('danger', __('No record found!'));
         }
-
-        $row->update($data);
 
         return redirect()->route('constant.index')->with('success', __('Record updated successfully!'));
     }
@@ -129,8 +163,10 @@ class ConstantController extends BaseController
      */
     public function destroy(Request $request, $id)
     {
-        Constant::where('id', $id)->delete();
+        /* Constant::where('id', $id)->delete();
 
-        return redirect()->route('constant.index')->with('success', __('Record deleted successfully!'));
+        return redirect()->route('constant.index')->with('success', __('Record deleted successfully!')); */
+
+        return redirect()->route('constant.index')->with('danger', __('This operation does not allow yet.'));
     }
 }

@@ -38,7 +38,7 @@ class VehicleController extends BaseController
         }
 
         if ($request->has('registration_number') && !empty($request->get('registration_number'))) {
-            $query->where($modal::getTableName() . '.registration_number', '=', $request->get('registration_number'));
+            $query->where($modal::getTableName() . '.registration_number', 'LIKE', '%' . $request->get('registration_number') . '%');
         }
 
         if ($request->has('mobile_number') && !empty($request->get('mobile_number'))) {

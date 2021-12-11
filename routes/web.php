@@ -46,6 +46,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::post('report/export', 'ReportController@export')->name('vehicles.report.export');
 
+    Route::get('application/download', 'BaseController@downloadApplication')->name('download.application');
+
     // Ajax routes.
     Route::get('theme/set/cookie', 'BaseController@setThemeCookie')->name('set-theme-cookie');
     Route::post('admin/password/update', 'BaseController@updateAdminPassword')->name('admin.password.update');

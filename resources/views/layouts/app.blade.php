@@ -67,9 +67,10 @@
                                 <div class="sidebar-user-name">{{ __('Administrator') }}</div>
                                 <div class="sidebar-user-links">
                                     <a href="javascript:void(0)" data-toggle="modal" data-placement="bottom" title="{{ __('Settings') }}" data-target="#change-password"><i class="gi gi-cogwheel"></i></a>
-                                    <a href="#" data-toggle="tooltip" data-placement="bottom" title="Logout" onclick="event.preventDefault();
+                                    <a href="#" data-toggle="tooltip" data-placement="bottom" title="{{ __('Logout') }}" onclick="event.preventDefault();
                                                                                         document.getElementById('logout-form').submit();"><i class="gi gi-exit"></i></a>
 
+                                    <a href="{{ route('download.application') }}" data-placement="bottom" title="{{ __('Download Application') }}"><i class="gi gi-download"></i></a>
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf
                                     </form>

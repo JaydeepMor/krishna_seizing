@@ -46,6 +46,11 @@ class ConstantsSeeder extends Seeder
                 'key'   => 'DEFAULT_DATE_TIME_FORMAT',
                 'value' => 'Y-m-d HH:ii:ss'
             ]);
+
+            Constant::create([
+                'key'   => 'RELEASED_APPLICATION',
+                'value' => ''
+            ]);
         }
     }
 }

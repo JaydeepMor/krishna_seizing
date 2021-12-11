@@ -316,7 +316,7 @@ class UserController extends BaseController
             $query->where($modal::getTableName() . '.longitude', 'LIKE', '%' . $request->get('longitude') . '%');
         }
 
-        $vehicles = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
+        $vehicles = $query->orderBy($modal::getTableName() . '.id', 'DESC')->paginate(parent::DEFAULT_PAGINATION_SIZE);
 
         return view('subseizer.activity.index', compact('vehicles'));
     }

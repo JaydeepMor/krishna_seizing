@@ -18,7 +18,7 @@
                     <div class="block-title">
                         <h2><strong class="color-red">*</strong> {{ __('is required field') }}</h2>
                     </div>
-                    <form action="{{ route('constant.update', $row->id) }}" method="POST">
+                    <form action="{{ route('constant.update', $row->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         {{ method_field('PUT') }}
 
@@ -27,7 +27,7 @@
                                 <fieldset>
                                     <legend>* {{ __('Key') }}</legend>
                                     <div class="form-group">
-                                        <input type="text" id="key" name="key" class="form-control" autofocus value="{{ old('key', $row->key) }}" required="true" />
+                                        <input type="text" id="key" name="key" class="form-control" autofocus value="{{ old('key', $row->key) }}" required="true" readonly="true" />
                                         @error('key')
                                             <em class="color-red error invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
@@ -40,7 +40,11 @@
                                 <fieldset>
                                     <legend>{{ __('Value') }}</legend>
                                     <div class="form-group">
-                                        <textarea name="value" id="value" class="form-control">{{ old('value', $row->value) }}</textarea>
+                                        @if ($row->key == 'RELEASED_APPLICATION')
+                                                <input type="file" name="value" id="value" class="form-control" />
+                                            @else
+                                                <textarea name="value" id="value" class="form-control">{{ old('value', $row->value) }}</textarea>
+                                        @endif
                                         @error('value')
                                             <em class="color-red error invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>

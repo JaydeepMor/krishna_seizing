@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Constant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -96,6 +97,22 @@ class BaseController extends Controller
             'code' => $this->successCode,
             'msg'  => $message,
             'data' => $with
+        ]);
+    }
+
+    public function downloadApplication()
+    {
+        if (!defined('RELEASED_APPLICATION')) {
+            return redirect(route('dashboard'))->with('danger', __('Application does not found!'));
+        }
+
+        $model = new Constant();
+
+        $file  = storage_path() . "/app/public/application/" . RELEASED_APPLICATION;
+
+        return response()->download($file, RELEASED_APPLICATION, [
+            'Content-Type' => 'application/vnd.android.package-archive',
+            'Content-Disposition' => 'inline; filename="' . RELEASED_APPLICATION . '"'
         ]);
     }
 }

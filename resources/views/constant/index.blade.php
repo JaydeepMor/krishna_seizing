@@ -80,11 +80,11 @@
                                     <td class="text-center">
                                         <div class="btn-group btn-group">
                                             <a href="{{ route('constant.edit', $constant->id) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Edit') }}"><i class="fa fa-pencil"></i></a>
-                                            <a href="javascript:void(0);" data-toggle="tooltip" title="" class="btn btn-danger remove-button" data-original-title="{{ __('Remove') }}" data-id="{{ $constant->id }}"><i class="fa fa-times"></i></a>
+                                            <!-- <a href="javascript:void(0);" data-toggle="tooltip" title="" class="btn btn-danger remove-button" data-original-title="{{ __('Remove') }}" data-id="{{ $constant->id }}"><i class="fa fa-times"></i></a>
                                             <form id="remove-form-{{ $constant->id }}" action="{{ route('constant.destroy', $constant->id) }}" method="POST" class="d-none">
                                                 @csrf
                                                 {{ method_field('DELETE') }}
-                                            </form>
+                                            </form> -->
                                         </div>
                                     </td>
                                 </tr>
