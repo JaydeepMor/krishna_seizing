@@ -129,8 +129,8 @@
                         @csrf
 
                         <div class="row">
-                            <div class="col-xs-5">
-                                @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                            @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                                <div class="col-xs-5">
                                     <select name="finance_company_id" class="form-control">
                                         <option value="">{{ __("Select Finance Company") }}</option>
 
@@ -143,10 +143,10 @@
                                             <strong>{{ $message }}</strong>
                                         </em>
                                     @enderror
-                                @endif
-                            </div>
-                            <div class="col-xs-5">
-                                @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                                </div>
+                            @endif
+                            @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                                <div class="col-xs-5">
                                     <div class="input-group">
                                         <input type="file" class="form-control" name="excel_import" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
 
@@ -164,8 +164,8 @@
                                             <strong>{{ $message }}</strong>
                                         </em>
                                     @enderror
-                                @endif
-                            </div>
+                                </div>
+                            @endif
 
                             <div class="col-xs-2">
                                 <a href="{{ route('vehicle.create') }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Add New') }}">

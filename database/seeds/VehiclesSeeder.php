@@ -51,6 +51,7 @@ class VehiclesSeeder extends Seeder
                     'region'                        => Str::random(10),
                     'is_confirm'                    => $isConfirm,
                     'is_cancel'                     => $isCancel,
+                    'finance_company_id'            => NULL,
                     'user_id'                       => NULL,
                     'lot_number'                    => "1"
                 ]);
