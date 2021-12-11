@@ -207,7 +207,12 @@
                                     <td>{{ !empty($vehicle->branch) ? $vehicle->branch : "-" }}</td>
                                     <td>{{ !empty($vehicle->area) ? $vehicle->area : "-" }}</td>
                                     <td>{{ !empty($vehicle->arm_rrm) ? $vehicle->arm_rrm : "-" }}</td>
-                                    <td>{{ (!empty($vehicle->financeCompany) && !empty($vehicle->financeCompany->name)) ? $vehicle->financeCompany->name : "-" }}</td>
+                                    <td>
+                                        @php
+                                            $financeCompany = $vehicle->financeCompany()->first();
+                                        @endphp
+                                        {{ (!empty($financeCompany) && !empty($financeCompany->name)) ? $financeCompany->name : "-" }}
+                                    </td>
                                     <td>
                                         {{ !empty($vehicle->user) ? $vehicle->user->name : "-" }}
 
