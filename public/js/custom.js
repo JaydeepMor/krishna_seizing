@@ -233,19 +233,22 @@ $(document).ready(function() {
     // Sub Seizer activity map.
     $('.show-map').on("click", function() {
         let latitude  = $(this).attr('data-latitude'),
-            longitude = $(this).attr('data-longitude');
+            longitude = $(this).attr('data-longitude'),
+            myCenter  = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
 
         $('#modal-activity-map').find('.modal-body').empty();
 
-        new google.maps.Map(
+        let map = new google.maps.Map(
             document.getElementById('activity-map'), {
-                center: {
-                    lat: parseFloat(latitude),
-                    lng: parseFloat(longitude)
-                },
-                zoom: 8
+                center: myCenter,
+                zoom: 12
             }
         );
+
+        new google.maps.Marker({
+            position: myCenter,
+            map: map
+        });
 
         $('#modal-activity-map').modal("show");
     });
