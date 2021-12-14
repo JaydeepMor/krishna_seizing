@@ -35,24 +35,24 @@ class AuthApi
 
         $getKeyInfo = $this->validate($apiKey);
 
-        if (!$apiKey || empty($getKeyInfo)) {
+        if ((!$apiKey || empty($getKeyInfo)) || (!$this->isSubscribed($getKeyInfo->user_id))) {
             return response()->json([
-                'code' => 401,
-                'msg'  => __('API key is missing or wrong.')
+                'code' => 403,
+                'msg'  => __('You are not subscribed yet or incomplete subscription. Please contact admin for subscription.')
             ]);
         }
+
+        /*if (!$apiKey || empty($getKeyInfo)) {
+            return response()->json([
+                'code' => 403,
+                'msg'  => __('API key is missing or wrong.')
+            ]);
+        }*/
 
         if ($this->totalLogins($getKeyInfo->user_id)) {
             return response()->json([
-                'code' => 401,
+                'code' => 403,
                 'msg'  => __('You can\'t login on multiple device.')
-            ]);
-        }
-
-        if (!$this->isSubscribed($getKeyInfo->user_id)) {
-            return response()->json([
-                'code' => 401,
-                'msg'  => __('This user not subscribed or complete subscription. Please contact admin for a new subscription.')
             ]);
         }
 
