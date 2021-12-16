@@ -91,8 +91,18 @@
                                             <select name="finance_company_id" class="form-control">
                                                 <option value="">{{ __("Select Finance Company") }}</option>
 
+                                                @php
+                                                    $financeCompanyName = "";
+                                                @endphp
+
                                                 @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
                                                     @foreach ($financeCompanies as $financeCompany)
+                                                        @php
+                                                            if (request('finance_company_id') == $financeCompany->id) {
+                                                                $financeCompanyName = $financeCompany->name;
+                                                            }
+                                                        @endphp
+
                                                         <option value="{{ $financeCompany->id }}" {{ (request('finance_company_id') == $financeCompany->id) ? 'selected' : '' }}>{{ $financeCompany->name }}</option>
                                                     @endforeach
                                                 @endif
@@ -176,6 +186,19 @@
         <p>
             <div class="table-responsive">
                 <table class="table table-vcenter table-striped">
+                    @if (!empty(request()->get('finance_company_id')) && !empty($vehicles) && !$vehicles->isEmpty())
+                        <caption>
+                            <a href="javascript:void(0);" data-toggle="tooltip" title="" class="btn btn-danger pull-right remove-finance-vehicles" data-original-title="{{ __('Remove all ') . $financeCompanyName . __(' Finance Company Data') }}">
+                                <i class="fa fa-times"></i>
+                                {{ __('Remove All') }}
+                            </a>
+
+                            <form id="remove-finance-vehicles-form" action="{{ route('vehicle.finance.delete', request()->get('finance_company_id')) }}" method="POST" class="d-none">
+                                @csrf
+                                {{ method_field('DELETE') }}
+                            </form>
+                        </caption>
+                    @endif
                     <thead>
                         <tr>
                             <th class="text-center">#</th>

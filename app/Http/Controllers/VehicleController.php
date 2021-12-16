@@ -129,6 +129,9 @@ class VehicleController extends BaseController
                     }
 
                     try {
+                        // Remove old finance company data.
+                        $this->removeFinanceVehicles($request, $data['finance_company_id']);
+
                         Excel::import(new VehiclesImport($nextLotNumber, $data['finance_company_id']), $excelVehicles);
                     } catch (\Exception $e) {
                         return redirect()->route('vehicle.index')->with('danger', __($e->getMessage()));
@@ -362,5 +365,21 @@ class VehicleController extends BaseController
             'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'inline; filename="' . $model->sampleExcelFileName . '"'
         ]);
+    }
+
+    public function removeFinanceVehicles(Request $request, $financeCompanyId)
+    {
+        Vehicle::where('finance_company_id', $financeCompanyId)->delete();
+
+        // Get finance company name.
+        $financeCompany = FinanceCompany::find($financeCompanyId);
+
+        $msg = 'Records deleted successfully!';
+
+        if (!empty($financeCompany)) {
+            $msg = '<a href="' . route('company.index', ['id' => $financeCompany->id]) . '" target="_blank">' . $financeCompany->name . '</a> records deleted successfully!';
+        }
+
+        return redirect()->route('vehicle.index')->with('success', __($msg));
     }
 }

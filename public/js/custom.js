@@ -15,6 +15,15 @@ $(document).ready(function() {
         }
     });
 
+    $('.remove-finance-vehicles').on("click", function() {
+        let self  = $(this),
+            title = self.data("original-title");
+
+        if (confirm(title + " ?")) {
+            $('#remove-finance-vehicles-form').submit();
+        }
+    });
+
     $('.confirm-vehicle').on("click", function() {
         let id = $(this).attr('data-id');
 

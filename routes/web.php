@@ -42,6 +42,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('vehicle/excel/sample/export', 'VehicleController@downloadSampleExcel')->name('vehicle.sample.export');
 
+    Route::delete('vehicle/finance/delete/{financeCompanyId}', 'VehicleController@removeFinanceVehicles')->name('vehicle.finance.delete');
+
     Route::resource('report', 'ReportController');
 
     Route::post('report/export', 'ReportController@export')->name('vehicles.report.export');

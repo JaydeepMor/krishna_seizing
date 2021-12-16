@@ -41,6 +41,10 @@ class FinanceCompanyController extends BaseController
             $query->where($modal::getTableName() . '.contact_number', '=', $request->get('contact_number'));
         }
 
+        if ($request->has('id') && !empty($request->get('id'))) {
+            $query->where($modal::getTableName() . '.id', '=', $request->get('id'));
+        }
+
         $financeCompanies = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
 
         return view('finance_company.index', compact('financeCompanies'));
