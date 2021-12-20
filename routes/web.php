@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Auth::routes(['register' => false]);
+Auth::routes();
 
 Route::group(['middleware' => ['auth']], function() {
     Route::get('/', 'DashboardController@index')->name('dashboard');
@@ -36,13 +36,13 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::post('vehicle/import', 'VehicleController@importExcel')->name('vehicle.import');
 
-    /* Route::post('vehicle/confirm/{id}', 'VehicleController@confirmVehicle')->name('vehicle.confirm');
+    Route::post('vehicle/confirm/{id}', 'VehicleController@confirmVehicle')->name('vehicle.confirm');
 
-    Route::post('vehicle/cancel/{id}', 'VehicleController@cancelVehicle')->name('vehicle.cancel'); */
+    Route::post('vehicle/cancel/{id}', 'VehicleController@cancelVehicle')->name('vehicle.cancel');
 
     Route::get('vehicle/excel/sample/export', 'VehicleController@downloadSampleExcel')->name('vehicle.sample.export');
 
-    // Route::delete('vehicle/finance/delete/{financeCompanyId}', 'VehicleController@removeFinanceVehicles')->name('vehicle.finance.delete');
+    Route::delete('vehicle/finance/delete/{financeCompanyId}', 'VehicleController@removeFinanceVehicles')->name('vehicle.finance.delete');
 
     Route::resource('report', 'ReportController');
 
