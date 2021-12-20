@@ -130,7 +130,7 @@
 
             <h2 class="col-md-8">
                 <label class="pull-right">
-                    <form action="{{ route('vehicle.import') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('vehicle.import') }}" method="POST">
                         @csrf
 
                         <div class="row">
