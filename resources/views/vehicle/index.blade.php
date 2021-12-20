@@ -130,8 +130,9 @@
 
             <h2 class="col-md-8">
                 <label class="pull-right">
-                    <form action="{{ route('vehicle.import') }}" method="POST">
+                    <form action="{{ route('vehicle.import') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        {{ method_field('POST') }}
 
                         <div class="row">
                             @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
