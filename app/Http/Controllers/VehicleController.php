@@ -120,13 +120,13 @@ class VehicleController extends BaseController
                 if (!empty($storeFile)) {
                     $nextLotNumber     = $model::getNextLotNumber();
 
-                    $headings          = (new HeadingRowImport)->toArray($excelVehicles);
+                    /*$headings          = (new HeadingRowImport)->toArray($excelVehicles);
 
                     $validatorHeadings = $model->excelHeadingsValidator($headings);
 
                     if (!empty($validatorHeadings['code']) && $validatorHeadings['code'] == 401) {
                         return redirect()->route('vehicle.index')->with('danger', $validatorHeadings['msg']);
-                    }
+                    }*/
 
                     try {
                         // Remove old finance company data.
