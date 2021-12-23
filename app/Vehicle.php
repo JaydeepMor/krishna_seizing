@@ -89,7 +89,7 @@ class Vehicle extends BaseModel
     public function excelValidator(array $data, int $id = NULL)
     {
         return Validator::make($data, [
-            'excel_import'       => ['required', 'size:5120', 'mimes:' . implode(",", $this->allowedExcelExtensions)],
+            'excel_import'       => ['required', 'max:5120', 'mimes:' . implode(",", $this->allowedExcelExtensions)],
             'finance_company_id' => ['required', 'integer', 'exists:' . FinanceCompany::getTableName() . ',id'],
             'user_id'            => ['nullable', 'integer', 'exists:' . User::getTableName() . ',id']
         ]);
