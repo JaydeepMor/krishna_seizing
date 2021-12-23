@@ -68,4 +68,9 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
             'finance_company_id'          => $this->financeCompanyId
         ]);
     }
+
+    public function failed(Exception $exception)
+    {
+        dd($exception);
+    }
 }
