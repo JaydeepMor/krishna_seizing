@@ -7,7 +7,6 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Exception;
 
 class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQueue
 {
@@ -68,10 +67,5 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
             'lot_number'                  => $this->lotNumber,
             'finance_company_id'          => $this->financeCompanyId
         ]);
-    }
-
-    public function failed(Exception $exception)
-    {
-        Log::info(["QUEUE ERROR : " => $exception->getMessage()]);
     }
 }

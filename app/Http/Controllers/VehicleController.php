@@ -132,7 +132,7 @@ class VehicleController extends BaseController
                         // Remove old finance company data.
                         $this->removeFinanceVehicles($request, $data['finance_company_id']);
 
-                        Excel::import(new VehiclesImport($nextLotNumber, $data['finance_company_id']), $excelVehicles);
+                        Excel::import(new VehiclesImport($nextLotNumber, $data['finance_company_id']), "public/" . $storeFile);
                     } catch (\Exception $e) {
                         return redirect()->route('vehicle.index')->with('danger', __($e->getMessage()));
                     }
