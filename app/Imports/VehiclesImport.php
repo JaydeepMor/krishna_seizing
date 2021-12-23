@@ -19,7 +19,9 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
      *
      * @var int
      */
-    public $timeout = 120;
+    public $timeout = 300;
+
+    public $tries   = 5;
 
     public function __construct(int $lotNumber, int $financeCompanyId)
     {
