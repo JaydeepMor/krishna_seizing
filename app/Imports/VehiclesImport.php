@@ -31,12 +31,12 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
 
     public function chunkSize(): int
     {
-        return 20000;
+        return 500;
     }
 
     public function batchSize(): int
     {
-        return 20000;
+        return 500;
     }
 
     /**
