@@ -14,6 +14,13 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
 
     private $financeCompanyId;
 
+    /**
+     * The number of seconds the job can run before timing out.
+     *
+     * @var int
+     */
+    public $timeout = 120;
+
     public function __construct(int $lotNumber, int $financeCompanyId)
     {
         $this->lotNumber        = $lotNumber;
@@ -31,12 +38,12 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
 
     public function chunkSize(): int
     {
-        return 500;
+        return 300;
     }
 
     public function batchSize(): int
     {
-        return 500;
+        return 300;
     }
 
     /**
