@@ -23,8 +23,8 @@ class SuperadminUserSeeder extends Seeder
 
             User::create([
                 'id'            => User::ADMIN_ID,
-                'name'          => 'Superadmin',
-                'email'         => 'vrboricha@gmail.com',
+                'name'          => env('ADMIN_NAME'),
+                'email'         => env('ADMIN_EMAIL'),
                 'password'      => Hash::make(env('ADMIN_PASSWORD')),
                 'is_admin'      => User::IS_ADMIN,
                 'imei_number'   => ""

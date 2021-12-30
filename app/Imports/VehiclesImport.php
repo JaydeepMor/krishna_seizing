@@ -7,6 +7,8 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Notification;
+use App\Notifications\VehicleImportFailed;
 
 class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQueue
 {
@@ -76,5 +78,16 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
             'lot_number'                  => $this->lotNumber,
             'finance_company_id'          => $this->financeCompanyId
         ]);
+    }
+
+    /**
+     * The job failed to process.
+     *
+     * @param  Exception  $exception
+     * @return void
+     */
+    public function failed(Exception $exception)
+    {
+        Notification::route('mail', env('EXCEPTION_EMAILS', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleImportFailed($this->financeCompanyId));
     }
 }
