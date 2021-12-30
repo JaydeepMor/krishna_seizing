@@ -47,7 +47,7 @@ class VehicleImportFailed extends Notification
         $financeCompany = FinanceCompany::find($this->financeCompanyId);
 
         return (new MailMessage)
-                    ->subject('URGENT KRISHNA SEIZING!! Vehicles Imported Successfully for : ' . $financeCompany->name)
+                    ->subject('URGENT KRISHNA SEIZING!! Vehicles Not Imported Successfully for : ' . $financeCompany->name)
                     ->action('Click Here to See', route('vehicle.index', ['finance_company_id' => $this->financeCompanyId]));
     }
 
