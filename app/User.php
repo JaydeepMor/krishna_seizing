@@ -179,4 +179,12 @@ class User extends Authenticatable
     {
         return $this->contact_number;
     }
+
+    public function userSubscriptionsWithTrashed() {
+        return $this->hasMany(UserSubscription::class)->withTrashed();
+    }
+
+    public function group() {
+        return $this->hasOne('App\Group', 'id', 'group_id');
+    }
 }

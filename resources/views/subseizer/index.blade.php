@@ -27,7 +27,7 @@
                     <form action="{{ route('subseizer.index') }}" method="GET">
                         <div class="container-fluid">
                             <div class="row">
-                                <div class="col-xs-2">
+                                <div class="col-xs-3">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="name" class="form-control" autofocus placeholder="{{ __('Name') }}" value="{{ request('name') }}" />
@@ -48,14 +48,32 @@
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-3">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="contact_number" class="form-control" placeholder="{{ __('Contact Number') }}" value="{{ request('contact_number') }}" />
                                         </div>
                                     </fieldset>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-xs-2">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="from_date">{{ __('Subscription Month') }}</label>
+                                            <select name="subscription_month" class="form-control">
+                                                <option value="">{{ __('-- Select --') }}</option>
+
+                                                @foreach ($pastOneYearMonths as $key => $pastOneYearMonth)
+                                                    <option value="{{ $key }}" {{ $key == request('subscription_month') ? 'selected' : '' }}>{{ $pastOneYearMonth }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-xs-2">
+                                    <label>&nbsp;</label>
+                                    <br />
                                     <a href="{{ route('subseizer.index', ['page' => request('page')]) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Clear') }}"><i class="fa fa-close"></i></a>
                                     <button type="submit" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Search') }}"><i class="fa fa-search"></i></button>
                                 </div>
@@ -74,8 +92,23 @@
             </h2>
 
             <h2 class="col-md-6">
-                <label class="pull-right">
+                <label class="pull-right btn-group">
                     <a href="{{ route('subseizer.create') }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Add New') }}"><i class="fa fa-plus"></i> {{ __('Add New') }}</a>
+
+                    @if (!empty($users) && !$users->isEmpty())
+                        <form action="{{ route('subseizer.report.export', $queryStrings) }}" class="btn btn-default" method="POST" enctype="multipart/form-data" style="margin: 0;padding: 0;">
+                            @csrf
+
+                            <button type="submit" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="{{ __('Export To CSV') }}">
+                                <i class="gi gi-file_export"></i>
+                            </button>
+                            @error('excel_export')
+                                <em class="color-red error invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </em>
+                            @enderror
+                        </form>
+                    @endif
                 </label>
             </h2>
         </div>

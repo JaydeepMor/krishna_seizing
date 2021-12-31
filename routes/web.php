@@ -30,6 +30,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::post('subseizer/subscribe/{id}', 'UserController@subscription')->name('subseizer.subscription');
 
+    Route::post('subseizer/report/export', 'UserController@export')->name('subseizer.report.export');
+
     Route::resource('constant', 'ConstantController');
 
     Route::resource('vehicle', 'VehicleController');

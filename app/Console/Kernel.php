@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('monthly:delete_vehicle_excle')->lastDayOfMonth('06:00');
     }
 
     /**

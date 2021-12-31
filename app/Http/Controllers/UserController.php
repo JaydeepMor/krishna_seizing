@@ -11,24 +11,14 @@ use App\Vehicle;
 use App\ApiKey;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SubseizersExport;
 
 class UserController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function filter(Request $request, $modal, $query)
     {
-        $modal = new User();
-
-        $query = $modal::query();
-
-        $query->where('is_admin', $modal::IS_USER);
-
-        $query->select($modal::getTableName() . '.*');
-
         if ($request->has('name') && !empty($request->get('name'))) {
             $query->where($modal::getTableName() . '.name', 'LIKE', '%' . $request->get('name') . '%');
         }
@@ -49,9 +39,136 @@ class UserController extends BaseController
             $query->where($modal::getTableName() . '.id', '=', $request->get('user_id'));
         }
 
-        $users = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
+        if ($request->has('subscription_month') && !empty($request->get('subscription_month'))) {
+            $query->whereHas('userSubscriptionsWithTrashed', function($query) use($request) {
+                $query->whereRaw('DATE_FORMAT(`from`, "%Y") <= "' . date("Y", strtotime($request->get('subscription_month'))) . '" AND DATE_FORMAT(`from`, "%m") <= "' . date("m", strtotime($request->get('subscription_month'))) . '"')
+                      ->orWhereRaw('DATE_FORMAT(`to`, "%Y") <= "' . date("Y", strtotime($request->get('subscription_month'))) . '" AND DATE_FORMAT(`to`, "%m") <= "' . date("m", strtotime($request->get('subscription_month'))) . '"');
+            });
+        }
 
-        return view('subseizer.index', compact('users'));
+        return $query;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $modal = new User();
+
+        $query = $modal::query();
+
+        $query->where('is_admin', $modal::IS_USER);
+
+        $query->select($modal::getTableName() . '.*');
+
+        $query        = $this->filter($request, $modal, $query);
+
+        $queryStrings = $request->getQueryString();
+
+        $users        = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
+
+        $date         = Carbon::now();
+
+        for ($month = 0; $month <= 12; $month++) {
+            $date->subMonth();
+
+            $pastOneYearMonths[$date->format('Y-m')] = $date->format('F - Y');
+        }
+
+        return view('subseizer.index', compact('users', 'queryStrings', 'pastOneYearMonths'));
+    }
+
+    public function export(Request $request)
+    {
+        $modal        = new User();
+
+        $query        = $modal::query();
+
+        $query->select('id', 'name', 'address', 'email', 'contact_number', 'team_leader', 'imei_number', 'status', 'group_id', 'created_at');
+
+        $query        = $this->filter($request, $modal, $query);
+
+        $vehicles     = $query->with('userSubscriptionsWithTrashed')->get();
+
+        $vehicleArray = collect([]);
+
+        if (!empty($vehicles) && !$vehicles->isEmpty()) {
+            $vehicles->map(function(&$row) use($modal) {
+                $row->status  = $modal->statuses[(string)$row->status];
+                $row->created = date(DEFAULT_DATE_FORMAT, strtotime($row->created_at));
+                $row->group   = !empty($row->group) ? $row->group->name : "";
+            });
+
+            $vehicles = $vehicles->toArray();
+
+            // Set dash "-" for null fields.
+            foreach($vehicles as $index => $vehicle) {
+                foreach ($vehicle as $field => $row) {
+                    if (empty($row)) {
+                        if (is_array($row)) {
+                            $vehicles[$index][$field] = [];
+                        } else {
+                            $vehicles[$index][$field] = "-";
+                        }
+                    }
+                }
+            }
+
+            // Remove unnecessary fields.
+            foreach($vehicles as $field => $vehicle) {
+                unset($vehicle['current_subscription']);
+                unset($vehicle['is_subscribed']);
+                unset($vehicle['group_id']);
+                unset($vehicle['api_key']);
+
+                $userSubscriptions = $vehicle['user_subscriptions_with_trashed'];
+
+                unset($vehicle['user_subscriptions_with_trashed']);
+
+                $vehicle['temp_created'] = $vehicle['created'];
+
+                unset($vehicle['created']);
+
+                $vehicle['group']   = !empty($vehicle['group']['name']) ? $vehicle['group']['name'] : "";
+
+                $vehicle['created'] = $vehicle['temp_created'];
+
+                unset($vehicle['temp_created']);
+
+                $vehicleArray->push($vehicle);
+
+                if (!empty($userSubscriptions)) {
+                    $tempSubscription = [];
+
+                    // Add heading row.
+                    for ($space = 0; $space < 8; $space++) {
+                        $tempSubscription[] = "";
+                    }
+                    $tempSubscription['group']   = "Subscription From";
+                    $tempSubscription['created'] = "Subscription To";
+
+                    $vehicleArray->push($tempSubscription);
+
+                    foreach ($userSubscriptions as $userSubscription) {
+                        $tempSubscription = [];
+
+                        for ($space = 0; $space < 8; $space++) {
+                            $tempSubscription[] = "";
+                        }
+
+                        $tempSubscription['group']   = date(DEFAULT_DATE_FORMAT, strtotime($userSubscription['from']));
+                        $tempSubscription['created'] = date(DEFAULT_DATE_FORMAT, strtotime($userSubscription['to']));
+
+                        $vehicleArray->push($tempSubscription);
+                    }
+                }
+            }
+        }
+
+        return Excel::download(new SubseizersExport($vehicleArray), 'Exported-Subseizers-' . $request->get('subscription_month', date('Ymd')) . '.xlsx');
     }
 
     /**
