@@ -24,6 +24,8 @@
         * {{ __("Maximum allowed " . (App\Vehicle::MAX_ALLOWED_FILE_SIZE  / 1024)) . "MB file to upload." }}
         <br />
         * {{ __("Maximum allowed " . (App\Vehicle::MAX_IMPORTABLE_ROWS)) . " rows to upload otherwise server will stopped working." }}
+        <br />
+        * {{ __('We will send an email to ') }} <a href="mailto:{{ env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') }}">{{ env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') }}</a>{{ __(" once all data imported so wait for an email.") }}<i>{{ __(' IF YOU DIDN\'T RECEIVE ANY EMAIL AFTER LONG TIME THEN CONTACT US.') }}</i>
     </div>
 
     <div class="block">
