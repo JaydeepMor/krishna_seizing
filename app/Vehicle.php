@@ -76,6 +76,8 @@ class Vehicle extends BaseModel
         self::CANCEL     => "Cancelled"
     ];
 
+    const MAX_IMPORTABLE_ROWS = 50000;
+
     public $appends = ['finance_company'];
 
     public function validator(array $data, int $id = NULL)
@@ -104,6 +106,17 @@ class Vehicle extends BaseModel
         }
 
         return ['code' => 401, 'msg' => _("Excel is not valid. Check headings or download sample excel and check.")];
+    }
+
+    public function excelTotalRowsValidator(array $data)
+    {
+        if (!empty($data[0])) {
+            if (count($data[0]) <= self::MAX_IMPORTABLE_ROWS) {
+                return ['code' => 200];
+            }
+        }
+
+        return ['code' => 401, 'msg' => _("Excel is out of data. Set less than " . self::MAX_IMPORTABLE_ROWS . " rows.")];
     }
 
     public static function getNextLotNumber()

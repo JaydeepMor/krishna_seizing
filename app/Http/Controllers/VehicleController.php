@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Vehicle;
 use App\User;
 use App\Imports\VehiclesImport;
+use App\Imports\ImportableVehicleImport;
 use App\FinanceCompany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -121,12 +122,16 @@ class VehicleController extends BaseController
                     $nextLotNumber     = $model::getNextLotNumber();
 
                     $headings          = (new HeadingRowImport)->toArray($excelVehicles);
-
                     $validatorHeadings = $model->excelHeadingsValidator($headings);
-
                     if (!empty($validatorHeadings['code']) && $validatorHeadings['code'] == 401) {
                         return redirect()->route('vehicle.index')->with('danger', $validatorHeadings['msg']);
-                    } 
+                    }
+
+                    $totalImportRows = (new ImportableVehicleImport)->toArray("public/" . $storeFile);
+                    $validatorRows   = $model->excelTotalRowsValidator($totalImportRows);
+                    if (!empty($validatorRows['code']) && $validatorRows['code'] == 401) {
+                        return redirect()->route('vehicle.index')->with('danger', $validatorRows['msg']);
+                    }
 
                     try {
                         // Remove old finance company data.
@@ -137,7 +142,7 @@ class VehicleController extends BaseController
                         return redirect()->route('vehicle.index')->with('danger', __($e->getMessage()));
                     }
 
-                    return redirect()->route('vehicle.index')->with('success', __('Record added successfully!'));
+                    return redirect()->route('vehicle.index')->with('success', __('Record added successfully! Please wait till confirmation. <br /> We will send an email to <a href="mailto:' . env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') . '">' . env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') . '</a> once all data imported.'));
                 }
             }
         }
