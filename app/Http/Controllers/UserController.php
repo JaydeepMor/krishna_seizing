@@ -70,7 +70,7 @@ class UserController extends BaseController
 
         $users        = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
 
-        $date         = Carbon::now();
+        $date         = Carbon::now()->addMonth();
 
         for ($month = 0; $month <= 12; $month++) {
             $date->subMonth();

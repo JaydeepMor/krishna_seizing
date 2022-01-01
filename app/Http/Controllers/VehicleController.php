@@ -127,11 +127,11 @@ class VehicleController extends BaseController
                         return redirect()->route('vehicle.index')->with('danger', $validatorHeadings['msg']);
                     }
 
-                    $totalImportRows = (new ImportableVehicleImport)->toArray("public/" . $storeFile);
+                    /* $totalImportRows = (new ImportableVehicleImport)->toArray("public/" . $storeFile);
                     $validatorRows   = $model->excelTotalRowsValidator($totalImportRows);
                     if (!empty($validatorRows['code']) && $validatorRows['code'] == 401) {
                         return redirect()->route('vehicle.index')->with('danger', $validatorRows['msg']);
-                    }
+                    } */
 
                     try {
                         // Remove old finance company data.

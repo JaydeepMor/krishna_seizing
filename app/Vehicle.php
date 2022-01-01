@@ -76,7 +76,8 @@ class Vehicle extends BaseModel
         self::CANCEL     => "Cancelled"
     ];
 
-    const MAX_IMPORTABLE_ROWS = 50000;
+    const MAX_ALLOWED_FILE_SIZE = 4096;
+    const MAX_IMPORTABLE_ROWS   = 50000;
 
     public $appends = ['finance_company'];
 
@@ -91,7 +92,7 @@ class Vehicle extends BaseModel
     public function excelValidator(array $data, int $id = NULL)
     {
         return Validator::make($data, [
-            'excel_import'       => ['required', 'max:4505', 'mimes:' . implode(",", $this->allowedExcelExtensions)],
+            'excel_import'       => ['required', 'max:' . self::MAX_ALLOWED_FILE_SIZE, 'mimes:' . implode(",", $this->allowedExcelExtensions)],
             'finance_company_id' => ['required', 'integer', 'exists:' . FinanceCompany::getTableName() . ',id'],
             'user_id'            => ['nullable', 'integer', 'exists:' . User::getTableName() . ',id']
         ]);

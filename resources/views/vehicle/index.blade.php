@@ -20,6 +20,12 @@
         @endif
     @endforeach
 
+    <div class="alert alert-danger fade-in show" role="alert">
+        * {{ __("Maximum allowed " . (App\Vehicle::MAX_ALLOWED_FILE_SIZE  / 1024)) . "MB file to upload." }}
+        <br />
+        * {{ __("Maximum allowed " . (App\Vehicle::MAX_IMPORTABLE_ROWS)) . " rows to upload otherwise server will stopped working." }}
+    </div>
+
     <div class="block">
         <div class="row">
             <div class="col-lg-12">
