@@ -169,6 +169,10 @@ class User extends Authenticatable
         if (!empty($user)) {
             $user->makeHidden('current_subscription');
 
+            // Get current user field permissions.
+            $userFieldPermissions         = UserVehicleFieldPermission::select('vehicle_allowed_fields')->where('user_id', $userId)->first();
+            $user->user_field_permissions = !empty($userFieldPermissions->vehicle_allowed_fields) ? json_decode($userFieldPermissions->vehicle_allowed_fields, true) : [];
+
             $user['user_subscriptions'] = $user->getCurrentSubscriptionTimestamps();
         }
 
