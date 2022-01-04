@@ -415,6 +415,10 @@ class UserController extends BaseController
 
         $query->select($modal::getTableName() . '.*', User::getTableName() . '.name', Vehicle::getTableName() . '.model');
 
+        $query->where(User::getTableName() . '.is_admin', User::IS_USER);
+
+        $query->where(User::getTableName() . '.id', '!=', env('TEST_USER_ID', 0));
+
         $query->join(User::getTableName(), $modal::getTableName() . '.user_id', '=', User::getTableName() . '.id');
 
         $query->join(Vehicle::getTableName(), $modal::getTableName() . '.vehicle_id', '=', Vehicle::getTableName() . '.id');
