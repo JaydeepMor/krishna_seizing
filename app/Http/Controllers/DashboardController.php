@@ -21,7 +21,7 @@ class DashboardController extends BaseController
         $data = array();
 
         // Total count of sub-seizers.
-        $data['users'] = User::where('id', '!=', User::ADMIN_ID)->count();
+        $data['users'] = User::where('id', '!=', User::ADMIN_ID)->where('id', '!=', env('TEST_USER_ID', 0))->count();
 
         // Total count of finance hos.
         $data['finance_hos'] = FinanceHo::count();

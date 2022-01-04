@@ -62,6 +62,8 @@ class UserController extends BaseController
 
         $query->where('is_admin', $modal::IS_USER);
 
+        $query->where('id', '!=', env('TEST_USER_ID', 0));
+
         $query->select($modal::getTableName() . '.*');
 
         $query        = $this->filter($request, $modal, $query);
