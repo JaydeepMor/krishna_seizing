@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Group;
 use App\UserSubscription;
 use App\ApiKey;
+use App\UserVehicleFieldPermission;
 
 class User extends Authenticatable
 {
