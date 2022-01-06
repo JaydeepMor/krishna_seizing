@@ -52,7 +52,7 @@ class redisVehicle extends Command
                 $this->pageNumber = $pageNo;
 
                 // Store to Redis cache.
-                $this->chunkAndStoreToRedis($count, $loop);
+                $this->chunkAndStoreToRedis($count);
             }
         }
 
@@ -70,7 +70,7 @@ class redisVehicle extends Command
         return $vehicles;
     }
 
-    private function chunkAndStoreToRedis($total, $lastPage)
+    private function chunkAndStoreToRedis($total)
     {
         $modal        = new Vehicle();
 
@@ -83,6 +83,8 @@ class redisVehicle extends Command
         }
 
         $chunkSize = Vehicle::API_PAGINATION;
+
+        $lastPage  = (int)ceil($total / $chunkSize);
 
         // Get all vehicles by limit offset.
         $vehicles = $this->getVechicle();
