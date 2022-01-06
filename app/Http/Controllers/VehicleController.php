@@ -15,6 +15,7 @@ use App\Notifications\VehicleCancelled;
 use App\Channels\WhatsAppChannel;
 use Illuminate\Http\Response;
 use Maatwebsite\Excel\HeadingRowImport;
+use Illuminate\Support\Facades\Artisan;
 
 class VehicleController extends BaseController
 {
@@ -184,6 +185,9 @@ class VehicleController extends BaseController
 
         $model::create($data);
 
+        // Run vehicle Redis cache.
+        Artisan::call("daily:redis_vehicle");
+
         return redirect()->route('vehicle.index')->with('success', __('Record added successfully!'));
     }
 
@@ -256,6 +260,9 @@ class VehicleController extends BaseController
 
         $row->update($data);
 
+        // Run vehicle Redis cache.
+        Artisan::call("daily:redis_vehicle");
+
         return redirect()->route('vehicle.index')->with('success', __('Record updated successfully!'));
     }
 
@@ -268,6 +275,9 @@ class VehicleController extends BaseController
     public function destroy(Request $request, $id)
     {
         Vehicle::where('id', $id)->delete();
+
+        // Run vehicle Redis cache.
+        Artisan::call("daily:redis_vehicle");
 
         return redirect()->route('vehicle.index')->with('success', __('Record deleted successfully!'));
     }
@@ -375,6 +385,9 @@ class VehicleController extends BaseController
     public function removeFinanceVehicles(Request $request, $financeCompanyId)
     {
         Vehicle::where('finance_company_id', $financeCompanyId)->delete();
+
+        // Run vehicle Redis cache.
+        Artisan::call("daily:redis_vehicle");
 
         // Get finance company name.
         $financeCompany = FinanceCompany::find($financeCompanyId);

@@ -9,6 +9,7 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Notification;
 use App\Notifications\VehicleImportComplete;
+use Illuminate\Support\Facades\Artisan;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -64,6 +65,9 @@ class AppServiceProvider extends ServiceProvider
                     } catch (Exception $e) {}
 
                     if (!empty($financeCompanyId)) {
+                        // Run vehicle Redis cache.
+                        Artisan::call("daily:redis_vehicle");
+
                         Notification::route('mail', env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleImportComplete($financeCompanyId));
                     }
                 default:

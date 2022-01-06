@@ -5,6 +5,7 @@ namespace App;
 use App\User;
 use App\FinanceCompany;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class Vehicle extends BaseModel
 {
@@ -79,6 +80,11 @@ class Vehicle extends BaseModel
     const MAX_ALLOWED_FILE_SIZE = 4096;
     const MAX_IMPORTABLE_ROWS   = 50000;
 
+    // Fixed now as we stored in Redis cache.
+    const API_PAGINATION = 1000;
+
+    const VEHICLE_REDIS_KEY = 'vehicles:';
+
     public $appends = ['finance_company'];
 
     public function validator(array $data, int $id = NULL)
@@ -142,5 +148,30 @@ class Vehicle extends BaseModel
         $financeCompany = $this->financeCompany()->first();
 
         return (!empty($financeCompany) && !empty($financeCompany->name)) ? $financeCompany->name : "";
+    }
+
+    public static function arrangeApiData(LengthAwarePaginator $vehicles)
+    {
+        $vehiclesData = collect();
+
+        if (!empty($vehicles) && !$vehicles->isEmpty()) {
+            foreach ($vehicles->toArray() as $field => &$value) {
+                if (in_array($field, ['first_page_url', 'last_page_url', 'next_page_url', 'path', 'prev_page_url', 'from', 'to'])) {
+                    continue;
+                }
+
+                if ($field == 'data') {
+                    if (!empty($value)) {
+                        foreach ($value as $key => $row) {
+                            unset($value[$key]['finance_company_id']);
+                        }
+                    }
+                }
+
+                $vehiclesData->put($field, $value);
+            }
+        }
+
+        return $vehiclesData;
     }
 }

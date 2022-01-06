@@ -11,6 +11,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Redis;
 
 class ApiController extends BaseController
 {
@@ -24,28 +25,22 @@ class ApiController extends BaseController
 
         $perPage = (int)$request->get('per_page', 1000);
 
-        $perPage = empty($perPage) ? 1000 : $perPage;
+        // $perPage = empty($perPage) ? 1000 : $perPage;
 
-        // Get all vehicles.
-        $vehiclesData = collect();
-        $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id'])->paginate($perPage, ['*'], 'page', $pageNo);
+        // Fixed now as we stored in Redis cache.
+        $perPage = Vehicle::API_PAGINATION;
 
-        if (!empty($vehicles) && !$vehicles->isEmpty()) {
-            foreach ($vehicles->toArray() as $field => &$value) {
-                if (in_array($field, ['first_page_url', 'last_page_url', 'next_page_url', 'path', 'prev_page_url', 'from', 'to'])) {
-                    continue;
-                }
+        $redis   = Redis::connection();
 
-                if ($field == 'data') {
-                    if (!empty($value)) {
-                        foreach ($value as $key => $row) {
-                            unset($value[$key]['finance_company_id']);
-                        }
-                    }
-                }
+        // Get all vehicles from Redis cache first if not found than get from MySql.
+        $vehiclesData = env('VEHICLE_API_CACHE', false) ? json_decode($redis->get(Vehicle::VEHICLE_REDIS_KEY . $pageNo . ":" . $perPage), true) : [];
 
-                $vehiclesData->put($field, $value);
-            }
+        if (empty($vehiclesData) || empty($vehiclesData['data'])) {
+            $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id'])->paginate($perPage, ['*'], 'page', $pageNo);
+
+            $vehiclesData = Vehicle::arrangeApiData($vehicles);
+        } else {
+            $vehiclesData['data'] = array_values($vehiclesData['data']);
         }
 
         // Get current user field permissions.

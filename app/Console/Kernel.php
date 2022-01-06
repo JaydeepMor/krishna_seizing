@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('monthly:delete_vehicle_excle')->lastDayOfMonth('06:00');
+        $schedule->command('daily:redis_vehicle')->daily();
     }
 
     /**
