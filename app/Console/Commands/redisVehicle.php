@@ -22,9 +22,11 @@ class redisVehicle extends Command
      */
     protected $description = 'Push vehicles to Redis cache.';
 
-    private $perPage      = 25000;
+    private $perPage        = 25000;
 
-    private $pageNumber   = 1;
+    private $pageNumber     = 1;
+
+    private $dataPageNumber = 1;
 
     private $redis;
 
@@ -95,7 +97,7 @@ class redisVehicle extends Command
         $vehicles = $this->getVechicle();
 
         if (!empty($vehicles) && !$vehicles->isEmpty()) {
-            $pageNumber = 1;
+            $this->dataPageNumber = $this->dataPageNumber;
 
             foreach ($vehicles->chunk($chunkSize) as $vehicle) {
                 $redisData = collect();
@@ -104,17 +106,17 @@ class redisVehicle extends Command
                     unset($vehicle[$key]['finance_company_id']);
                 }
 
-                $redisData->put('current_page', $pageNumber);
+                $redisData->put('current_page', $this->dataPageNumber);
                 $redisData->put('last_page', $lastPage);
                 $redisData->put('per_page', $chunkSize);
                 $redisData->put('total', $total);
                 $redisData->put('data', $vehicle);
 
-                $log = $redis->set($modal::VEHICLE_REDIS_KEY . $pageNumber . ":" . $chunkSize, $redisData);
+                $log = $redis->set($modal::VEHICLE_REDIS_KEY . $this->dataPageNumber . ":" . $chunkSize, $redisData);
 
-                \Log::info("Page Number : " . $pageNumber . " import : " . $log);
+                \Log::info("Page Number : " . $this->dataPageNumber . " import : " . $log);
 
-                $pageNumber++;
+                $this->dataPageNumber++;
             }
         }
 
