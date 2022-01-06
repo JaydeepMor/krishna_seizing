@@ -55,7 +55,7 @@ class redisVehicle extends Command
         $loop  = (int)ceil($count / $this->perPage);
 
         // Remove old records.
-        $existingKeys = Redis::keys($modal::VEHICLE_REDIS_KEY . '*');
+        $existingKeys = Redis::keys(Vehicle::VEHICLE_REDIS_KEY . '*');
         if (count($existingKeys) > 0) {
             Redis::del($existingKeys);
         }
