@@ -22,8 +22,9 @@ class redisVehicle extends Command
      */
     protected $description = 'Push vehicles to Redis cache.';
 
-    private $perPage    = 25000;
-    private $pageNumber = 1;
+    private $perPage      = 25000;
+
+    private $pageNumber   = 1;
 
     private $redis;
 
@@ -94,7 +95,7 @@ class redisVehicle extends Command
         $vehicles = $this->getVechicle();
 
         if (!empty($vehicles) && !$vehicles->isEmpty()) {
-            $pageNumber = $this->pageNumber;
+            $pageNumber = 1;
 
             foreach ($vehicles->chunk($chunkSize) as $vehicle) {
                 $redisData = collect();
