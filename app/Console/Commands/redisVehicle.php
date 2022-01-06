@@ -54,6 +54,12 @@ class redisVehicle extends Command
 
         $loop  = (int)ceil($count / $this->perPage);
 
+        // Remove old records.
+        $existingKeys = Redis::keys($modal::VEHICLE_REDIS_KEY . '*');
+        if (count($existingKeys) > 0) {
+            Redis::del($existingKeys);
+        }
+
         if ($loop > 0) {
             for ($pageNo = $this->pageNumber; $pageNo <= $loop; $pageNo++) {
                 $this->pageNumber = $pageNo;
@@ -79,22 +85,16 @@ class redisVehicle extends Command
 
     private function chunkAndStoreToRedis($total)
     {
-        $modal        = new Vehicle();
+        $modal     = new Vehicle();
 
-        $redis        = $this->redis;
-
-        // Remove old records.
-        $existingKeys = Redis::keys($modal::VEHICLE_REDIS_KEY . '*');
-        if (count($existingKeys) > 0) {
-            Redis::del($existingKeys);
-        }
+        $redis     = $this->redis;
 
         $chunkSize = Vehicle::API_PAGINATION;
 
         $lastPage  = (int)ceil($total / $chunkSize);
 
         // Get all vehicles by limit offset.
-        $vehicles = $this->getVechicle();
+        $vehicles  = $this->getVechicle();
 
         if (!empty($vehicles) && !$vehicles->isEmpty()) {
             $this->dataPageNumber = $this->dataPageNumber;
