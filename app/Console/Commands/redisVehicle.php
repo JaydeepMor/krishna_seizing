@@ -94,7 +94,7 @@ class redisVehicle extends Command
         $vehicles = $this->getVechicle();
 
         if (!empty($vehicles) && !$vehicles->isEmpty()) {
-            $pageNumber = 1;
+            $pageNumber = $this->pageNumber;
 
             foreach ($vehicles->chunk($chunkSize) as $vehicle) {
                 $redisData = collect();
