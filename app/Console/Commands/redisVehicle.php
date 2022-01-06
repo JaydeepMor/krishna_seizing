@@ -22,8 +22,10 @@ class redisVehicle extends Command
      */
     protected $description = 'Push vehicles to Redis cache.';
 
-    private $perPage    = 50000;
+    private $perPage    = 25000;
     private $pageNumber = 1;
+
+    private $redis;
 
     /**
      * Create a new command instance.
@@ -32,6 +34,8 @@ class redisVehicle extends Command
      */
     public function __construct()
     {
+        $this->redis = Redis::connection();
+
         parent::__construct();
     }
 
@@ -74,7 +78,7 @@ class redisVehicle extends Command
     {
         $modal        = new Vehicle();
 
-        $redis        = Redis::connection();
+        $redis        = $this->redis;
 
         // Remove old records.
         $existingKeys = Redis::keys($modal::VEHICLE_REDIS_KEY . '*');
@@ -105,7 +109,9 @@ class redisVehicle extends Command
                 $redisData->put('total', $total);
                 $redisData->put('data', $vehicle);
 
-                $redis->set($modal::VEHICLE_REDIS_KEY . $pageNumber . ":" . $chunkSize, $redisData);
+                $log = $redis->set($modal::VEHICLE_REDIS_KEY . $pageNumber . ":" . $chunkSize, $redisData);
+
+                \Log::info("Page Number : " . $pageNumber . " import : " . $log);
 
                 $pageNumber++;
             }
