@@ -78,7 +78,7 @@ class redisVehicle extends Command
 
         $pageNo  = $this->pageNumber;
 
-        $vehicles = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id'])->paginate($perPage, ['*'], 'page', $pageNo);
+        $vehicles = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->paginate($perPage, ['*'], 'page', $pageNo);
 
         return $vehicles;
     }
@@ -114,7 +114,7 @@ class redisVehicle extends Command
 
                 $log = $redis->set($modal::VEHICLE_REDIS_KEY . $this->dataPageNumber . ":" . $chunkSize, $redisData);
 
-                \Log::info("Page Number : " . $this->dataPageNumber . " import : " . $log);
+                // \Log::info("Page Number : " . $this->dataPageNumber . " import : " . $log);
 
                 $this->dataPageNumber++;
             }
