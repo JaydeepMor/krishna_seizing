@@ -44,6 +44,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('vehicle/excel/sample/export', 'VehicleController@downloadSampleExcel')->name('vehicle.sample.export');
 
+    Route::get('vehicle/sync/redis', 'VehicleController@syncToRedis')->name('vehicle.sync.redis');
+
     Route::delete('vehicle/finance/delete/{financeCompanyId}', 'VehicleController@removeFinanceVehicles')->name('vehicle.finance.delete');
 
     Route::resource('report', 'ReportController');

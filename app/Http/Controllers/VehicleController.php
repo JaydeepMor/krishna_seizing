@@ -186,7 +186,7 @@ class VehicleController extends BaseController
         $model::create($data);
 
         // Run vehicle Redis cache.
-        Artisan::call("daily:redis_vehicle");
+        // Artisan::call("daily:redis_vehicle");
 
         return redirect()->route('vehicle.index')->with('success', __('Record added successfully!'));
     }
@@ -261,7 +261,7 @@ class VehicleController extends BaseController
         $row->update($data);
 
         // Run vehicle Redis cache.
-        Artisan::call("daily:redis_vehicle");
+        // Artisan::call("daily:redis_vehicle");
 
         return redirect()->route('vehicle.index')->with('success', __('Record updated successfully!'));
     }
@@ -277,7 +277,7 @@ class VehicleController extends BaseController
         Vehicle::where('id', $id)->delete();
 
         // Run vehicle Redis cache.
-        Artisan::call("daily:redis_vehicle");
+        // Artisan::call("daily:redis_vehicle");
 
         return redirect()->route('vehicle.index')->with('success', __('Record deleted successfully!'));
     }
@@ -387,7 +387,7 @@ class VehicleController extends BaseController
         Vehicle::where('finance_company_id', $financeCompanyId)->delete();
 
         // Run vehicle Redis cache.
-        Artisan::call("daily:redis_vehicle");
+        // Artisan::call("daily:redis_vehicle");
 
         // Get finance company name.
         $financeCompany = FinanceCompany::find($financeCompanyId);
@@ -399,5 +399,13 @@ class VehicleController extends BaseController
         }
 
         return redirect()->route('vehicle.index')->with('success', __($msg));
+    }
+
+    public function syncToRedis()
+    {
+        // Run vehicle Redis cache.
+        Artisan::call("daily:redis_vehicle");
+
+        return redirect()->route('vehicle.index')->with('success', __("Records synced successfully!"));
     }
 }
