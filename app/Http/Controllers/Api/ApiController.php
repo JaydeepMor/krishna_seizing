@@ -52,7 +52,12 @@ class ApiController extends BaseController
 
         // Old Response as below,
         // , 'user_field_permissions' => $vehicleAllowedFields, 'user_subscriptions' => $currentUser->getCurrentSubscriptionTimestamps(), 'api_key' => $currentUser->getApiKey()
-        return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehiclesData]);
+        // return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehiclesData]);
+        return json_encode([
+            'code' => $this->successCode,
+            'msg'  => __('Records get successfully!'),
+            'data' => ['vehicles' => $vehiclesData]
+        ]);
     }
 
     public function userRegister(Request $request)
