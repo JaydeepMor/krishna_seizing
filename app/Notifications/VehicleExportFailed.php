@@ -6,22 +6,19 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\FinanceCompany;
 
-class VehicleImportFailed extends Notification
+class VehicleExportFailed extends Notification
 {
     use Queueable;
-
-    protected $financeCompanyId;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(int $financeCompanyId)
+    public function __construct()
     {
-        $this->financeCompanyId = $financeCompanyId;
+        
     }
 
     /**
@@ -43,12 +40,9 @@ class VehicleImportFailed extends Notification
      */
     public function toMail($notifiable)
     {
-        // Get finance company.
-        $financeCompany = FinanceCompany::find($this->financeCompanyId);
-
         return (new MailMessage)
-                    ->subject(__('URGENT KRISHNA SEIZING!! Vehicles Not Imported Successfully for : ' . $financeCompany->name))
-                    ->action(__('Click Here to See'), route('vehicle.index', ['finance_company_id' => $this->financeCompanyId]));
+                    ->subject(__('URGENT KRISHNA SEIZING!! Vehicles Not Exported Successfully'))
+                    ->line(__('Check with developer so that they can debug and solve this issue.'));
     }
 
     /**

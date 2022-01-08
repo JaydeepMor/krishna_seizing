@@ -9,6 +9,7 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Notification;
 use App\Notifications\VehicleImportComplete;
+use App\Notifications\VehicleExportComplete;
 use Illuminate\Support\Facades\Artisan;
 
 class AppServiceProvider extends ServiceProvider
@@ -60,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
 
                     try {
                         $payload          = $event->job->payload();
-                        $job              =  unserialize($payload['data']['command']);
+                        $job              = unserialize($payload['data']['command']);
                         $financeCompanyId = objectToArray(objectToArray($job, false)['import'], false)['financeCompanyId'];
                     } catch (Exception $e) {}
 
@@ -70,6 +71,18 @@ class AppServiceProvider extends ServiceProvider
 
                         Notification::route('mail', env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleImportComplete($financeCompanyId));
                     }
+
+                    break;
+                case "Maatwebsite\Excel\Jobs\StoreQueuedExport":
+                    try {
+                        $payload  = $event->job->payload();
+                        $job      = unserialize($payload['data']['command']);
+                        $filePath = objectToArray($job, false)['filePath'];
+
+                        Notification::route('mail', env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleExportComplete($filePath));
+                    } catch (Exception $e) {}
+
+                    break;
                 default:
                     break;
             }

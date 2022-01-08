@@ -52,6 +52,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::post('report/export', 'ReportController@export')->name('vehicles.report.export');
 
+    Route::get('report/download/{filePath}', 'ReportController@download')->name('vehicles.report.download');
+
     Route::get('application/download', 'BaseController@downloadApplication')->name('download.application');
 
     // Ajax routes.

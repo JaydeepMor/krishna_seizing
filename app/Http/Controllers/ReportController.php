@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\VehiclesExport;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends BaseController
 {
@@ -79,23 +81,28 @@ class ReportController extends BaseController
 
     public function export(Request $request)
     {
-        $modal    = new Vehicle();
+        $now       = Carbon::now();
 
-        $query    = $modal::query();
+        $excelName = 'Exported-vehicles-' . $now->timestamp . '.xlsx';
 
-        $query->select('loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'created_at');
+        (new VehiclesExport)->queue($excelName, 'vehicle_export');
 
-        $query    = $this->filter($request, $modal, $query);
+        $queryStrings = $request->getQueryString();
 
-        $vehicles = $query->get();
+        return redirect(route('report.index', $queryStrings))->with('success', __('We have started vehicle exporting.  <br /> You will get download link to <a href="mailto:' . env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') . '">' . env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') . '</a> address.'));
+    }
 
-        $vehicles->map(function(&$row) use($modal) {
-            $row->is_confirm = $modal->isConfirm[$row->is_confirm];
-            $row->is_cancel  = $modal->isCancel[$row->is_cancel];
-            $row->created    = date(DEFAULT_DATE_FORMAT, strtotime($row->created_at));
-        });
+    public function download(Request $request, $fileName)
+    {
+        $exists = Storage::disk('vehicle_export')->exists($fileName);
 
-        return Excel::download(new VehiclesExport($vehicles), 'Exported-vehicles.xlsx');
+        if ($exists) {
+            $file = Storage::disk('vehicle_export')->path($fileName);
+
+            return response()->download($file);
+        }
+
+        return redirect(route('report.index'))->with('warning', __('File does not exists now. Try to re-export it.'));
     }
 
     /**

@@ -14,7 +14,7 @@ return [
         | Here you can specify how big the chunk should be.
         |
         */
-        'chunk_size'             => 10000,
+        'chunk_size'             => 700000,
 
         /*
         |--------------------------------------------------------------------------
@@ -59,7 +59,7 @@ return [
         |
         */
         'properties'             => [
-            'creator'        => '',
+            'creator'        => env('APP_NAME', 'Jaydeep Ahir'),
             'lastModifiedBy' => '',
             'title'          => '',
             'description'    => '',
@@ -67,7 +67,7 @@ return [
             'keywords'       => '',
             'category'       => '',
             'manager'        => '',
-            'company'        => '',
+            'company'        => env('MY_COMPANY_NAME', 'Krupa Digital'),
         ],
     ],
 
@@ -289,7 +289,7 @@ return [
         | storing reading or downloading. Here you can customize that path.
         |
         */
-        'local_path'          => storage_path('framework/laravel-excel'),
+        'local_path'          => public_path(\App\Vehicle::EXCEL_EXPORT_PATH),
 
         /*
         |--------------------------------------------------------------------------

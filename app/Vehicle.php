@@ -63,6 +63,8 @@ class Vehicle extends BaseModel
         16 => "region"
     ];
 
+    const EXCEL_EXPORT_PATH = 'storage/vehicle/excel/exported';
+
     const NOT_CONFIRM = '0';
     const CONFIRM     = '1';
     public $isConfirm = [
