@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 
 class ApiController extends BaseController
 {
@@ -199,5 +200,26 @@ class ApiController extends BaseController
         }
 
         return $this->returnError(__('User not found.'), $this->noUserCode);
+    }
+
+    public function getDemoVehicles(Request $request)
+    {
+        $modal    = new Vehicle();
+
+        $contents = json_encode(["code" => 200, "msg" => "Records get successfully!", "data" => ["vehicles" => []]]);
+
+        $filePath = 'vehicle/demoVehicles.json';
+
+        $isExists = Storage::disk($modal->fileSystem)->exists($filePath);
+
+        if ($isExists) {
+            $contents = Storage::disk($modal->fileSystem)->get($filePath);
+
+            if (!empty($contents)) {
+                $contents = json_encode(json_decode($contents));
+            }
+        }
+
+        return $contents;
     }
 }
