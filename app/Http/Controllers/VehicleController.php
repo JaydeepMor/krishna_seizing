@@ -350,7 +350,8 @@ class VehicleController extends BaseController
 
         $isUpdate = $row->update(['is_cancel' => ($isCancel == 'on' ? $model::CANCEL : $model::NOT_CANCEL), 'user_id' => ($isCancel == 'on' ? $userId : NULL)]);
 
-        if ($isUpdate) {
+        // Close when stop using Twilio because now we have using whatsapp web for send message.
+        if (false && $isUpdate) {
             // Send WhatsApp message.
             if (!empty($user)) {
                 $whatsappNotify = (new WhatsAppChannel())->send($user, new VehicleCancelled($row));
