@@ -103,7 +103,7 @@ class redisVehicle extends Command
                 $redisData = collect();
 
                 foreach ($vehicle as $key => $row) {
-                    unset($vehicle[$key]['finance_company_id']);
+                    // unset($vehicle[$key]['finance_company_id']);
                 }
 
                 $redisData->put('current_page', $this->dataPageNumber);
