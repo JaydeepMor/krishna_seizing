@@ -48,6 +48,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::delete('vehicle/finance/delete/{financeCompanyId}', 'VehicleController@removeFinanceVehicles')->name('vehicle.finance.delete');
 
+    Route::post('vehicle/confirm/message/whatsapp/send', 'VehicleController@whatsappMessageSend')->name('vehicle.confirm.message.whatsapp.send');
+
     Route::resource('report', 'ReportController');
 
     Route::post('report/export', 'ReportController@export')->name('vehicles.report.export');

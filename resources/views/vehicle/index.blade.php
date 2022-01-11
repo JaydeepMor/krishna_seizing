@@ -288,6 +288,7 @@
                                                             </div>
 
                                                             <div class="modal-footer">
+                                                                <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}" />
                                                                 <button type="button" class="btn btn-primary confirm-vehicle disp-none" data-id="{{ $vehicle->id }}">{{ __('Confirm') }}</button>
                                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
                                                             </div>
@@ -329,6 +330,7 @@
                                                             </div>
 
                                                             <div class="modal-footer">
+                                                                <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}" />
                                                                 <button type="button" class="btn btn-primary cancel-vehicle disp-none" data-id="{{ $vehicle->id }}">{{ __('Cancel') }}</button>
                                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
                                                             </div>

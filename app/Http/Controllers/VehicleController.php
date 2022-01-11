@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Vehicle;
 use App\User;
+use App\WhatsappMessage;
 use App\Imports\VehiclesImport;
 use App\Imports\ImportableVehicleImport;
 use App\FinanceCompany;
@@ -304,7 +305,8 @@ class VehicleController extends BaseController
 
         $isUpdate = $row->update(['is_confirm' => ($isConfirm == 'on' ? $model::CONFIRM : $model::NOT_CONFIRM), 'user_id' => ($isConfirm == 'on' ? $userId : NULL)]);
 
-        if ($isUpdate) {
+        // Close when stop using Twilio because now we have using whatsapp web for send message.
+        if (false && $isUpdate) {
             // Send WhatsApp message.
             if (!empty($user)) {
                 $whatsappNotify = (new WhatsAppChannel())->send($user, new VehicleConfirmed($row));
@@ -407,5 +409,35 @@ class VehicleController extends BaseController
         Artisan::call("daily:redis_vehicle");
 
         return redirect()->route('vehicle.index')->with('success', __("Records synced successfully!"));
+    }
+
+    public function whatsappMessageSend(Request $request)
+    {
+        $userId     = $request->get('user_id', null);
+
+        $vehicleId  = $request->get('vehicle_id', null);
+
+        $getUser    = User::find($userId);
+
+        if (empty($getUser)) {
+            return response()->json(["msg" => __("No user found for send WhatsApp notification!"), "is_success" => false]);
+        }
+
+        $getVehicle = Vehicle::find($vehicleId);
+
+        if (empty($getVehicle)) {
+            return response()->json(["msg" => __("No vehicle found for send WhatsApp notification!"), "is_success" => false]);
+        }
+
+        // 1: Confirm, 2: Cancel
+        if ($request->get('is_confirm_cancelled', null) == '1') {
+            $whatsAppMessage = WhatsappMessage::messageFormatForConfirmed($getVehicle);
+        } elseif ($request->get('is_confirm_cancelled', null) == '2') {
+            $whatsAppMessage = WhatsappMessage::messageFormatForCancelled($getVehicle);
+        }
+
+        $whatsAppWebUrl  = "https://web.whatsapp.com/send?phone=+91{$getUser->contact_number}&text=" . urlencode($whatsAppMessage);
+
+        return response()->json(["msg" => null, "whats_app_web_url" => $whatsAppWebUrl, "is_success" => true]);
     }
 }

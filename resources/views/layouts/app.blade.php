@@ -326,8 +326,9 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
     <script type="text/javascript">
-        var setThemeCookieRoute = "{{ route('set-theme-cookie') }}",
-            _token              = "{{ csrf_token() }}";
+        var setThemeCookieRoute  = "{{ route('set-theme-cookie') }}",
+            _token               = "{{ csrf_token() }}",
+            whatsAppMessageRoute = "{{ route('vehicle.confirm.message.whatsapp.send') }}";
     </script>
     <script src="{{ asset('js/bootstrap-multiselect.min.js') }}"></script>
 

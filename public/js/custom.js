@@ -25,15 +25,21 @@ $(document).ready(function() {
     });
 
     $('.confirm-vehicle').on("click", function() {
-        let id = $(this).attr('data-id');
+        let id   = $(this).attr('data-id'),
+            form = $('#confirm-vehicle-form-' + id);
 
-        $('#confirm-vehicle-form-' + id).submit();
+        form.submit();
+
+        sendWhatsAppMessage(form.serializeArray(), '1');
     });
 
     $('.cancel-vehicle').on("click", function() {
-        let id = $(this).attr('data-id');
+        let id   = $(this).attr('data-id'),
+            form = $('#cancel-vehicle-form-' + id);
 
-        $('#cancel-vehicle-form-' + id).submit();
+        form.submit();
+
+        sendWhatsAppMessage(form.serializeArray(), '2');
     });
 
     $('.confirm-vehicle-button').on('click', function() {
@@ -324,6 +330,41 @@ function adminPasswordUpdate(event) {
             console.log(data);
 
             form.find("#error_general").html("Something went wrong. Please contact superadmin or reload the page.").fadeIn(200);
+        }
+    });
+}
+
+// 1: Confirm, 2: Cancel
+function sendWhatsAppMessage(formArray, isConfirmedCancelled) {
+    let postData = {},
+        _token   = null,
+        ajaxUrl  = whatsAppMessageRoute;
+
+    $.each(formArray, function(index, data) {
+        if (data.name == "_token") {
+            _token = data.value;
+        } else {
+            postData[data.name] = data.value;
+        }
+    });
+
+    postData['is_confirm_cancelled'] = isConfirmedCancelled;
+
+    $.ajax ({
+        data: postData,
+        type: "POST",
+        headers: {'X-CSRF-TOKEN': _token },
+        url: ajaxUrl,
+        cache: false,
+        success: function(data) {
+            if (data.is_success) {
+                window.open(data.whats_app_web_url, '_blank').focus();
+            } else {
+                alert(data.msg);
+            }
+        },
+        error: function(data) {
+            console.log(data);
         }
     });
 }
