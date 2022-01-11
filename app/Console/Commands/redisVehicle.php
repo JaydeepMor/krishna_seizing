@@ -102,9 +102,9 @@ class redisVehicle extends Command
             foreach ($vehicles->chunk($chunkSize) as $vehicle) {
                 $redisData = collect();
 
-                foreach ($vehicle as $key => $row) {
-                    // unset($vehicle[$key]['finance_company_id']);
-                }
+                /* foreach ($vehicle as $key => $row) {
+                    unset($vehicle[$key]['finance_company_id']);
+                } */
 
                 $redisData->put('current_page', $this->dataPageNumber);
                 $redisData->put('last_page', $lastPage);
