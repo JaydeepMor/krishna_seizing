@@ -50,7 +50,7 @@ class redisVehicle extends Command
     public function handle()
     {
         // Get vehicle count.
-        $count = Vehicle::count();
+        $count = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
 
         $loop  = (int)ceil($count / $this->perPage);
 
