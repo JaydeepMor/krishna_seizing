@@ -20,6 +20,12 @@
         @endif
     @endforeach
 
+    <div class="alert alert-danger fade-in show" role="alert">
+        * {{ __("Finance company is mandatory for the export file.") }}
+        <br />
+        * {{ __('We will send an email to ') }} <a href="mailto:{{ env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') }}">{{ env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') }}</a>{{ __(" once all data exported so wait for an email.") }}<i>{{ __(' IF YOU DIDN\'T RECEIVE ANY EMAIL AFTER LONG TIME THEN CONTACT US.') }}</i>
+    </div>
+
     <div class="block">
         <div class="row">
             <div class="col-lg-12">
@@ -88,23 +94,41 @@
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
-                                    <fieldset>
-                                        <div class="form-group">
-                                            <label for="from_date">{{ __('From Date') }}</label>
-                                            <input type="date" name="from_date" id="from_date" class="form-control" placeholder="{{ __('From Date') }}" value="{{ request('from_date') }}" />
-                                        </div>
-                                    </fieldset>
+                                <div class="col-xs-3">
+                                    <label>&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="date" name="from_date" id="from_date" class="form-control" placeholder="{{ __('From Date') }}" value="{{ request('from_date') }}" />
+                                        <div class="input-group-addon">{{ __('To') }}</div>
+                                        <input type="date" name="to_date" id="to_date" class="form-control" placeholder="{{ __('To Date') }}" value="{{ request('to_date') }}" />
+                                    </div>
                                 </div>
                                 <div class="col-xs-2">
                                     <fieldset>
                                         <div class="form-group">
-                                            <label for="to_date">{{ __('To Date') }}</label>
-                                            <input type="date" name="to_date" id="to_date" class="form-control" placeholder="{{ __('To Date') }}" value="{{ request('to_date') }}" />
+                                            <label>&nbsp;</label>
+                                            <select name="finance_company_id" class="form-control">
+                                                <option value="">{{ __("Select Finance Company") }}</option>
+
+                                                @php
+                                                    $financeCompanyName = "";
+                                                @endphp
+
+                                                @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
+                                                    @foreach ($financeCompanies as $financeCompany)
+                                                        @php
+                                                            if (request('finance_company_id') == $financeCompany->id) {
+                                                                $financeCompanyName = $financeCompany->name;
+                                                            }
+                                                        @endphp
+
+                                                        <option value="{{ $financeCompany->id }}" {{ (request('finance_company_id') == $financeCompany->id) ? 'selected' : '' }}>{{ $financeCompany->name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-1">
                                     <label>&nbsp;</label>
                                     <br />
                                     <a href="{{ route('report.index', ['page' => request('page')]) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Clear') }}"><i class="fa fa-close"></i></a>
@@ -124,7 +148,7 @@
                 <label class="pull-left">{{ __('Listing') }}</label>
             </h2>
 
-            @if (!empty($vehicles) && !$vehicles->isEmpty())
+            @if (!empty(request('finance_company_id', null)) && !empty($vehicles) && !$vehicles->isEmpty())
                 <h2 class="col-md-6">
                     <label class="pull-right">
                         <form action="{{ route('vehicles.report.export', $queryStrings) }}" method="POST" enctype="multipart/form-data">

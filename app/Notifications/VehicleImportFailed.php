@@ -12,6 +12,8 @@ class VehicleImportFailed extends Notification
 {
     use Queueable;
 
+    private $exceptionContent;
+
     protected $financeCompanyId;
 
     /**
@@ -19,9 +21,11 @@ class VehicleImportFailed extends Notification
      *
      * @return void
      */
-    public function __construct(int $financeCompanyId)
+    public function __construct(int $financeCompanyId, $exceptionContent = null)
     {
         $this->financeCompanyId = $financeCompanyId;
+
+        $this->exceptionContent = $exceptionContent;
     }
 
     /**
@@ -48,6 +52,7 @@ class VehicleImportFailed extends Notification
 
         return (new MailMessage)
                     ->subject(__('URGENT KRISHNA SEIZING!! Vehicles Not Imported Successfully for : ' . $financeCompany->name))
+                    ->line(__($this->exceptionContent))
                     ->action(__('Click Here to See'), route('vehicle.index', ['finance_company_id' => $this->financeCompanyId]));
     }
 

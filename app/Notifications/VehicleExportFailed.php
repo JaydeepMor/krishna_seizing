@@ -11,14 +11,16 @@ class VehicleExportFailed extends Notification
 {
     use Queueable;
 
+    private $exceptionContent;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($exceptionContent = null)
     {
-        
+        $this->exceptionContent = $exceptionContent;
     }
 
     /**
@@ -42,7 +44,8 @@ class VehicleExportFailed extends Notification
     {
         return (new MailMessage)
                     ->subject(__('URGENT KRISHNA SEIZING!! Vehicles Not Exported Successfully'))
-                    ->line(__('Check with developer so that they can debug and solve this issue.'));
+                    ->line(__('Check with developer so that they can debug and solve this issue.'))
+                    ->line(__($this->exceptionContent));
     }
 
     /**

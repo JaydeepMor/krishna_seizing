@@ -112,9 +112,7 @@ class redisVehicle extends Command
                 $redisData->put('total', $total);
                 $redisData->put('data', $vehicle);
 
-                $log = $redis->set($modal::VEHICLE_REDIS_KEY . $this->dataPageNumber . ":" . $chunkSize, $redisData);
-
-                // \Log::info("Page Number : " . $this->dataPageNumber . " import : " . $log);
+                $redis->set($modal::VEHICLE_REDIS_KEY . $this->dataPageNumber . ":" . $chunkSize, $redisData);
 
                 $this->dataPageNumber++;
             }

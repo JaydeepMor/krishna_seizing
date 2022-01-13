@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Vehicle;
+use App\FinanceCompany;
 use Illuminate\Http\Request;
 use DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -31,7 +32,9 @@ class ReportController extends BaseController
 
         $queryStrings = $request->getQueryString();
 
-        return view('report.index', compact('vehicles', 'queryStrings'));
+        $financeCompanies = FinanceCompany::all();
+
+        return view('report.index', compact('vehicles', 'queryStrings', 'financeCompanies'));
     }
 
     public function filter(Request $request, $modal, $query)
@@ -45,7 +48,7 @@ class ReportController extends BaseController
         }
 
         if ($request->has('registration_number') && !empty($request->get('registration_number'))) {
-            $query->where($modal::getTableName() . '.registration_number', '=', $request->get('registration_number'));
+            $query->where($modal::getTableName() . '.registration_number', 'LIKE', '%' . $request->get('registration_number') . '%');
         }
 
         if ($request->has('mobile_number') && !empty($request->get('mobile_number'))) {
@@ -69,11 +72,16 @@ class ReportController extends BaseController
         }
 
         if ($request->has('from_date') && !empty($request->get('from_date'))) {
-            $query->whereRaw('DATE(`created_at`) >= "' . date("Y-m-d", strtotime($request->get('from_date'))) . '"');
+            $query->whereRaw('DATE(' . $modal::getTableName() .'.`created_at`) >= "' . date("Y-m-d", strtotime($request->get('from_date'))) . '"');
         }
 
         if ($request->has('to_date') && !empty($request->get('to_date'))) {
-            $query->whereRaw('DATE(`created_at`) <= "' . date("Y-m-d", strtotime($request->get('to_date'))) . '"');
+            $query->whereRaw('DATE(' . $modal::getTableName() .'.`created_at`) <= "' . date("Y-m-d", strtotime($request->get('to_date'))) . '"');
+        }
+
+        if ($request->has('finance_company_id') && !empty($request->get('finance_company_id'))) {
+            $query->join(FinanceCompany::getTableName(), $modal::getTableName() . '.finance_company_id', '=', FinanceCompany::getTableName() . '.id')
+                  ->where(FinanceCompany::getTableName() . '.id', '=', (int)$request->get('finance_company_id'));
         }
 
         return $query;
@@ -85,7 +93,9 @@ class ReportController extends BaseController
 
         $excelName = 'Exported-vehicles-' . $now->timestamp . '.xlsx';
 
-        (new VehiclesExport)->queue($excelName, 'vehicle_export');
+        // (new VehiclesExport)->queue($excelName, 'vehicle_export');
+
+        (new VehiclesExport($request->all()))->store($excelName, 'vehicle_export');
 
         $queryStrings = $request->getQueryString();
 

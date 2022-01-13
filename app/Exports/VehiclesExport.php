@@ -18,6 +18,8 @@ class VehiclesExport implements FromQuery, WithMapping, WithHeadings, WithChunkR
 
     private $modal;
 
+    private $requestData;
+
     /**
      * The number of seconds the job can run before timing out.
      *
@@ -27,9 +29,11 @@ class VehiclesExport implements FromQuery, WithMapping, WithHeadings, WithChunkR
 
     public $tries   = 5;
 
-    public function __construct()
+    public function __construct($requestData = [])
     {
-        $this->modal = new Vehicle();
+        $this->modal       = new Vehicle();
+
+        $this->requestData = $requestData;
     }
 
     public function chunkSize(): int
@@ -98,11 +102,15 @@ class VehiclesExport implements FromQuery, WithMapping, WithHeadings, WithChunkR
 
     public function query()
     {
-        $modal = $this->modal;
+        $modal   = $this->modal;
 
-        $query = $modal::query();
+        $query   = $modal::query();
 
-        $query = (new \App\Http\Controllers\ReportController())->filter(request(), $modal, $query);
+        $request = request();
+
+        $request->merge($this->requestData);
+
+        $query = (new \App\Http\Controllers\ReportController())->filter($request, $modal, $query);
 
         return $query;
     }
@@ -115,6 +123,6 @@ class VehiclesExport implements FromQuery, WithMapping, WithHeadings, WithChunkR
      */
     public function failed(\Exception $exception)
     {
-        Notification::route('mail', env('EXCEPTION_EMAILS', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleExportFailed());
+        Notification::route('mail', env('EXCEPTION_EMAILS', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleExportFailed($exception->getMessage()));
     }
 }
