@@ -42,6 +42,15 @@ class ApiController extends BaseController
             $vehiclesData = Vehicle::arrangeApiData($vehicles);
         } else {
             $vehiclesData['data'] = array_values($vehiclesData['data']);
+
+            $count                = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+
+            $chunkSize            = Vehicle::API_PAGINATION;
+
+            $lastPage             = (int)ceil($count / $chunkSize);
+
+            $vehiclesData['last_page']  = $lastPage;
+            $vehiclesData['total']      = $count;
         }
 
         // Get current user field permissions.
