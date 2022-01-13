@@ -57,6 +57,10 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
     */
     public function model(array $row)
     {
+        for ($i = 0; $i <= 16; $i++) {
+            $row[$i] = !isset($row[$i]) ? null : $row[$i];
+        }
+
         return new Vehicle([
             'loan_number'                 => trim((string)$row[0]),
             'customer_name'               => trim((string)$row[1]),
@@ -88,6 +92,6 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
      */
     public function failed(\Exception $exception)
     {
-        Notification::route('mail', env('EXCEPTION_EMAILS', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleImportFailed($this->financeCompanyId));
+        Notification::route('mail', env('EXCEPTION_EMAILS', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleImportFailed($this->financeCompanyId, $exception->getMessage()));
     }
 }
