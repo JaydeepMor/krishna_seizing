@@ -113,7 +113,7 @@ class VehiclesExport implements FromQuery, WithMapping, WithHeadings, WithChunkR
      * @param  Exception  $exception
      * @return void
      */
-    public function failed(Exception $exception)
+    public function failed(\Exception $exception)
     {
         Notification::route('mail', env('EXCEPTION_EMAILS', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleExportFailed());
     }
