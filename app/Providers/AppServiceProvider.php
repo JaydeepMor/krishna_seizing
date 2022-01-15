@@ -48,6 +48,8 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
+        $vehicleImportedNotificationEmail = env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com');
+
         Queue::before(function (JobProcessing $event) {
             // $event->connectionName
             // $event->job
@@ -67,9 +69,9 @@ class AppServiceProvider extends ServiceProvider
 
                     if (!empty($financeCompanyId)) {
                         // Run vehicle Redis cache.
-                        Artisan::call("daily:redis_vehicle");
+                        // Artisan::call("daily:redis_vehicle");
 
-                        Notification::route('mail', env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleImportComplete($financeCompanyId));
+                        Notification::route('mail', $vehicleImportedNotificationEmail)->notify(new VehicleImportComplete($financeCompanyId));
                     }
 
                     break;
@@ -79,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
                         $job      = unserialize($payload['data']['command']);
                         $filePath = objectToArray($job, false)['filePath'];
 
-                        Notification::route('mail', env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com'))->notify(new VehicleExportComplete($filePath));
+                        Notification::route('mail', $vehicleImportedNotificationEmail)->notify(new VehicleExportComplete($filePath));
                     } catch (Exception $e) {}
 
                     break;
