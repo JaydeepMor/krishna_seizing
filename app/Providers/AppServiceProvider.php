@@ -48,7 +48,8 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
-        $vehicleImportedNotificationEmail = env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com');
+        $importEmail = config('mail.imported.email', 'it.jaydeep.mor@gmail.com');
+        $exportEmail = config('mail.exported.email', 'it.jaydeep.mor@gmail.com');
 
         Queue::before(function (JobProcessing $event) {
             // $event->connectionName
@@ -56,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
             // $event->job->payload()
         });
 
-        Queue::after(function (JobProcessed $event) {
+        Queue::after(function (JobProcessed $event) use($importEmail, $exportEmail) {
             switch ($event->job->resolveName()) {
                 case "Maatwebsite\Excel\Jobs\AfterImportJob":
                     $financeCompanyId = null;
@@ -71,7 +72,7 @@ class AppServiceProvider extends ServiceProvider
                         // Run vehicle Redis cache.
                         // Artisan::call("daily:redis_vehicle");
 
-                        Notification::route('mail', $vehicleImportedNotificationEmail)->notify(new VehicleImportComplete($financeCompanyId));
+                        Notification::route('mail', $importEmail)->notify(new VehicleImportComplete($financeCompanyId));
                     }
 
                     break;
@@ -81,7 +82,7 @@ class AppServiceProvider extends ServiceProvider
                         $job      = unserialize($payload['data']['command']);
                         $filePath = objectToArray($job, false)['filePath'];
 
-                        Notification::route('mail', $vehicleImportedNotificationEmail)->notify(new VehicleExportComplete($filePath));
+                        Notification::route('mail', $exportEmail)->notify(new VehicleExportComplete($filePath));
                     } catch (Exception $e) {}
 
                     break;

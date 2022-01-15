@@ -107,4 +107,12 @@ return [
         ],
     ],
 
+    'imported' => [
+        'email' => env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com'),
+    ],
+
+    'exported' => [
+        'email' => env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com'),
+    ],
+
 ];
