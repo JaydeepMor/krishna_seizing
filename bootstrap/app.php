@@ -14,10 +14,6 @@
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . "/..");
 $dotenv->load();
 
-if (isset($_GET['debug'])) {
-    dd(env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL'));
-}
-
 $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
