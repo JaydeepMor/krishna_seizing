@@ -390,7 +390,7 @@ class VehicleController extends BaseController
         Vehicle::where('finance_company_id', $financeCompanyId)->delete();
 
         // Run vehicle Redis cache.
-        Artisan::call("daily:redis_vehicle");
+        // Artisan::call("daily:redis_vehicle");
 
         // Get finance company name.
         $financeCompany = FinanceCompany::find($financeCompanyId);
