@@ -21,7 +21,7 @@
     @endforeach
 
     <div class="alert alert-danger fade-in show" role="alert">
-        * {{ __("Finance company is mandatory for the export file.") }}
+        * {{ __("Finance Company / (Confirmed or Cancelled) is mandatory for the export file.") }}
         <br />
         * {{ __('We will send an email to ') }} <a href="mailto:{{ env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') }}">{{ env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', '') }}</a>{{ __(" once all data exported so wait for an email.") }}<i>{{ __(' IF YOU DIDN\'T RECEIVE ANY EMAIL AFTER LONG TIME THEN CONTACT US.') }}</i>
     </div>
@@ -94,7 +94,7 @@
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-xs-4">
                                     <label>&nbsp;</label>
                                     <div class="input-group">
                                         <input type="date" name="from_date" id="from_date" class="form-control" placeholder="{{ __('From Date') }}" value="{{ request('from_date') }}" />
@@ -128,13 +128,25 @@
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-1">
+                                <div class="col-xs-2">
+                                    <fieldset>
+                                        <label>&nbsp;</label>
+                                        <div class="input-group form-control">
+                                            <input type="radio" name="is_confirm" id="is_confirm" value="{{ $modal::CONFIRM }}" {{ request('is_confirm', null) == $modal::CONFIRM ? 'checked="true"' : (request('is_cancel', null) != $modal::CANCEL ? 'checked="true"' : '') }} />
+                                            <label for="is_confirm">{{ __('Confirmed') }}</label>
+                                            <input type="radio" name="is_cancel" id="is_cancel" value="{{ $modal::CANCEL }}" {{ request('is_cancel', null) == $modal::CANCEL ? 'checked="true"' : '' }} />
+                                            <label for="is_cancel">{{ __('Cancelled') }}</label>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-xs-2">
                                     <label>&nbsp;</label>
                                     <br />
                                     <a href="{{ route('report.index', ['page' => request('page')]) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Clear') }}"><i class="fa fa-close"></i></a>
                                     <button type="submit" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Search') }}"><i class="fa fa-search"></i></button>
                                 </div>
                             </div>
+                            <br />
                         </div>
                     </form>
                 </div>
@@ -148,7 +160,7 @@
                 <label class="pull-left">{{ __('Listing') }}</label>
             </h2>
 
-            @if (!empty(request('finance_company_id', null)) && !empty($vehicles) && !$vehicles->isEmpty())
+            @if ((!empty(request('finance_company_id', null)) || !empty(request('is_confirm', null)) || !empty(request('is_cancel', null))) && !empty($vehicles) && !$vehicles->isEmpty())
                 <h2 class="col-md-6">
                     <label class="pull-right">
                         <form action="{{ route('vehicles.report.export', $queryStrings) }}" method="POST" enctype="multipart/form-data">

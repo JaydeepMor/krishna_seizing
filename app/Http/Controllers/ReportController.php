@@ -34,7 +34,7 @@ class ReportController extends BaseController
 
         $financeCompanies = FinanceCompany::all();
 
-        return view('report.index', compact('vehicles', 'queryStrings', 'financeCompanies'));
+        return view('report.index', compact('vehicles', 'queryStrings', 'financeCompanies', 'modal'));
     }
 
     public function filter(Request $request, $modal, $query)
@@ -82,6 +82,12 @@ class ReportController extends BaseController
         if ($request->has('finance_company_id') && !empty($request->get('finance_company_id'))) {
             $query->join(FinanceCompany::getTableName(), $modal::getTableName() . '.finance_company_id', '=', FinanceCompany::getTableName() . '.id')
                   ->where(FinanceCompany::getTableName() . '.id', '=', (int)$request->get('finance_company_id'));
+        }
+
+        if ($request->has('is_cancel') && $request->get('is_cancel') == $modal::CANCEL) {
+            $query->where($modal::getTableName() . '.is_cancel', '=', $request->get('is_cancel'));
+        } else {
+            $query->where($modal::getTableName() . '.is_confirm', '=', $modal::CONFIRM);
         }
 
         return $query;

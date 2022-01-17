@@ -267,6 +267,14 @@ $(document).ready(function() {
 
         $('#modal-activity-map').modal("show");
     });
+
+    // Report page radio buttons.
+    $(document).find('#is_confirm').on("click", function() {
+        $(document).find('#is_cancel').prop("checked", false);
+    });
+    $(document).find('#is_cancel').on("click", function() {
+        $(document).find('#is_confirm').prop("checked", false);
+    });
 });
 
 function setTheme() {
