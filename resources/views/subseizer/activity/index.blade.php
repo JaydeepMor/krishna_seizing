@@ -101,7 +101,7 @@
                                     <td>{{ !empty($vehicle->registration_number) ? $vehicle->registration_number : "-" }}</td>
                                     <td>{{ !empty($vehicle->latitude) ? $vehicle->latitude : "-" }}</td>
                                     <td>{{ !empty($vehicle->longitude) ? $vehicle->longitude : "-" }}</td>
-                                    <td>{{ !empty($vehicle->created_at) ? date(DEFAULT_DATE_FORMAT, strtotime($vehicle->created_at)) : "-" }}</td>
+                                    <td>{{ !empty($vehicle->created_at) ? date(DEFAULT_DATE_TIME_FORMAT, strtotime($vehicle->created_at)) : "-" }}</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group">
                                             <a href="javascript:void(0);" data-toggle="tooltip" title="" class="btn btn-secondary show-map" data-original-title="{{ __('Show In Map') }}" data-latitude="{{ $vehicle->latitude }}" data-longitude="{{ $vehicle->longitude }}"><i class="fa fa-map"></i></a>
