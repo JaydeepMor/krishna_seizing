@@ -123,6 +123,8 @@
                             <th>{{ __('IMEI Number') }}</th>
                             <th>{{ __('Address') }}</th>
                             <th>{{ __('Contact Number') }}</th>
+                            <th>{{ __('ID Proof') }}</th>
+                            <th>{{ __('Selfie') }}</th>
                             <th>{{ __('Subscription From / To') }}</th>
                             <th>{{ __('Subscribe') }}</th>
                             <th class="text-center">{{ __('Actions') }}</th>
@@ -137,6 +139,20 @@
                                     <td>{{ !empty($user->imei_number) ? $user->imei_number : "-" }}</td>
                                     <td>{{ !empty($user->address) ? $user->address : "-" }}</td>
                                     <td>{{ !empty($user->contact_number) ? $user->contact_number : "-" }}</td>
+                                    <td>
+                                        @if (!empty($user->id_proof))
+                                            <a href="{{ !empty($user->id_proof) ? $user->id_proof : '#' }}" target="_blank">{{ __('View') }}</a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if (!empty($user->selfie))
+                                            <a href="{{ !empty($user->selfie) ? $user->selfie : '#' }}" target="_blank">{{ __('View') }}</a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>{{ $user->currentSubscription['from'] . ' / ' . $user->currentSubscription['to'] }}</td>
                                     <td>
                                         <label class="switch switch-danger">

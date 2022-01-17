@@ -10,6 +10,7 @@ use App\Group;
 use App\UserSubscription;
 use App\ApiKey;
 use App\UserVehicleFieldPermission;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -29,6 +30,8 @@ class User extends Authenticatable
         'imei_number',
         'status',
         'group_id',
+        'id_proof',
+        'selfie',
         'remember_token',
         'password',
         'is_admin'
@@ -45,6 +48,11 @@ class User extends Authenticatable
         'created_at',
         'updated_at'
     ];
+
+    public $allowedImageExtensions = ['jpg', 'jpeg', 'png'];
+    public $fileSystem             = 'public';
+    public $idProofPath            = 'user\\id_proof';
+    public $selfiePath             = 'user\\selfie';
 
     const ADMIN_ID = '1';
 
@@ -91,7 +99,9 @@ class User extends Authenticatable
             'is_admin'    => ['in:' . implode(",", array_keys($this->isAdmin))],
             'password'    => [$password, 'min:6', 'confirmed', 'required_with:password_confirmed'],
             'vehicle_allowed_fields' => $allowedFields,
-            'contact_number' => $contact
+            'contact_number' => $contact,
+            'id_proof'    => ['nullable', 'mimes:' . implode(",", $this->allowedImageExtensions)],
+            'selfie'      => ['nullable', 'mimes:' . implode(",", $this->allowedImageExtensions)]
         ]);
     }
 
@@ -147,6 +157,50 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    public function getIdProofAttribute($value)
+    {
+        $storageFolderName = (str_ireplace("\\", "/", $this->idProofPath));
+
+        if (!empty($value) && !empty($storageFolderName)) {
+            $exists = Storage::disk($this->fileSystem)->exists($storageFolderName . '/' . $value);
+
+            if ($exists) {
+                $url = Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
+
+                if (!empty($url)) {
+                    $url = removeHttp($url);
+
+                    return $url;
+                }
+            }
+        }
+
+        // return asset('img/placeholders/avatars/id-proof.png');
+        return null;
+    }
+
+    public function getSelfieAttribute($value)
+    {
+        $storageFolderName = (str_ireplace("\\", "/", $this->selfiePath));
+
+        if (!empty($value) && !empty($storageFolderName)) {
+            $exists = Storage::disk($this->fileSystem)->exists($storageFolderName . '/' .  $value);
+
+            if ($exists) {
+                $url = Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
+
+                if (!empty($url)) {
+                    $url = removeHttp($url);
+
+                    return $url;
+                }
+            }
+        }
+
+        // return asset('img/placeholders/avatars/selfie.png');
+        return null;
     }
 
     public function getApiKey()

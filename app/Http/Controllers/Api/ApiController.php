@@ -13,6 +13,9 @@ use App\Http\Controllers\BaseController;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
+use App\Notifications\CommonException;
+use Notification;
 
 class ApiController extends BaseController
 {
@@ -80,6 +83,54 @@ class ApiController extends BaseController
 
         if ($validator->fails()) {
             return $this->returnError($validator->errors()->first());
+        }
+
+        $idProofUpload = !empty($data['id_proof']) ? $data['id_proof'] : null;
+        $selfieUpload  = !empty($data['selfie']) ? $data['selfie'] : null;
+
+        unset($data['id_proof']);
+        unset($data['selfie']);
+
+        if (!empty($idProofUpload) && $idProofUpload instanceof UploadedFile) {
+            $idProof   = $idProofUpload;
+
+            $pathInfos = pathinfo($idProof->getClientOriginalName());
+
+            if (!empty($pathInfos['extension'])) {
+                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
+
+                $storeFile = $idProof->storeAs($modal->idProofPath, $fileName, $modal->fileSystem);
+
+                if ($storeFile) {
+                    $data['id_proof'] = $fileName;
+                } else {
+                    Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading from API. Store File : " . $storeFile)));
+
+                    return $this->returnError(__('Something went wrong. Please try again later or contact superadmin.'));
+                }
+            }
+        }
+
+        if (!empty($selfieUpload) && $selfieUpload instanceof UploadedFile) {
+            $selfie    = $selfieUpload;
+
+            $pathInfos = pathinfo($selfie->getClientOriginalName());
+
+            if (!empty($pathInfos['extension'])) {
+                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
+
+                $storeFile = $selfie->storeAs($modal->selfiePath, $fileName, $modal->fileSystem);
+
+                if ($storeFile) {
+                    $data['selfie'] = $fileName;
+                } else {
+                    Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading from API. Store File : " . $storeFile)));
+
+                    return $this->returnError(__('Something went wrong. Please try again later or contact superadmin.'));
+                }
+            }
         }
 
         $create = $modal::create($data);

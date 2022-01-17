@@ -18,7 +18,7 @@
                     <div class="block-title">
                         <h2><strong class="color-red">*</strong> {{ __('is required field') }}</h2>
                     </div>
-                    <form action="{{ route('subseizer.store') }}" method="post">
+                    <form action="{{ route('subseizer.store') }}" method="post" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row">
@@ -145,6 +145,34 @@
                                             @endif
                                         </select>
                                         @error('group_id')
+                                            <em class="color-red error invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </em>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <fieldset>
+                                    <legend>{{ __('Upload ID Proof') }}</legend>
+                                    <div class="form-group">
+                                        <input type="file" name="id_proof" id="id_proof" class="form-control" accept="image/png, image/jpg, image/jpeg" />
+                                        @error('id_proof')
+                                            <em class="color-red error invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </em>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6">
+                                <fieldset>
+                                    <legend>{{ __('Upload Selfie') }}</legend>
+                                    <div class="form-group">
+                                        <input type="file" name="selfie" id="selfie" class="form-control" accept="image/png, image/jpg, image/jpeg" />
+                                        @error('selfie')
                                             <em class="color-red error invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
                                             </em>

@@ -18,7 +18,7 @@
                     <div class="block-title">
                         <h2><strong class="color-red">*</strong> {{ __('is required field') }}</h2>
                     </div>
-                    <form action="{{ route('subseizer.update', $row->id) }}" method="POST">
+                    <form action="{{ route('subseizer.update', $row->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         {{ method_field('PUT') }}
 
@@ -146,6 +146,48 @@
                                             @endif
                                         </select>
                                         @error('group_id')
+                                            <em class="color-red error invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </em>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <fieldset>
+                                    <legend>
+                                        {{ __('Upload New ID Proof') }}
+                                    </legend>
+                                    <div class="form-group">
+                                        <div class="alert alert-danger fade-in show" role="alert">
+                                            * {{ __("Only upload id proof if you want to change.") }}
+                                            <br />
+                                            * {{ __("Old uploaded id proof remains same if you leave blank.") }}
+                                        </div>
+                                        <input type="file" name="id_proof" id="id_proof" class="form-control" accept="image/png, image/jpg, image/jpeg" />
+                                        @error('id_proof')
+                                            <em class="color-red error invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </em>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6">
+                                <fieldset>
+                                    <legend>
+                                        {{ __('Upload New Selfie') }}
+                                    </legend>
+                                    <div class="form-group">
+                                        <div class="alert alert-danger fade-in show" role="alert">
+                                            * {{ __("Only upload selfie if you want to change.") }}
+                                            <br />
+                                            * {{ __("Old uploaded selfie remains same if you leave blank.") }}
+                                        </div>
+                                        <input type="file" name="selfie" id="selfie" class="form-control" accept="image/png, image/jpg, image/jpeg" />
+                                        @error('selfie')
                                             <em class="color-red error invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
                                             </em>

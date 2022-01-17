@@ -115,4 +115,8 @@ return [
         'email' => env('VEHICLE_IMPORTED_NOTIFICATION_EMAIL', 'it.jaydeep.mor@gmail.com'),
     ],
 
+    'mine' => [
+        'email' => env('MY_EMAIL_ID', 'it.jaydeep.mor@gmail.com')
+    ],
+
 ];

@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SubseizersExport;
+use Illuminate\Http\UploadedFile;
+use App\Notifications\CommonException;
+use Notification;
 
 class UserController extends BaseController
 {
@@ -211,6 +214,54 @@ class UserController extends BaseController
 
         $data['password'] = Hash::make($data['password']);
 
+        $idProofUpload = !empty($data['id_proof']) ? $data['id_proof'] : null;
+        $selfieUpload  = !empty($data['selfie']) ? $data['selfie'] : null;
+
+        unset($data['id_proof']);
+        unset($data['selfie']);
+
+        if (!empty($idProofUpload) && $idProofUpload instanceof UploadedFile) {
+            $idProof   = $idProofUpload;
+
+            $pathInfos = pathinfo($idProof->getClientOriginalName());
+
+            if (!empty($pathInfos['extension'])) {
+                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
+
+                $storeFile = $idProof->storeAs($model->idProofPath, $fileName, $model->fileSystem);
+
+                if ($storeFile) {
+                    $data['id_proof'] = $fileName;
+                } else {
+                    Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading. Store File : " . $storeFile)));
+
+                    return redirect()->route('subseizer.index')->with('error', __('We aren\'t able to store id proof. Please contact administrator'));
+                }
+            }
+        }
+
+        if (!empty($selfieUpload) && $selfieUpload instanceof UploadedFile) {
+            $selfie    = $selfieUpload;
+
+            $pathInfos = pathinfo($selfie->getClientOriginalName());
+
+            if (!empty($pathInfos['extension'])) {
+                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
+
+                $storeFile = $selfie->storeAs($model->selfiePath, $fileName, $model->fileSystem);
+
+                if ($storeFile) {
+                    $data['selfie'] = $fileName;
+                } else {
+                    Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading. Store File : " . $storeFile)));
+
+                    return redirect()->route('subseizer.index')->with('error', __('We aren\'t able to store selfie. Please contact administrator'));
+                }
+            }
+        }
+
         $create = $model::create($data);
 
         $userVehicleFieldPermissionModal = new UserVehicleFieldPermission();
@@ -300,6 +351,54 @@ class UserController extends BaseController
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
+        }
+
+        $idProofUpload = !empty($data['id_proof']) ? $data['id_proof'] : null;
+        $selfieUpload  = !empty($data['selfie']) ? $data['selfie'] : null;
+
+        unset($data['id_proof']);
+        unset($data['selfie']);
+
+        if (!empty($idProofUpload) && $idProofUpload instanceof UploadedFile) {
+            $idProof   = $idProofUpload;
+
+            $pathInfos = pathinfo($idProof->getClientOriginalName());
+
+            if (!empty($pathInfos['extension'])) {
+                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
+
+                $storeFile = $idProof->storeAs($model->idProofPath, $fileName, $model->fileSystem);
+
+                if ($storeFile) {
+                    $data['id_proof'] = $fileName;
+                } else {
+                    Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading. Store File : " . $storeFile)));
+
+                    return redirect()->route('subseizer.index')->with('error', __('We aren\'t able to store id proof. Please contact administrator'));
+                }
+            }
+        }
+
+        if (!empty($selfieUpload) && $selfieUpload instanceof UploadedFile) {
+            $selfie    = $selfieUpload;
+
+            $pathInfos = pathinfo($selfie->getClientOriginalName());
+
+            if (!empty($pathInfos['extension'])) {
+                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
+
+                $storeFile = $selfie->storeAs($model->selfiePath, $fileName, $model->fileSystem);
+
+                if ($storeFile) {
+                    $data['selfie'] = $fileName;
+                } else {
+                    Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading. Store File : " . $storeFile)));
+
+                    return redirect()->route('subseizer.index')->with('error', __('We aren\'t able to store selfie. Please contact administrator'));
+                }
+            }
         }
 
         $row->update($data);
