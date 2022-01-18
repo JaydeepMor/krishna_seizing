@@ -80,7 +80,9 @@ class VehicleController extends BaseController
 
         $financeCompanies = FinanceCompany::all();
 
-        return view('vehicle.index', compact('vehicles', 'users', 'todayDate', 'financeCompanies'));
+        $vehiclesCount    = $modal::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+
+        return view('vehicle.index', compact('vehicles', 'users', 'todayDate', 'financeCompanies', 'vehiclesCount'));
     }
 
     /**

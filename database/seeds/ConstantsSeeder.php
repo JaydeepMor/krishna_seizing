@@ -44,7 +44,7 @@ class ConstantsSeeder extends Seeder
 
             Constant::create([
                 'key'   => 'DEFAULT_DATE_TIME_FORMAT',
-                'value' => 'Y-m-d HH:ii:ss'
+                'value' => 'Y-m-d H:i:s'
             ]);
 
             Constant::create([

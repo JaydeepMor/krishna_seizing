@@ -133,7 +133,9 @@
     <div class="block">
         <div class="block-title row">
             <h2 class="col-md-4">
-                <label class="pull-left">{{ __('Listing') }}</label>
+                <label class="pull-left">
+                    {{ __('Listing') }}
+                </label>
             </h2>
 
             <h2 class="col-md-8">
@@ -211,6 +213,11 @@
                         </caption>
                     @endif
                     <thead>
+                        <tr>
+                            <th colspan="14">
+                                {{ __('Total Vehicles') }} : {{ $vehiclesCount }}
+                            </th>
+                        </tr>
                         <tr>
                             <th class="text-center">#</th>
                             <th>{{ __('Loan Number') }}</th>
