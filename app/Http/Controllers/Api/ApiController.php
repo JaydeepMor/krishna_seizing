@@ -78,11 +78,7 @@ class ApiController extends BaseController
         $modal = new User();
 
         $data  = $request->all();
-        return json_encode([
-            'request' => $request->except(['id_proof', 'selfie']),
-            'id_proof' => $request->file('id_proof')->getClientOriginalName(),
-            'selfie' => $request->file('selfie')->getClientOriginalName()
-        ]);exit;
+
         $validator = $modal->validator($data, NULL, true);
 
         if ($validator->fails()) {
