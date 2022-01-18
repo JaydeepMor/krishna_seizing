@@ -110,6 +110,7 @@ class redisVehicle extends Command
                 $redisData->put('last_page', $lastPage);
                 $redisData->put('per_page', $chunkSize);
                 $redisData->put('total', $total);
+                $redisData->put('current_page_total', $vehicle->count());
                 $redisData->put('data', $vehicle);
 
                 $redis->set($modal::VEHICLE_REDIS_KEY . $this->dataPageNumber . ":" . $chunkSize, $redisData);

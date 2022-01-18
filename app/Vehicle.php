@@ -172,6 +172,8 @@ class Vehicle extends BaseModel
 
                 $vehiclesData->put($field, $value);
             }
+
+            $vehiclesData->put("current_page_total", $vehicles->count());
         }
 
         return $vehiclesData;
