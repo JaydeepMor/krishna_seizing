@@ -60,8 +60,8 @@
                             <!-- User Info -->
                             <div class="sidebar-section sidebar-user clearfix sidebar-nav-mini-hide">
                                 <div class="sidebar-user-avatar">
-                                    <a href="#">
-                                        <img src="{{ asset('img/placeholders/avatars/avatar.jpg') }}" alt="avatar">
+                                    <a href="{{ route('dashboard') }}">
+                                        <img src="{{ asset('img/placeholders/avatars/avatar.jpeg') }}" alt="avatar">
                                     </a>
                                 </div>
                                 <div class="sidebar-user-name">{{ __('Administrator') }}</div>

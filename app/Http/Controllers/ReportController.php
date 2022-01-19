@@ -87,6 +87,8 @@ class ReportController extends BaseController
         if ($request->has('is_cancel') && $request->get('is_cancel') == $modal::CANCEL) {
             $query->where($modal::getTableName() . '.is_cancel', '=', $request->get('is_cancel'));
         } else {
+            $request->merge(['is_confirm' => $modal::CONFIRM]);
+
             $query->where($modal::getTableName() . '.is_confirm', '=', $modal::CONFIRM);
         }
 

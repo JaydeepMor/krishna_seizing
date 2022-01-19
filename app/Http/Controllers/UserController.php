@@ -435,17 +435,33 @@ class UserController extends BaseController
      */
     public function destroy(Request $request, $id)
     {
-        User::where('id', $id)->delete();
+        $user = User::find($id);
 
-        UserVehicleFieldPermission::where('user_id', $id)->delete();
+        if (!empty($user)) {
+            $email = emailPlusAddressing($user->email);
 
-        UserActivity::where('user_id', $id)->delete();
+            $imei  = imeiPlusAddressing($user->imei_number);
 
-        UserSubscription::where('user_id', $id)->delete();
+            $user->email       = $email;
 
-        ApiKey::where('user_id', $id)->delete();
+            $user->imei_number = $imei;
 
-        return redirect()->route('subseizer.index')->with('success', __('Record deleted successfully!'));
+            $user->save();
+
+            User::where('id', $id)->delete();
+
+            UserVehicleFieldPermission::where('user_id', $id)->delete();
+
+            UserActivity::where('user_id', $id)->delete();
+
+            UserSubscription::where('user_id', $id)->delete();
+
+            ApiKey::where('user_id', $id)->delete();
+
+            return redirect()->route('subseizer.index')->with('success', __('Record deleted successfully!'));
+        }
+
+        return redirect()->route('subseizer.index')->with('danger', __('Something went wrong! Please try again.'));
     }
 
     public function subscription(Request $request, $id)

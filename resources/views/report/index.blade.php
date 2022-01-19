@@ -169,7 +169,7 @@
                             <div class="row">
                                 <div class="col-xs-12">
                                     <div class="input-group">
-                                        <span class="input-group-btn">
+                                        <span class="input-group-btn text-right">
                                             <button type="submit" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="{{ __('Export To CSV') }}">
                                                 <i class="gi gi-file_export"></i>
                                             </button>

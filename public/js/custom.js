@@ -10,7 +10,7 @@ $(document).ready(function() {
     $('.remove-button').on('click', function() {
         let id = $(this).attr('data-id');
 
-        if (confirm('Are you sure you want to delete this?')) {
+        if (confirm('Are you sure you want to delete this? \nWe won\'t be recover this.')) {
             $('#remove-form-' + id).submit();
         }
     });

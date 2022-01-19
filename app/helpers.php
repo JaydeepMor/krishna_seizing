@@ -37,3 +37,28 @@ function removeHttp($url)
 
     return $url;
 }
+
+function randomNumber($digits = 4)
+{
+    return rand(pow(10, $digits-1), pow(10, $digits)-1);
+}
+
+function emailPlusAddressing(string $emailId)
+{
+    $exploded = explode("@", $emailId);
+
+    if (!empty($exploded[0])) {
+        $emailId = $exploded[0] . "+D" . randomNumber() . "@" . (!empty($exploded[1]) ? $exploded[1] : "");
+    }
+
+    return $emailId;
+}
+
+function imeiPlusAddressing(string $imeiNumber)
+{
+    if (!empty($imeiNumber)) {
+        $imeiNumber = $imeiNumber . "+D" . randomNumber();
+    }
+
+    return $imeiNumber;
+}
