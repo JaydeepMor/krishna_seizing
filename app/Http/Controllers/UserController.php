@@ -65,7 +65,7 @@ class UserController extends BaseController
 
         $query->where('is_admin', $modal::IS_USER);
 
-        $query->where('id', '!=', env('TEST_USER_ID', 0));
+        $query->whereNotIn('id', explode(",", env('TEST_USER_ID', 0)));
 
         $query->select($modal::getTableName() . '.*');
 
@@ -92,58 +92,60 @@ class UserController extends BaseController
 
         $query        = $modal::query();
 
+        $query->where('id', '!=', User::ADMIN_ID)->whereNotIn('id', explode(",", env('TEST_USER_ID', 0)));
+
         $query->select('id', 'name', 'address', 'email', 'contact_number', 'team_leader', 'imei_number', 'status', 'group_id', 'created_at');
 
         $query        = $this->filter($request, $modal, $query);
 
-        $vehicles     = $query->with('userSubscriptionsWithTrashed')->get();
+        $users        = $query->with('userSubscriptionsWithTrashed')->get();
 
-        $vehicleArray = collect([]);
+        $userArray    = collect([]);
 
-        if (!empty($vehicles) && !$vehicles->isEmpty()) {
-            $vehicles->map(function(&$row) use($modal) {
+        if (!empty($users) && !$users->isEmpty()) {
+            $users->map(function(&$row) use($modal) {
                 $row->status  = $modal->statuses[(string)$row->status];
                 $row->created = date(DEFAULT_DATE_FORMAT, strtotime($row->created_at));
                 $row->group   = !empty($row->group) ? $row->group->name : "";
             });
 
-            $vehicles = $vehicles->toArray();
+            $users = $users->toArray();
 
             // Set dash "-" for null fields.
-            foreach($vehicles as $index => $vehicle) {
-                foreach ($vehicle as $field => $row) {
+            foreach($users as $index => $user) {
+                foreach ($user as $field => $row) {
                     if (empty($row)) {
                         if (is_array($row)) {
-                            $vehicles[$index][$field] = [];
+                            $users[$index][$field] = [];
                         } else {
-                            $vehicles[$index][$field] = "-";
+                            $users[$index][$field] = "-";
                         }
                     }
                 }
             }
 
             // Remove unnecessary fields.
-            foreach($vehicles as $field => $vehicle) {
-                unset($vehicle['current_subscription']);
-                unset($vehicle['is_subscribed']);
-                unset($vehicle['group_id']);
-                unset($vehicle['api_key']);
+            foreach($users as $field => $user) {
+                unset($user['current_subscription']);
+                unset($user['is_subscribed']);
+                unset($user['group_id']);
+                unset($user['api_key']);
 
-                $userSubscriptions = $vehicle['user_subscriptions_with_trashed'];
+                $userSubscriptions = $user['user_subscriptions_with_trashed'];
 
-                unset($vehicle['user_subscriptions_with_trashed']);
+                unset($user['user_subscriptions_with_trashed']);
 
-                $vehicle['temp_created'] = $vehicle['created'];
+                $user['temp_created'] = $user['created'];
 
-                unset($vehicle['created']);
+                unset($user['created']);
 
-                $vehicle['group']   = !empty($vehicle['group']['name']) ? $vehicle['group']['name'] : "";
+                $user['group']   = !empty($user['group']['name']) ? $user['group']['name'] : "";
 
-                $vehicle['created'] = $vehicle['temp_created'];
+                $user['created'] = $user['temp_created'];
 
-                unset($vehicle['temp_created']);
+                unset($user['temp_created']);
 
-                $vehicleArray->push($vehicle);
+                $userArray->push($user);
 
                 if (!empty($userSubscriptions)) {
                     $tempSubscription = [];
@@ -155,7 +157,7 @@ class UserController extends BaseController
                     $tempSubscription['group']   = "Subscription From";
                     $tempSubscription['created'] = "Subscription To";
 
-                    $vehicleArray->push($tempSubscription);
+                    $userArray->push($tempSubscription);
 
                     foreach ($userSubscriptions as $userSubscription) {
                         $tempSubscription = [];
@@ -167,13 +169,13 @@ class UserController extends BaseController
                         $tempSubscription['group']   = date(DEFAULT_DATE_FORMAT, strtotime($userSubscription['from']));
                         $tempSubscription['created'] = date(DEFAULT_DATE_FORMAT, strtotime($userSubscription['to']));
 
-                        $vehicleArray->push($tempSubscription);
+                        $userArray->push($tempSubscription);
                     }
                 }
             }
         }
 
-        return Excel::download(new SubseizersExport($vehicleArray), 'Exported-Subseizers-' . $request->get('subscription_month', date('Ymd')) . '.xlsx');
+        return Excel::download(new SubseizersExport($userArray), 'Exported-Subseizers-' . $request->get('subscription_month', date('Ymd')) . '.xlsx');
     }
 
     /**
@@ -532,7 +534,7 @@ class UserController extends BaseController
 
         $query->where(User::getTableName() . '.is_admin', User::IS_USER);
 
-        $query->where(User::getTableName() . '.id', '!=', env('TEST_USER_ID', 0));
+        $query->whereNotIn(User::getTableName() . '.id', explode(",", env('TEST_USER_ID', 0)));
 
         $query->join(User::getTableName(), $modal::getTableName() . '.user_id', '=', User::getTableName() . '.id');
 
