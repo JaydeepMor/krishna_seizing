@@ -62,3 +62,5 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('theme/set/cookie', 'BaseController@setThemeCookie')->name('set-theme-cookie');
     Route::post('admin/password/update', 'BaseController@updateAdminPassword')->name('admin.password.update');
 });
+
+Route::get('privacy-policy', 'BaseController@privacyPolicy')->name('privacy.policy');

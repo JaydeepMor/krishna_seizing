@@ -115,4 +115,9 @@ class BaseController extends Controller
             'Content-Disposition' => 'inline; filename="' . RELEASED_APPLICATION . '"'
         ]);
     }
+
+    public function privacyPolicy()
+    {
+        return view('privacy_policy.index');
+    }
 }

@@ -189,6 +189,12 @@
                                         <span class="sidebar-nav-mini-hide">{{ __('Constants') }}</span>
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="{{ route('privacy.policy') }}" class="{{ request()->is('privacy*') ? 'active' : '' }}">
+                                        <i class="fa fa-lock sidebar-nav-icon"></i>
+                                        <span class="sidebar-nav-mini-hide">{{ __('Privacy Policy') }}</span>
+                                    </a>
+                                </li>
                             </ul>
                             <!-- END Sidebar Navigation -->
                         </div>
@@ -203,7 +209,7 @@
                     <div id="main-container">
                 @endauth
                 @guest
-                    <div id="login-container" class="animation-fadeIn">
+                    <div id="{{ request()->route()->getName() == 'privacy.policy' ? 'page-content' : 'login-container' }}" style="{{ request()->route()->getName() == 'privacy.policy' ? 'height: 100vh;' : '' }}" class="animation-fadeIn">
                 @endguest
                     @auth
                     <!-- Header -->
