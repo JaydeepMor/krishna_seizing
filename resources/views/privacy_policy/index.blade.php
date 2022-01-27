@@ -26,6 +26,27 @@
 
             <br />
 
+            <h4><b>Location Access</b></h4>
+            <h4>
+                We need and store location access to track user activity that's only accessible by us and.
+            </h4>
+
+            <br />
+
+            <h4><b>Camera Access</b></h4>
+            <h4>
+                We need camera access while register user to upload their selfie realtime that's only accessible by us and.
+            </h4>
+
+            <br />
+
+            <h4><b>Storage Access</b></h4>
+            <h4>
+                We need storage access while register user to upload their id proof document that's only accessible by us and.
+            </h4>
+
+            <br />
+
             <h4><b>How we store your data</b></h4>
             <h4>
                 Everything you send to us, will be transported over an SSL encrypted connection. This means that it is impossible for hackers to tap the information. Second, we store your information in our database that's only accessible by us and relevant parties that develop our website.
