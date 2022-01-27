@@ -44,7 +44,12 @@
                 </div>
             </div>
 
-            <div id="page-container" class="sidebar-partial sidebar-visible-lg sidebar-no-animations {{ Cookie::get('default_page_style', '') }}">
+            @auth
+                <div id="page-container" class="sidebar-partial sidebar-visible-lg sidebar-no-animations {{ Cookie::get('default_page_style', '') }}">
+            @endauth
+            @guest
+                <div id="{{ request()->route()->getName() == 'privacy.policy' ? '' : 'page-container' }}" class="sidebar-partial sidebar-visible-lg sidebar-no-animations {{ Cookie::get('default_page_style', '') }}">
+            @endguest
                 @auth
                 <!-- Main Sidebar -->
                 <div id="sidebar">
