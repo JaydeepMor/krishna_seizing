@@ -439,7 +439,7 @@ class VehicleController extends BaseController
             $whatsAppMessage = WhatsappMessage::messageFormatForCancelled($getVehicle);
         }
 
-        $whatsAppWebUrl  = "https://web.whatsapp.com/send?phone=+91{$getUser->contact_number}&text=" . urlencode($whatsAppMessage);
+        $whatsAppWebUrl  = "https://api.whatsapp.com/send?phone=+91{$getUser->contact_number}&text=" . urlencode($whatsAppMessage);
 
         return response()->json(["msg" => null, "whats_app_web_url" => $whatsAppWebUrl, "is_success" => true]);
     }
