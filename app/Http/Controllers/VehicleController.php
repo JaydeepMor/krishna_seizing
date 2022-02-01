@@ -17,6 +17,7 @@ use App\Channels\WhatsAppChannel;
 use Illuminate\Http\Response;
 use Maatwebsite\Excel\HeadingRowImport;
 use Illuminate\Support\Facades\Artisan;
+use Jenssegers\Agent\Agent;
 
 class VehicleController extends BaseController
 {
@@ -439,7 +440,13 @@ class VehicleController extends BaseController
             $whatsAppMessage = WhatsappMessage::messageFormatForCancelled($getVehicle);
         }
 
-        $whatsAppWebUrl  = "https://web.whatsapp.com/send?phone=+91{$getUser->contact_number}&text=" . urlencode($whatsAppMessage);
+        $agent = new Agent();
+
+        if ($agent->isMobile()) {
+            $whatsAppWebUrl  = "https://api.whatsapp.com/send?phone=+91{$getUser->contact_number}&text=" . urlencode($whatsAppMessage);
+        } else {
+            $whatsAppWebUrl  = "https://web.whatsapp.com/send?phone=+91{$getUser->contact_number}&text=" . urlencode($whatsAppMessage);
+        }
 
         return response()->json(["msg" => null, "whats_app_web_url" => $whatsAppWebUrl, "is_success" => true]);
     }

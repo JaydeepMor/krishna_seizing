@@ -181,6 +181,7 @@ return [
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        App\Providers\AgentServiceProvider::class,
 
     ],
 
