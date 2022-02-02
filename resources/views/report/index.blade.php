@@ -202,8 +202,7 @@
                             <th>{{ __('Branch') }}</th>
                             <th>{{ __('Area') }}</th>
                             <th>{{ __('Region') }}</th>
-                            <th>{{ __('Confirm') }}</th>
-                            <th>{{ __('Cancel') }}</th>
+                            <th>{{ __('Confirm / Cancel') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -220,10 +219,17 @@
                                     <td>{{ !empty($vehicle->area) ? $vehicle->area : "-" }}</td>
                                     <td>{{ !empty($vehicle->region) ? $vehicle->region : "-" }}</td>
                                     <td>
-                                        {{ $vehicle->isConfirm[$vehicle->is_confirm] }}
-                                    </td>
-                                    <td>
-                                        {{ $vehicle->isCancel[$vehicle->is_cancel] }}
+                                        @if ($vehicle->is_confirm == \App\Vehicle::CONFIRM)
+                                            {{ $vehicle->isConfirm[$vehicle->is_confirm] }}
+                                        @else
+                                            {{ $vehicle->isCancel[$vehicle->is_cancel] }}
+                                        @endif
+
+                                        @if (!empty($vehicle->updated_at))
+                                            <br/> {{ \Carbon\Carbon::parse($vehicle->updated_at . 'UTC')->tz('Asia/Calcutta')->format(DEFAULT_DATE_TIME_FORMAT) }}
+                                        @else
+                                            -
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

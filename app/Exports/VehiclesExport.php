@@ -94,8 +94,8 @@ class VehiclesExport implements FromQuery, WithMapping, WithHeadings, WithChunkR
             $vehicle->bkt,
             $vehicle->area,
             $vehicle->region,
-            $modal->isConfirm[$vehicle->is_confirm],
-            $modal->isCancel[$vehicle->is_cancel],
+            $modal->isConfirm[$vehicle->is_confirm] . (($vehicle->is_confirm == $modal::CONFIRM) ? PHP_EOL . \Carbon\Carbon::parse($vehicle->updated_at . 'UTC')->tz('Asia/Calcutta')->format(DEFAULT_DATE_TIME_FORMAT) : ""),
+            $modal->isCancel[$vehicle->is_cancel] . (($vehicle->is_cancel == $modal::CANCEL) ? PHP_EOL . \Carbon\Carbon::parse($vehicle->updated_at . 'UTC')->tz('Asia/Calcutta')->format(DEFAULT_DATE_TIME_FORMAT) : ""),
             date(DEFAULT_DATE_FORMAT, strtotime($vehicle->created_at))
         ];
     }
