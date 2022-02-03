@@ -101,9 +101,11 @@ function reArrengeRegistrationNumber(string $regNo)
         return $regNo;
     }
 
-    $regNoTemp = str_split(str_replace(' ', '', trim($regNo)), 2);
+    $regNoTemp   = str_split(str_replace(' ', '', trim($regNo)), 2);
 
-    $regNoNew  = null;
+    $regNoNew    = null;
+
+    $isConverted = false;
 
     if (!empty($regNoTemp[0])) {
         if (!empty($regNoTemp[1])) {
@@ -127,8 +129,14 @@ function reArrengeRegistrationNumber(string $regNo)
 
             if (!empty($lastNumber)) {
                 $regNoNew .= '-' . $lastNumber;
+
+                $isConverted = true;
             }
         }
+    }
+
+    if (!$isConverted) {
+        $regNoNew = $regNo;
     }
 
     return $regNoNew;
