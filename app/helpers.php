@@ -74,3 +74,62 @@ function imeiPlusAddressing(string $imeiNumber)
 
     return $imeiNumber;
 }
+
+function reArrengeRegistrationNumber(string $regNo)
+{
+    if (
+        strpos($regNo, '-') !== false || 
+        strpos($regNo, '/') !== false || 
+        strpos($regNo, '\\') !== false || 
+        strpos($regNo, '.') !== false || 
+        strpos($regNo, '_') !== false || 
+        strpos($regNo, '~') !== false || 
+        strpos($regNo, '`') !== false || 
+        strpos($regNo, '@') !== false || 
+        strpos($regNo, '#') !== false || 
+        strpos($regNo, '$') !== false || 
+        strpos($regNo, '%') !== false || 
+        strpos($regNo, '^') !== false || 
+        strpos($regNo, '&') !== false || 
+        strpos($regNo, '(') !== false || 
+        strpos($regNo, ')') !== false || 
+        strpos($regNo, '+') !== false || 
+        strpos($regNo, '=') !== false || 
+        strpos($regNo, '*') !== false || 
+        strpos($regNo, '|') !== false
+    ) {
+        return $regNo;
+    }
+
+    $regNoTemp = str_split(str_replace(' ', '', trim($regNo)), 2);
+
+    $regNoNew  = null;
+
+    if (!empty($regNoTemp[0])) {
+        if (!empty($regNoTemp[1])) {
+            $regNoNew = $regNoTemp[0] . '-' . $regNoTemp[1];
+
+            $tempRegNo = null;
+            foreach ($regNoTemp as $key => $temp) {
+                if ($key < 2) {
+                    continue;
+                }
+
+                $tempRegNo .= $temp;
+            }
+
+            $lastNumber   = (!empty($tempRegNo)) ? substr($tempRegNo, -4) : null;
+            $seriesNumber = (!empty($lastNumber)) ? implode('', explode($lastNumber, $tempRegNo)) : null;
+
+            if (!empty($seriesNumber)) {
+                $regNoNew .= '-' . $seriesNumber;
+            }
+
+            if (!empty($lastNumber)) {
+                $regNoNew .= '-' . $lastNumber;
+            }
+        }
+    }
+
+    return $regNoNew;
+}

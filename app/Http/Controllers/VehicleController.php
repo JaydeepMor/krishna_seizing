@@ -79,7 +79,7 @@ class VehicleController extends BaseController
 
         $vehicles         = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
 
-        $financeCompanies = FinanceCompany::all();
+        $financeCompanies = $modalFinanceCompany::orderBy('name')->get();
 
         $vehiclesCount    = $modal::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
 
@@ -95,7 +95,7 @@ class VehicleController extends BaseController
     {
         $nextLotNumber    = Vehicle::getNextLotNumber();
 
-        $financeCompanies = FinanceCompany::all();
+        $financeCompanies = FinanceCompany::orderBy('name')->get();
 
         return view('vehicle.create', compact('nextLotNumber', 'financeCompanies'));
     }
@@ -220,7 +220,7 @@ class VehicleController extends BaseController
             return redirect(url()->previous())->with('danger', __('No record found!'));
         }
 
-        $financeCompanies = FinanceCompany::all();
+        $financeCompanies = FinanceCompany::orderBy('name')->get();
 
         return view('vehicle.edit', compact('row', 'financeCompanies'));
     }

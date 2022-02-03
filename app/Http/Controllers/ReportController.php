@@ -32,7 +32,7 @@ class ReportController extends BaseController
 
         $queryStrings = $request->getQueryString();
 
-        $financeCompanies = FinanceCompany::all();
+        $financeCompanies = FinanceCompany::orderBy('name')->get();
 
         return view('report.index', compact('vehicles', 'queryStrings', 'financeCompanies', 'modal'));
     }

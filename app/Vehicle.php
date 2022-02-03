@@ -165,6 +165,8 @@ class Vehicle extends BaseModel
                 if ($field == 'data') {
                     if (!empty($value)) {
                         foreach ($value as $key => $row) {
+                            $value[$key]['registration_number'] = reArrengeRegistrationNumber($value[$key]['registration_number']);
+
                             unset($value[$key]['finance_company_id']);
                         }
                     }
