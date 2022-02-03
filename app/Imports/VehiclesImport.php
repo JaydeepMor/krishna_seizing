@@ -7,10 +7,11 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use Notification;
 use App\Notifications\VehicleImportFailed;
 
-class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQueue
+class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQueue, WithCalculatedFormulas
 {
     private $lotNumber;
 
