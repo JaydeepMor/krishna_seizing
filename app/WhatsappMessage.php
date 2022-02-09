@@ -48,17 +48,15 @@ class WhatsappMessage extends BaseModel
                 $message       = __("*CANCELLED!*") . "\n\n";
 
                 foreach ($vehicleFields as $vehicleField) {
-                    if ($vehicleField == "finance_company_id") {
-                        $vehicleField = "finance_company";
-                    }
-
                     if (in_array($vehicleField, $userFieldPermissions)) {
                         $field = implode(" ", explode("_", $vehicleField));
                         $field = ucwords($field);
                         $value = !empty($vehicle->{$vehicleField}) ? $vehicle->{$vehicleField} : "-";
 
-                        if ($vehicleField == "finance_company") {
+                        if ($vehicleField == "finance_company_id") {
                             $financeCompany = $vehicle->financeCompany()->first();
+
+                            $field          = __("Finance Company");
 
                             $value          = "-";
 
@@ -97,17 +95,15 @@ class WhatsappMessage extends BaseModel
                 $message       = __("*CONFIRMED!*") . "\n\n";
 
                 foreach ($vehicleFields as $vehicleField) {
-                    if ($vehicleField == "finance_company_id") {
-                        $vehicleField = "finance_company";
-                    }
-
                     if (in_array($vehicleField, $userFieldPermissions)) {
                         $field = implode(" ", explode("_", $vehicleField));
                         $field = ucwords($field);
                         $value = !empty($vehicle->{$vehicleField}) ? $vehicle->{$vehicleField} : "-";
 
-                        if ($vehicleField == "finance_company") {
+                        if ($vehicleField == "finance_company_id") {
                             $financeCompany = $vehicle->financeCompany()->first();
+
+                            $field          = __("Finance Company");
 
                             $value          = "-";
 
