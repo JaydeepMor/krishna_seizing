@@ -246,4 +246,9 @@ class User extends Authenticatable
     public function group() {
         return $this->hasOne('App\Group', 'id', 'group_id');
     }
+
+    public function userVehicleFieldPermissions()
+    {
+        return $this->hasOne('App\UserVehicleFieldPermission', 'user_id', 'id');
+    }
 }

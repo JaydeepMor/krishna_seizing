@@ -13,6 +13,8 @@ class WhatsappMessage extends BaseModel
 
     public $timestamps = true;
 
+    const FROM_ADMIN = "Admin";
+
     protected $fillable = [
         'sid',
         'from',
@@ -32,27 +34,101 @@ class WhatsappMessage extends BaseModel
         ]);
     }
 
-    public static function messageFormatForCancelled(Vehicle $vehicle)
+    public static function messageFormatForCancelled(Vehicle $vehicle, User $user)
     {
-        return  __("CANCELLED!" . "\n\n" . 
-                    "Vehicle Number : " . $vehicle->registration_number . "\n" . 
-                    "Chassis Number : " . $vehicle->chassis_number . "\n" . 
-                    "Vehicle Maker : " . $vehicle->model . "\n" . 
-                    "Engine Number : " . $vehicle->engine_number . "\n" . 
-                    "Customer Name : " . $vehicle->customer_name . "\n" . 
-                    "Agency : " . env('APP_NAME', 'V.R. Boricha Service') . "\n" . 
-                    "Agency Contact : " . env('AGENCY_CONTACT', ''));
+        // Get permitted vehicle fields.
+        $userFieldPermissions = $user->userVehicleFieldPermissions;
+
+        if (!empty($userFieldPermissions)) {
+            $userFieldPermissions = !empty($userFieldPermissions->vehicle_allowed_fields) ? json_decode($userFieldPermissions->vehicle_allowed_fields, true) : [];
+
+            if (!empty($userFieldPermissions)) {
+                $vehicleFields = $vehicle->getFillable();
+
+                $message       = __("*CANCELLED!*") . "\n\n";
+
+                foreach ($vehicleFields as $vehicleField) {
+                    if ($vehicleField == "finance_company_id") {
+                        $vehicleField = "finance_company";
+                    }
+
+                    if (in_array($vehicleField, $userFieldPermissions)) {
+                        $field = implode(" ", explode("_", $vehicleField));
+                        $field = ucwords($field);
+                        $value = !empty($vehicle->{$vehicleField}) ? $vehicle->{$vehicleField} : "-";
+
+                        if ($vehicleField == "finance_company") {
+                            $financeCompany = $vehicle->financeCompany()->first();
+
+                            $value          = "-";
+
+                            if (!empty($financeCompany) && !empty($financeCompany->name)) {
+                                $value = $financeCompany->name;
+                            }
+
+                            $message .= __($field . " : *" . $value) . "*\n";
+                        } else {
+                            $message .= __($field . " : *" . $value) . "*\n";
+                        }
+                    }
+                }
+
+                $message .= "\n" . __("Agency : *" . env('APP_NAME', 'V.R. Boricha Service') . "*\n" . 
+                               "Agency Contact : *" . env('AGENCY_CONTACT', '')) . "*";
+
+                return $message;
+            }
+        }
+
+        return null;
     }
 
-    public static function messageFormatForConfirmed(Vehicle $vehicle)
+    public static function messageFormatForConfirmed(Vehicle $vehicle, User $user)
     {
-        return  __("CONFIRMED!" . "\n\n" . 
-                    "Vehicle Number : " . $vehicle->registration_number . "\n" . 
-                    "Chassis Number : " . $vehicle->chassis_number . "\n" . 
-                    "Vehicle Maker : " . $vehicle->model . "\n" . 
-                    "Engine Number : " . $vehicle->engine_number . "\n" . 
-                    "Customer Name : " . $vehicle->customer_name . "\n" . 
-                    "Agency : " . env('APP_NAME', 'V.R. Boricha Service') . "\n" . 
-                    "Agency Contact : " . env('AGENCY_CONTACT', ''));
+        // Get permitted vehicle fields.
+        $userFieldPermissions = $user->userVehicleFieldPermissions;
+
+        if (!empty($userFieldPermissions)) {
+            $userFieldPermissions = !empty($userFieldPermissions->vehicle_allowed_fields) ? json_decode($userFieldPermissions->vehicle_allowed_fields, true) : [];
+
+            if (!empty($userFieldPermissions)) {
+                $vehicleFields = $vehicle->getFillable();
+
+                $message       = __("*CONFIRMED!*") . "\n\n";
+
+                foreach ($vehicleFields as $vehicleField) {
+                    if ($vehicleField == "finance_company_id") {
+                        $vehicleField = "finance_company";
+                    }
+
+                    if (in_array($vehicleField, $userFieldPermissions)) {
+                        $field = implode(" ", explode("_", $vehicleField));
+                        $field = ucwords($field);
+                        $value = !empty($vehicle->{$vehicleField}) ? $vehicle->{$vehicleField} : "-";
+
+                        if ($vehicleField == "finance_company") {
+                            $financeCompany = $vehicle->financeCompany()->first();
+
+                            $value          = "-";
+
+                            if (!empty($financeCompany) && !empty($financeCompany->name)) {
+                                $value = $financeCompany->name;
+                            }
+
+                            $message .= __($field . " : *" . $value) . "*\n";
+                        } else {
+                            $message .= __($field . " : *" . $value) . "*\n";
+                        }
+                    }
+                }
+
+                $message .= "\n" . __("Agency : *" . env('APP_NAME', 'V.R. Boricha Service') . "*\n" . 
+                               "Agency Contact : *" . env('AGENCY_CONTACT', '')) . "*";
+
+                return $message;
+            }
+        }
+
+        return null;
     }
 }

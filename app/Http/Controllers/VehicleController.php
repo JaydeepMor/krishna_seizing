@@ -435,9 +435,9 @@ class VehicleController extends BaseController
 
         // 1: Confirm, 2: Cancel
         if ($request->get('is_confirm_cancelled', null) == '1') {
-            $whatsAppMessage = WhatsappMessage::messageFormatForConfirmed($getVehicle);
+            $whatsAppMessage = WhatsappMessage::messageFormatForConfirmed($getVehicle, $getUser);
         } elseif ($request->get('is_confirm_cancelled', null) == '2') {
-            $whatsAppMessage = WhatsappMessage::messageFormatForCancelled($getVehicle);
+            $whatsAppMessage = WhatsappMessage::messageFormatForCancelled($getVehicle, $getUser);
         }
 
         $agent = new Agent();
@@ -447,6 +447,13 @@ class VehicleController extends BaseController
         } else {
             $whatsAppWebUrl  = "https://web.whatsapp.com/send?phone=+91{$getUser->contact_number}&text=" . urlencode($whatsAppMessage);
         }
+
+        WhatsappMessage::create([
+            'from'    => WhatsappMessage::FROM_ADMIN,
+            'to'      => "+91{$getUser->contact_number}",
+            'body'    => $whatsAppMessage,
+            'user_id' => $userId
+        ]);
 
         return response()->json(["msg" => null, "whats_app_web_url" => $whatsAppWebUrl, "is_success" => true]);
     }
