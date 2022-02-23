@@ -45,6 +45,9 @@ class WhatsappMessage extends BaseModel
             if (!empty($userFieldPermissions)) {
                 $vehicleFields = $vehicle->getFillable();
 
+                // Sort fields.
+                $vehicleFields = User::sortVehicleFields($vehicleFields);
+
                 $message       = __("*CANCELLED!*") . "\n\n";
 
                 foreach ($vehicleFields as $vehicleField) {
@@ -91,6 +94,9 @@ class WhatsappMessage extends BaseModel
 
             if (!empty($userFieldPermissions)) {
                 $vehicleFields = $vehicle->getFillable();
+
+                // Sort fields.
+                $vehicleFields = User::sortVehicleFields($vehicleFields);
 
                 $message       = __("*CONFIRMED!*") . "\n\n";
 
