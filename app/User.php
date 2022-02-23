@@ -213,6 +213,35 @@ class User extends Authenticatable
         return $this->getApiKey();
     }
 
+    public static function sortVehicleFields($unsortFields) {
+        $newSortedFields = [];
+
+        $sortedFields    = ["registration_number","chassis_number","loan_number","model","engine_number","bkt","arm_rrm","mobile_number","brm","branch","region","area","customer_name","final_confirmation","final_manager_name","final_manager_mobile_number","address","is_confirm","is_cancel","finance_company_id","user_id","lot_number"];
+
+        if (!empty($unsortFields)) {
+            $model  = new Vehicle();
+            $fields = $model->getFillable();
+
+            foreach ($fields as $field) {
+                if (!in_array($field, $sortedFields)) {
+                    $sortedFields[] = $field;
+                }
+            }
+
+            foreach ($sortedFields as $sortedField) {
+                if (in_array($sortedField, $unsortFields)) {
+                    $newSortedFields[] = $sortedField;
+                }
+            }
+        }
+
+        if (empty($newSortedFields)) {
+            $newSortedFields = $unsortFields;
+        }
+
+        return $newSortedFields;
+    }
+
     public static function getGlobalResponse(int $userId)
     {
         $user = User::where('id', $userId)->where('is_admin', User::IS_USER)->first();
@@ -227,6 +256,9 @@ class User extends Authenticatable
             // Get current user field permissions.
             $userFieldPermissions         = UserVehicleFieldPermission::select('vehicle_allowed_fields')->where('user_id', $userId)->first();
             $user->user_field_permissions = !empty($userFieldPermissions->vehicle_allowed_fields) ? json_decode($userFieldPermissions->vehicle_allowed_fields, true) : [];
+
+            // Sort fields.
+            $user->user_field_permissions = self::sortVehicleFields($user->user_field_permissions);
 
             $user['user_subscriptions'] = $user->getCurrentSubscriptionTimestamps();
         }

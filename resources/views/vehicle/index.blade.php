@@ -35,35 +35,35 @@
                     <form action="{{ route('vehicle.index') }}" method="GET">
                         <div class="container-fluid">
                             <div class="row">
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="customer_name" class="form-control" autofocus placeholder="{{ __('Customre Name') }}" value="{{ request('customer_name') }}" />
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="model" class="form-control" placeholder="{{ __('Model') }}" value="{{ request('model') }}" />
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="registration_number" class="form-control" placeholder="{{ __('Registration Number') }}" value="{{ request('registration_number') }}" />
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="mobile_number" class="form-control" placeholder="{{ __('Mobile Number') }}" value="{{ request('mobile_number') }}" />
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-4">
+                                <div class="col-xs-12 col-md-4">
                                     <fieldset>
                                         <div class="form-group">
                                             <textarea name="address" class="form-control" placeholder="{{ __('Address') }}">{{ request('address') }}</textarea>
@@ -72,28 +72,28 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="branch" class="form-control" placeholder="{{ __('Branch') }}" value="{{ request('branch') }}" />
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="area" class="form-control" placeholder="{{ __('Area') }}" value="{{ request('area') }}" />
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <fieldset>
                                         <div class="form-group">
                                             <input type="text" name="region" class="form-control" placeholder="{{ __('Region') }}" value="{{ request('region') }}" />
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <fieldset>
                                         <div class="form-group">
                                             <select name="finance_company_id" class="form-control">
@@ -118,7 +118,7 @@
                                         </div>
                                     </fieldset>
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-12 col-md-2">
                                     <a href="{{ route('vehicle.index', ['page' => request('page')]) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Clear') }}"><i class="fa fa-close"></i></a>
                                     <button type="submit" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Search') }}"><i class="fa fa-search"></i></button>
                                 </div>
@@ -145,7 +145,7 @@
 
                         <div class="row">
                             @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
-                                <div class="col-xs-5">
+                                <div class="col-xs-12 col-md-5">
                                     <select name="finance_company_id" class="form-control">
                                         <option value="">{{ __("Select Finance Company") }}</option>
 
@@ -161,7 +161,7 @@
                                 </div>
                             @endif
                             @if (!empty($financeCompanies) && !$financeCompanies->isEmpty())
-                                <div class="col-xs-5">
+                                <div class="col-xs-12 col-md-5">
                                     <div class="input-group">
                                         <input type="file" class="form-control" name="excel_import" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
 
@@ -185,7 +185,7 @@
                                 </div>
                             @endif
 
-                            <div class="col-xs-2">
+                            <div class="col-xs-12 col-md-2">
                                 <a href="{{ route('vehicle.create') }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Add New') }}">
                                     <i class="fa fa-plus"></i> {{ __('Add New') }}
                                 </a>
