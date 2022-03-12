@@ -225,6 +225,10 @@
                                             {{ $vehicle->isCancel[$vehicle->is_cancel] }}
                                         @endif
 
+                                        @if (!empty($vehicle->user))
+                                            {{ __(" By ") }} <i><mark>{{ $vehicle->user->name }}<mark></i>
+                                        @endif
+
                                         @if (!empty($vehicle->updated_at))
                                             <br/> {{ \Carbon\Carbon::parse($vehicle->updated_at . 'UTC')->tz('Asia/Calcutta')->format(DEFAULT_DATE_TIME_FORMAT) }}
                                         @else
