@@ -184,6 +184,34 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <fieldset>
+                                    <legend>{{ __('Reference Name') }}</legend>
+                                    <div class="form-group">
+                                        <input type="text" name="reference_name" id="reference_name" class="form-control" value="{{ old('reference_name') }}" />
+                                        @error('reference_name')
+                                            <em class="color-red error invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </em>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6">
+                                <fieldset>
+                                    <legend>{{ __('Reference Mobile Number') }}</legend>
+                                    <div class="form-group">
+                                        <input type="number" name="reference_mobile_number" id="reference_mobile_number" class="form-control" value="{{ old('reference_mobile_number') }}" />
+                                        @error('reference_mobile_number')
+                                            <em class="color-red error invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </em>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <fieldset>
                                     <legend>* {{ __('Password') }}</legend>
                                     <div class="form-group">
                                         <input type="password" id="password" name="password" class="form-control" required />

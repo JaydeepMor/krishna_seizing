@@ -32,6 +32,8 @@ class User extends Authenticatable
         'group_id',
         'id_proof',
         'selfie',
+        'reference_name',
+        'reference_mobile_number',
         'remember_token',
         'password',
         'is_admin'
@@ -101,7 +103,8 @@ class User extends Authenticatable
             'vehicle_allowed_fields' => $allowedFields,
             'contact_number' => $contact,
             'id_proof'    => ['nullable', 'mimes:' . implode(",", $this->allowedImageExtensions)],
-            'selfie'      => ['nullable', 'mimes:' . implode(",", $this->allowedImageExtensions)]
+            'selfie'      => ['nullable', 'mimes:' . implode(",", $this->allowedImageExtensions)],
+            'reference_mobile_number' => ['nullable', 'min:10', 'max:10']
         ]);
     }
 
