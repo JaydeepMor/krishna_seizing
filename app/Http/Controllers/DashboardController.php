@@ -38,7 +38,7 @@ class DashboardController extends BaseController
         $data['seizers_activations'] = UserSubscription::where(function($query) use($today, $afterThreeDay) {
             $query->whereDate('to', '>=', $today)
                   ->whereDate('to', '<=', $afterThreeDay);
-        })->whereNotIn('id', explode(",", env('TEST_USER_ID', 0)))->get();
+        })->whereNotIn('user_id', explode(",", env('TEST_USER_ID', 0)))->get();
 
         return view('index', compact('data'));
     }
