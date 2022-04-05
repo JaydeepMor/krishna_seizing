@@ -189,6 +189,8 @@ class VehicleController extends BaseController
 
         $model::create($data);
 
+        User::isDownloadableForAll();
+
         // Run vehicle Redis cache.
         // Artisan::call("daily:redis_vehicle");
 
@@ -264,6 +266,8 @@ class VehicleController extends BaseController
 
         $row->update($data);
 
+        User::isDownloadableForAll();
+
         // Run vehicle Redis cache.
         // Artisan::call("daily:redis_vehicle");
 
@@ -279,6 +283,8 @@ class VehicleController extends BaseController
     public function destroy(Request $request, $id)
     {
         Vehicle::where('id', $id)->delete();
+
+        User::isDownloadableForAll();
 
         // Run vehicle Redis cache.
         // Artisan::call("daily:redis_vehicle");
@@ -328,6 +334,8 @@ class VehicleController extends BaseController
             }
         }
 
+        User::isDownloadableForAll();
+
         return redirect(url()->previous())->with('success', __('Record updated successfully!'));
     }
 
@@ -373,6 +381,8 @@ class VehicleController extends BaseController
             }
         }
 
+        User::isDownloadableForAll();
+
         return redirect(url()->previous())->with('success', __('Record updated successfully!'));
     }
 
@@ -403,6 +413,8 @@ class VehicleController extends BaseController
         if (!empty($financeCompany)) {
             $msg = '<a href="' . route('company.index', ['id' => $financeCompany->id]) . '" target="_blank">' . $financeCompany->name . '</a> records deleted successfully!';
         }
+
+        User::isDownloadableForAll();
 
         return redirect()->route('vehicle.index')->with('success', __($msg));
     }

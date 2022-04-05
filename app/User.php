@@ -10,6 +10,7 @@ use App\Group;
 use App\UserSubscription;
 use App\ApiKey;
 use App\UserVehicleFieldPermission;
+use App\Vehicle;
 use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
@@ -36,7 +37,8 @@ class User extends Authenticatable
         'reference_mobile_number',
         'remember_token',
         'password',
-        'is_admin'
+        'is_admin',
+        'is_downloadable'
     ];
 
     /**
@@ -63,6 +65,13 @@ class User extends Authenticatable
     public $isAdmin = [
         self::IS_USER  => 'User',
         self::IS_ADMIN => 'Admin'
+    ];
+
+    const IS_DOWNLOADABLE_YES = '1';
+    const IS_DOWNLOADABLE_NO  = '0';
+    public $isDownloadable    = [
+        self::IS_DOWNLOADABLE_YES => "Yes",
+        self::IS_DOWNLOADABLE_NO => "Nope"
     ];
 
     const STATUS_ACTIVE   = '1';
@@ -99,6 +108,7 @@ class User extends Authenticatable
             'status'      => ['in:' . implode(",", array_keys($this->statuses))],
             'group_id'    => ['nullable', 'integer', 'exists:' . Group::getTableName() . ',id'],
             'is_admin'    => ['in:' . implode(",", array_keys($this->isAdmin))],
+            'is_downloadable' => ['in:' . implode(",", array_keys($this->isDownloadable))],
             'password'    => [$password, 'min:6', 'confirmed', 'required_with:password_confirmed'],
             'vehicle_allowed_fields' => $allowedFields,
             'contact_number' => $contact,
@@ -264,13 +274,14 @@ class User extends Authenticatable
             $user->user_field_permissions = self::sortVehicleFields($user->user_field_permissions);
 
             $user['user_subscriptions'] = $user->getCurrentSubscriptionTimestamps();
+
+            $user['total_vehicles'] = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
         }
 
         return $user;
     }
 
-    public function routeNotificationForWhatsApp()
-    {
+    public function routeNotificationForWhatsApp() {
         return $this->contact_number;
     }
 
@@ -282,8 +293,19 @@ class User extends Authenticatable
         return $this->hasOne('App\Group', 'id', 'group_id');
     }
 
-    public function userVehicleFieldPermissions()
-    {
+    public function userVehicleFieldPermissions() {
         return $this->hasOne('App\UserVehicleFieldPermission', 'user_id', 'id');
+    }
+
+    public static function changeIsDownloadable(int $id, $flag = self::IS_DOWNLOADABLE_YES) {
+        if (!in_array($flag, [self::IS_DOWNLOADABLE_YES, self::IS_DOWNLOADABLE_NO])) {
+            return false;
+        }
+
+        return self::where('id', $id)->update(['is_downloadable' => $flag]);
+    }
+
+    public static function isDownloadableForAll() {
+        return self::where('is_downloadable', self::IS_DOWNLOADABLE_NO)->update(['is_downloadable' => self::IS_DOWNLOADABLE_YES]);
     }
 }

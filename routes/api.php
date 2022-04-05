@@ -28,4 +28,8 @@ Route::group(['middleware' => ['web.auth.api'], 'namespace' => 'Api'], function 
     Route::post('user/info/get', 'ApiController@getUserInfo');
 
     Route::post('user/activity', 'ApiController@userActivity');
+
+    Route::get('user/download/complete', 'ApiController@userDownloadComplete');
+
+    Route::get('user/download/incomplete', 'ApiController@userDownloadIncomplete');
 });

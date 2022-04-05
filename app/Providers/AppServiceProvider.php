@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Constant;
+use App\User;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
@@ -36,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
         // Load default constants.
         $constants = Constant::all();
 
+        $userModel = new User();
+
         if (!empty($constants) && !$constants->isEmpty()) {
             foreach ($constants as $constant) {
                 if (empty($constant->key) || empty($constant->value)) {
@@ -57,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
             // $event->job->payload()
         });
 
-        Queue::after(function (JobProcessed $event) use($importEmail, $exportEmail) {
+        Queue::after(function (JobProcessed $event) use($importEmail, $exportEmail, $userModel) {
             switch ($event->job->resolveName()) {
                 case "Maatwebsite\Excel\Jobs\AfterImportJob":
                     $financeCompanyId = null;
@@ -71,6 +74,8 @@ class AppServiceProvider extends ServiceProvider
                     if (!empty($financeCompanyId)) {
                         // Run vehicle Redis cache.
                         // Artisan::call("daily:redis_vehicle");
+
+                        $userModel::isDownloadableForAll();
 
                         Notification::route('mail', $importEmail)->notify(new VehicleImportComplete($financeCompanyId));
                     }

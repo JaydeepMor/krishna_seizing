@@ -282,4 +282,34 @@ class ApiController extends BaseController
 
         return $contents;
     }
+
+    public function userDownloadComplete(Request $request)
+    {
+        $userId = $request->get('user_id', null);
+
+        if (!empty($userId)) {
+            $isDone = User::changeIsDownloadable($userId, User::IS_DOWNLOADABLE_NO);
+
+            if ($isDone) {
+                return $this->getGlobalResponse($userId);
+            }
+        }
+
+        return $this->returnError(__('User not found.'));
+    }
+
+    public function userDownloadIncomplete(Request $request)
+    {
+        $userId = $request->get('user_id', null);
+
+        if (!empty($userId)) {
+            $isDone = User::changeIsDownloadable($userId);
+
+            if ($isDone) {
+                return $this->getGlobalResponse($userId);
+            }
+        }
+
+        return $this->returnError(__('User not found.'));
+    }
 }

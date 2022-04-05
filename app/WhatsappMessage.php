@@ -77,6 +77,10 @@ class WhatsappMessage extends BaseModel
                 $message .= "\n" . __("Agency : *" . env('APP_NAME', 'V.R. Boricha Service') . "*\n" . 
                                "Agency Contact : *" . env('AGENCY_CONTACT', '')) . "*";
 
+                $message .= "\n\n" . __("Seizer : ");
+                $message .= "\n" . __("Police Station : ");
+                $message .= "\n" . __("Parking : ");
+
                 return $message;
             }
         }
@@ -126,6 +130,10 @@ class WhatsappMessage extends BaseModel
 
                 $message .= "\n" . __("Agency : *" . env('APP_NAME', 'V.R. Boricha Service') . "*\n" . 
                                "Agency Contact : *" . env('AGENCY_CONTACT', '')) . "*";
+
+                $message .= "\n\n" . __("Seizer : ");
+                $message .= "\n" . __("Police Station : ");
+                $message .= "\n" . __("Parking : ");
 
                 return $message;
             }
