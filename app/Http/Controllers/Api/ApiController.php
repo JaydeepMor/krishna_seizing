@@ -187,10 +187,13 @@ class ApiController extends BaseController
         $validator = $modal->validators($activityData, NULL, true);
 
         if ($validator->fails()) {
+            \Log::info('Activity error val: ' . $validator->errors()->first());
             return $this->returnError($validator->errors()->first());
         }
 
         $create = $modal::insert($activityData);
+
+        \Log::info('Activity error create: ' . $create);
 
         if ($create) {
             return $this->returnSuccess(__('Record added successfully!'), User::getGlobalResponse($userId));
