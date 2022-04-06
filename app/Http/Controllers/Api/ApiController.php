@@ -187,7 +187,7 @@ class ApiController extends BaseController
         $validator = $modal->validators($activityData, NULL, true);
 
         if ($validator->fails()) {
-            \Log::info('Activity create data : ' . $activityData);
+            \Log::info('Activity create data : ' . json_encode($activityData));
 
             \Log::info('Activity error val : ' . $validator->errors()->first());
 
