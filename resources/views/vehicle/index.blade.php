@@ -232,7 +232,7 @@
                             <th>{{ __('Confirmed / Cancelled Person') }}</th>
                             <th>{{ __('Confirm') }}</th>
                             <th>{{ __('Cancel') }}</th>
-                            <th class="text-center">{{ __('Actions') }}</th>
+                            <!-- <th class="text-center">{{ __('Actions') }}</th> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -347,7 +347,7 @@
                                             </form>
                                         </label>
                                     </td>
-                                    <td class="text-center">
+                                    <!-- <td class="text-center">
                                         <div>
                                             <a href="{{ route('vehicle.edit', $vehicle->id) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Edit') }}"><i class="fa fa-pencil"></i></a>
                                             <a href="javascript:void(0);" data-toggle="tooltip" title="" class="btn btn-danger remove-button" data-original-title="{{ __('Remove') }}" data-id="{{ $vehicle->id }}"><i class="fa fa-times"></i></a>
@@ -356,7 +356,7 @@
                                                 {{ method_field('DELETE') }}
                                             </form>
                                         </div>
-                                    </td>
+                                    </td> -->
                                 </tr>
                             @endforeach
                         @else

@@ -94,11 +94,16 @@ class UserController extends BaseController
 
         $query->where('id', '!=', User::ADMIN_ID)->whereNotIn('id', explode(",", env('TEST_USER_ID', 0)));
 
-        $query->select('id', 'name', 'address', 'email', 'contact_number', 'team_leader', 'imei_number', 'status', 'group_id', 'created_at');
+        $query->select('id', 'name', 'address', 'email', 'contact_number', 'team_leader', 'reference_name', 'imei_number', 'status', 'group_id', 'created_at');
 
         $query        = $this->filter($request, $modal, $query);
 
-        $users        = $query->with('userSubscriptionsWithTrashed')->get();
+        $users        = $query->with(['userSubscriptionsWithTrashed' => function($query) use($request) {
+                            if ($request->has('subscription_month') && !empty($request->get('subscription_month'))) {
+                                $query->whereRaw('DATE_FORMAT(`from`, "%Y") = "' . date("Y", strtotime($request->get('subscription_month'))) . '" AND DATE_FORMAT(`from`, "%m") = "' . date("m", strtotime($request->get('subscription_month'))) . '"')
+                                      ->orWhereRaw('DATE_FORMAT(`to`, "%Y") = "' . date("Y", strtotime($request->get('subscription_month'))) . '" AND DATE_FORMAT(`to`, "%m") = "' . date("m", strtotime($request->get('subscription_month'))) . '"');
+                            }
+                        }])->get();
 
         $userArray    = collect([]);
 

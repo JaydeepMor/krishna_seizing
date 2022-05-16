@@ -26,6 +26,7 @@ class SubseizersExport implements FromCollection, WithHeadings, WithEvents
             'Email',
             'Contact Number',
             'Team Leader',
+            'Reference Name',
             'IMEI Number',
             'Status',
             'Group',
