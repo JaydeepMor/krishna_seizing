@@ -47,11 +47,13 @@ class ApiController extends BaseController
         } else {
             $vehiclesData['data'] = array_values($vehiclesData['data']);
 
-            if (Cache::has('vehicles_count')) {
-                $count = Cache::get('vehicles_count');
+            $cacheKey = Vehicle::VEHICLE_COUNT_CACHE_KEY;
+
+            if (Cache::has($cacheKey)) {
+                $count = Cache::get($cacheKey);
             } else {
                 $count = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
-                Cache::put('vehicles_count', $count, Vehicle::VEHICLE_COUNT_CACHE_MINUTES);
+                Cache::put($cacheKey, $count, Vehicle::VEHICLE_COUNT_CACHE_MINUTES);
             }
 
             $chunkSize            = Vehicle::API_PAGINATION;

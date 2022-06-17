@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Constant;
 use App\User;
+use App\Vehicle;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
@@ -12,6 +13,7 @@ use Notification;
 use App\Notifications\VehicleImportComplete;
 use App\Notifications\VehicleExportComplete;
 use Illuminate\Support\Facades\Artisan;
+use Cache;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,6 +41,11 @@ class AppServiceProvider extends ServiceProvider
 
         $userModel = new User();
 
+        $vehicleModel = new Vehicle();
+
+        $cacheKey     = Vehicle::VEHICLE_COUNT_CACHE_KEY;
+        $cacheMinutes = Vehicle::VEHICLE_COUNT_CACHE_MINUTES;
+
         if (!empty($constants) && !$constants->isEmpty()) {
             foreach ($constants as $constant) {
                 if (empty($constant->key) || empty($constant->value)) {
@@ -60,7 +67,7 @@ class AppServiceProvider extends ServiceProvider
             // $event->job->payload()
         });
 
-        Queue::after(function (JobProcessed $event) use($importEmail, $exportEmail, $userModel) {
+        Queue::after(function (JobProcessed $event) use($importEmail, $exportEmail, $userModel, $vehicleModel, $cacheKey, $cacheMinutes) {
             switch ($event->job->resolveName()) {
                 case "Maatwebsite\Excel\Jobs\AfterImportJob":
                     $financeCompanyId = null;
@@ -76,6 +83,13 @@ class AppServiceProvider extends ServiceProvider
                         // Artisan::call("daily:redis_vehicle");
 
                         $userModel::isDownloadableForAll();
+
+                        // Forget count cache.
+                        Cache::forget($cacheKey);
+
+                        // Add new count cache.
+                        $count = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+                        Cache::put($cacheKey, $count, $cacheMinutes);
 
                         Notification::route('mail', $importEmail)->notify(new VehicleImportComplete($financeCompanyId));
                     }

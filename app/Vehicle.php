@@ -90,7 +90,10 @@ class Vehicle extends BaseModel
 
     const VEHICLE_REDIS_KEY = 'vehicles:';
 
-    const VEHICLE_COUNT_CACHE_MINUTES = 120;
+    const VEHICLE_COUNT_CACHE_KEY = 'vehicles_count';
+
+    // In minutes : 1440 means 24 hours
+    const VEHICLE_COUNT_CACHE_MINUTES = 1440;
 
     public $appends = ['finance_company'];
 
