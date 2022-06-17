@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 use App\Notifications\CommonException;
 use Notification;
+use Cache;
 
 class ApiController extends BaseController
 {
@@ -46,7 +47,12 @@ class ApiController extends BaseController
         } else {
             $vehiclesData['data'] = array_values($vehiclesData['data']);
 
-            $count                = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+            if (Cache::has('vehicles_count')) {
+                $count = Cache::get('vehicles_count');
+            } else {
+                $count = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+                Cache::put('vehicles_count', $count, Vehicle::VEHICLE_COUNT_CACHE_MINUTES);
+            }
 
             $chunkSize            = Vehicle::API_PAGINATION;
 

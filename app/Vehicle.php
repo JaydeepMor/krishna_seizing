@@ -90,6 +90,8 @@ class Vehicle extends BaseModel
 
     const VEHICLE_REDIS_KEY = 'vehicles:';
 
+    const VEHICLE_COUNT_CACHE_MINUTES = 120;
+
     public $appends = ['finance_company'];
 
     public function validator(array $data, int $id = NULL)
