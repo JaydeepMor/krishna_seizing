@@ -18,6 +18,7 @@ use Illuminate\Http\Response;
 use Maatwebsite\Excel\HeadingRowImport;
 use Illuminate\Support\Facades\Artisan;
 use Jenssegers\Agent\Agent;
+use Cache;
 
 class VehicleController extends BaseController
 {
@@ -81,7 +82,14 @@ class VehicleController extends BaseController
 
         $financeCompanies = $modalFinanceCompany::orderBy('name')->get();
 
-        $vehiclesCount    = $modal::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+        $cacheKey         = $modal::VEHICLE_COUNT_CACHE_KEY;
+
+        if (Cache::has($cacheKey)) {
+            $vehiclesCount = Cache::get($cacheKey);
+        } else {
+            $vehiclesCount = $modal::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+            Cache::put($cacheKey, $vehiclesCount, $modal::VEHICLE_COUNT_CACHE_MINUTES);
+        }
 
         return view('vehicle.index', compact('vehicles', 'users', 'todayDate', 'financeCompanies', 'vehiclesCount'));
     }
