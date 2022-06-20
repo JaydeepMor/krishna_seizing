@@ -275,7 +275,7 @@ class User extends Authenticatable
 
             $user['user_subscriptions'] = $user->getCurrentSubscriptionTimestamps();
 
-            $user['total_vehicles'] = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+            $user['total_vehicles'] = Vehicle::getCount();
         }
 
         return $user;
