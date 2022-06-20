@@ -7,6 +7,7 @@ use App\FinanceCompany;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Cache;
 
 class Vehicle extends BaseModel
 {
@@ -94,6 +95,10 @@ class Vehicle extends BaseModel
 
     // In minutes : 1440 means 24 hours
     const VEHICLE_COUNT_CACHE_MINUTES = 1440;
+
+    // Compare API records count and server side MySql vehicles count.
+    // If less than API then sync all vehicles from Redis cache.
+    const VEHICLE_COMPARE_PERCENTAGE = 40;
 
     public $appends = ['finance_company'];
 
@@ -187,5 +192,41 @@ class Vehicle extends BaseModel
         }
 
         return $vehiclesData;
+    }
+
+    public static function getCount($isForget = false)
+    {
+        $cacheKey = self::VEHICLE_COUNT_CACHE_KEY;
+
+        if ($isForget) {
+            Cache::forget($cacheKey);
+        }
+
+        if (Cache::has($cacheKey)) {
+            $total = Cache::get($cacheKey);
+        } else {
+            $total = self::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+            Cache::put($cacheKey, $total, self::VEHICLE_COUNT_CACHE_MINUTES);
+        }
+
+        return $total;
+    }
+
+    public static function setCount()
+    {
+        $cacheKey = self::VEHICLE_COUNT_CACHE_KEY;
+
+        Cache::forget($cacheKey);
+
+        $total = self::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+
+        Cache::put($cacheKey, $total, self::VEHICLE_COUNT_CACHE_MINUTES);
+
+        return $total;
+    }
+
+    public function getInstalledDateAttribute($value)
+    {
+        return strtotime($value) * 1000;
     }
 }

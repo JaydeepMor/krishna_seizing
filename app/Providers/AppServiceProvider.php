@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Constant;
 use App\User;
 use App\Vehicle;
+use App\UserSynchronization;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
@@ -43,8 +44,7 @@ class AppServiceProvider extends ServiceProvider
 
         $vehicleModel = new Vehicle();
 
-        $cacheKey     = Vehicle::VEHICLE_COUNT_CACHE_KEY;
-        $cacheMinutes = Vehicle::VEHICLE_COUNT_CACHE_MINUTES;
+        $userSyncModel = new UserSynchronization();
 
         if (!empty($constants) && !$constants->isEmpty()) {
             foreach ($constants as $constant) {
@@ -67,7 +67,7 @@ class AppServiceProvider extends ServiceProvider
             // $event->job->payload()
         });
 
-        Queue::after(function (JobProcessed $event) use($importEmail, $exportEmail, $userModel, $vehicleModel, $cacheKey, $cacheMinutes) {
+        Queue::after(function (JobProcessed $event) use($importEmail, $exportEmail, $userModel, $vehicleModel, $userSyncModel) {
             switch ($event->job->resolveName()) {
                 case "Maatwebsite\Excel\Jobs\AfterImportJob":
                     $financeCompanyId = null;
@@ -84,12 +84,10 @@ class AppServiceProvider extends ServiceProvider
 
                         $userModel::isDownloadableForAll();
 
-                        // Forget count cache.
-                        Cache::forget($cacheKey);
+                        $userSyncModel::setIsSyncedByFinanceCompany($financeCompanyId);
 
-                        // Add new count cache.
-                        $count = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
-                        Cache::put($cacheKey, $count, $cacheMinutes);
+                        // Set vehicle count to the laravel file cache.
+                        $vehicleModel::setCount();
 
                         Notification::route('mail', $importEmail)->notify(new VehicleImportComplete($financeCompanyId));
                     }

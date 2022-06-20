@@ -7,6 +7,8 @@ use App\UserVehicleFieldPermission;
 use App\User;
 use App\ApiKey;
 use App\UserActivity;
+use App\UserSynchronization;
+use App\FinanceCompany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
@@ -17,6 +19,7 @@ use Illuminate\Http\UploadedFile;
 use App\Notifications\CommonException;
 use Notification;
 use Cache;
+use DB;
 
 class ApiController extends BaseController
 {
@@ -28,40 +31,46 @@ class ApiController extends BaseController
 
         $pageNo  = empty($pageNo) ? 1 : $pageNo;
 
-        $perPage = (int)$request->get('per_page', 1000);
+        // $perPage = (int)$request->get('per_page', 1000);
 
         // $perPage = empty($perPage) ? 1000 : $perPage;
 
         // Fixed now as we stored in Redis cache.
         $perPage = Vehicle::API_PAGINATION;
 
-        $redis   = Redis::connection();
+        // Check user synced.
+        $userSynchronization = UserSynchronization::select("finance_company_id", "vehicle_count")->where('user_id', $userId)->where('is_synced', UserSynchronization::IS_SYNCED_NOPE);
 
-        // Get all vehicles from Redis cache first if not found than get from MySql.
-        $vehiclesData = env('VEHICLE_API_CACHE', false) ? json_decode($redis->get(Vehicle::VEHICLE_REDIS_KEY . $pageNo . ":" . $perPage), true) : [];
+        $financeCompanyIds   = $userSynchronization->pluck('vehicle_count', 'finance_company_id')->toArray();
 
-        if (empty($vehiclesData) || empty($vehiclesData['data'])) {
-            $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->paginate($perPage, ['*'], 'page', $pageNo);
+        $isFromMySql         = $this->isFromMySql($financeCompanyIds, $userId);
+
+        if ($isFromMySql) {
+            $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->whereIn('finance_company_id', array_keys($financeCompanyIds))->paginate($perPage, ['*'], 'page', $pageNo);
 
             $vehiclesData = Vehicle::arrangeApiData($vehicles);
         } else {
-            $vehiclesData['data'] = array_values($vehiclesData['data']);
+            $redis   = Redis::connection();
 
-            $cacheKey = Vehicle::VEHICLE_COUNT_CACHE_KEY;
+            // Get all vehicles from Redis cache first if not found than get from MySql.
+            $vehiclesData = env('VEHICLE_API_CACHE', false) ? json_decode($redis->get(Vehicle::VEHICLE_REDIS_KEY . $pageNo . ":" . $perPage), true) : [];
 
-            if (Cache::has($cacheKey)) {
-                $count = Cache::get($cacheKey);
+            if (empty($vehiclesData) || empty($vehiclesData['data'])) {
+                $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', 'registration_number', 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->paginate($perPage, ['*'], 'page', $pageNo);
+
+                $vehiclesData = Vehicle::arrangeApiData($vehicles);
             } else {
-                $count = Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
-                Cache::put($cacheKey, $count, Vehicle::VEHICLE_COUNT_CACHE_MINUTES);
+                $vehiclesData['data'] = array_values($vehiclesData['data']);
+
+                $count = Vehicle::getCount();
+
+                $chunkSize            = Vehicle::API_PAGINATION;
+
+                $lastPage             = (int)ceil($count / $chunkSize);
+
+                $vehiclesData['last_page']  = $lastPage;
+                $vehiclesData['total']      = $count;
             }
-
-            $chunkSize            = Vehicle::API_PAGINATION;
-
-            $lastPage             = (int)ceil($count / $chunkSize);
-
-            $vehiclesData['last_page']  = $lastPage;
-            $vehiclesData['total']      = $count;
         }
 
         // Get current user field permissions.
@@ -300,6 +309,9 @@ class ApiController extends BaseController
         if (!empty($userId)) {
             $isDone = User::changeIsDownloadable($userId, User::IS_DOWNLOADABLE_NO);
 
+            // Set user is_synced flag on.
+            UserSynchronization::setIsSynced($userId, UserSynchronization::IS_SYNCED_YES);
+
             if ($isDone) {
                 return $this->getGlobalResponse($userId);
             }
@@ -321,5 +333,84 @@ class ApiController extends BaseController
         }
 
         return $this->returnError(__('User not found.'));
+    }
+
+    public function checkVehicles(Request $request)
+    {
+        $model = new Vehicle();
+
+        $financeCompanyIds = $request->get('finance_company_ids', []);
+
+        $userId = $request->get('user_id', null);
+
+        $isFromMySql = $this->isFromMySql($financeCompanyIds, $userId);
+
+        $deleteFinanceCompanies = [];
+
+        if ($isFromMySql) {
+            $syncCount = UserSynchronization::where('user_id', $userId)->pluck('finance_company_id')->toArray();
+
+            return $this->returnSuccess(__('Vehicles data checked successfully!'), $syncCount);
+        } else {
+            $financeCompanies = FinanceCompany::all();
+
+            foreach ($financeCompanies as $financeCompany) {
+                $financeCompanyId = $financeCompany->id;
+                $vehicleCount = (!empty($financeCompanyIds[$financeCompanyId])) ? (double)$financeCompanyIds[$financeCompanyId] : 0;
+
+                $check = UserSynchronization::where('user_id', $userId)->where('finance_company_id', $financeCompanyId)->where('vehicle_count', $vehicleCount)->where('is_synced', UserSynchronization::IS_SYNCED_YES)->where('is_deleted', UserSynchronization::IS_DELETED_NOPE)->first();
+
+                if (empty($check)) {
+                    $deleteFinanceCompanies[] = $financeCompanyId;
+                }
+            }
+
+            // Set is_synced flag false as it needs to be sync.
+            if (!empty($deleteFinanceCompanies)) {
+                UserSynchronization::where('user_id', $userId)->whereIn('finance_company_id', $deleteFinanceCompanies)
+                                   ->update(['is_synced' => UserSynchronization::IS_SYNCED_NOPE]);
+
+                // Remaining finance companies.
+                $financeCompanies = DB::table(FinanceCompany::getTableName())->select('id')->whereNotIn('id',function($query) use($userId) {
+                    $query->select('finance_company_id as id')->from(UserSynchronization::getTableName())->where('user_id', $userId);
+                })->get();
+
+                foreach ($financeCompanies as $financeCompany) {
+                    $financeCompanyId = $financeCompany->id;
+
+                    $getVehiclesCount = Vehicle::where('finance_company_id', $financeCompanyId)->whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+
+                    $match = [
+                        'user_id' => $userId,
+                        'finance_company_id' => $financeCompanyId
+                    ];
+
+                    $create = [
+                        'user_id' => $userId,
+                        'finance_company_id' => $financeCompanyId,
+                        'vehicle_count' => $getVehiclesCount,
+                        'is_synced' => UserSynchronization::IS_SYNCED_NOPE,
+                        'is_deleted' => UserSynchronization::IS_DELETED_NOPE
+                    ];
+
+                    UserSynchronization::updateOrCreate($match, $create);
+                }
+            }
+        }
+
+        return $this->returnSuccess(__('Vehicles data checked successfully!'), $deleteFinanceCompanies);
+    }
+
+    public function isFromMySql($financeCompanyIds = [], $userId = null)
+    {
+        $model = new Vehicle();
+
+        $totalFromApi = array_sum($financeCompanyIds);
+
+        $totalFromDatabase = $model::getCount();
+
+        $totalPercentage = (float)number_format(((double)$totalFromApi / (double)$totalFromDatabase) * 100, 2);
+
+        return (($totalFromApi <= 0) || ($totalPercentage <= $model::VEHICLE_COMPARE_PERCENTAGE));
     }
 }

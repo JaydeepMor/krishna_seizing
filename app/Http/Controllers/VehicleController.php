@@ -8,6 +8,7 @@ use App\WhatsappMessage;
 use App\Imports\VehiclesImport;
 use App\Imports\ImportableVehicleImport;
 use App\FinanceCompany;
+use App\UserSynchronization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -82,14 +83,7 @@ class VehicleController extends BaseController
 
         $financeCompanies = $modalFinanceCompany::orderBy('name')->get();
 
-        $cacheKey         = $modal::VEHICLE_COUNT_CACHE_KEY;
-
-        if (Cache::has($cacheKey)) {
-            $vehiclesCount = Cache::get($cacheKey);
-        } else {
-            $vehiclesCount = $modal::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
-            Cache::put($cacheKey, $vehiclesCount, $modal::VEHICLE_COUNT_CACHE_MINUTES);
-        }
+        $vehiclesCount = $modal::getCount();
 
         return view('vehicle.index', compact('vehicles', 'users', 'todayDate', 'financeCompanies', 'vehiclesCount'));
     }
@@ -423,6 +417,8 @@ class VehicleController extends BaseController
         }
 
         User::isDownloadableForAll();
+
+        UserSynchronization::setIsDeletedByFinanceCompany($financeCompanyId);
 
         return redirect()->route('vehicle.index')->with('success', __($msg));
     }

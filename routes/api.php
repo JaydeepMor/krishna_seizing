@@ -23,6 +23,8 @@ Route::group(['middleware' => ['web.auth.api'], 'namespace' => 'Api'], function 
 
     Route::post('vehicles/get', 'ApiController@getVehicles');
 
+    Route::post('vehicles/check', 'ApiController@checkVehicles');
+
     Route::post('user/register', 'ApiController@userRegister');
 
     Route::post('user/info/get', 'ApiController@getUserInfo');
