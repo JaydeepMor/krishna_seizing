@@ -305,12 +305,15 @@ class ApiController extends BaseController
     public function userDownloadComplete(Request $request)
     {
         $userId = $request->get('user_id', null);
+        $isDebug = $request->get('is_debug', false);
 
         if (!empty($userId)) {
             $isDone = User::changeIsDownloadable($userId, User::IS_DOWNLOADABLE_NO);
 
             // Set user is_synced flag on.
-            // UserSynchronization::setIsSynced($userId, UserSynchronization::IS_SYNCED_YES);
+            if ($isDebug == "true") {
+                UserSynchronization::setIsSynced($userId, UserSynchronization::IS_SYNCED_YES);
+            }
 
             if ($isDone) {
                 return $this->getGlobalResponse($userId);
