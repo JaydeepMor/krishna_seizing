@@ -420,6 +420,8 @@ class VehicleController extends BaseController
 
         UserSynchronization::setIsDeletedByFinanceCompany($financeCompanyId);
 
+        Vehicle::setCount();
+
         return redirect()->route('vehicle.index')->with('success', __($msg));
     }
 
