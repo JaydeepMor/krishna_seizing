@@ -304,6 +304,7 @@ class ApiController extends BaseController
 
     public function userDownloadComplete(Request $request)
     {
+        \Log::info("Download Complete API : ", ["fullUrl" => $request->fullUrl(), "request" => $request->all()]);
         $userId = $request->get('user_id', null);
         $isDebug = $request->get('is_debug', false);
 
