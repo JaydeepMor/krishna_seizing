@@ -194,7 +194,7 @@ class Vehicle extends BaseModel
         return $vehiclesData;
     }
 
-    public static function getCount($isForget = false)
+    public static function getCount($isForget = false, $financeCompanyId = null)
     {
         $cacheKey = self::VEHICLE_COUNT_CACHE_KEY;
 
@@ -205,7 +205,14 @@ class Vehicle extends BaseModel
         if (Cache::has($cacheKey)) {
             $total = Cache::get($cacheKey);
         } else {
-            $total = self::whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+            $query = self::whereNotNull('registration_number')->where('registration_number', '!=', '');
+
+            if (!empty($financeCompanyId)) {
+                $total = $query->where('finance_company_id', $financeCompanyId)->count();
+            } else {
+                $total = $query->count();
+            }
+
             Cache::put($cacheKey, $total, self::VEHICLE_COUNT_CACHE_MINUTES);
         }
 

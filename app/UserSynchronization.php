@@ -44,14 +44,14 @@ class UserSynchronization extends BaseModel
 
     public static function setIsSyncedByFinanceCompany(int $financeCompanyId, $isSynced = self::IS_SYNCED_NOPE, $isDeleted = self::IS_DELETED_NOPE)
     {
-        $vehicleCount = Vehicle::where('finance_company_id', $financeCompanyId)->whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+        $vehicleCount = Vehicle::getCount(false, $financeCompanyId);
 
         return self::where('finance_company_id', $financeCompanyId)->update(['is_synced' => $isSynced, 'is_deleted' => $isDeleted, 'vehicle_count' => $vehicleCount]);
     }
 
     public static function setIsDeletedByFinanceCompany(int $financeCompanyId, $isDeleted = self::IS_DELETED_YES)
     {
-        $vehicleCount = Vehicle::where('finance_company_id', $financeCompanyId)->whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
+        $vehicleCount = Vehicle::getCount(false, $financeCompanyId);
 
         return self::where('finance_company_id', $financeCompanyId)->update(['is_deleted' => $isDeleted, 'vehicle_count' => $vehicleCount]);
     }
