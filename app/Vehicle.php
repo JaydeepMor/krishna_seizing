@@ -180,7 +180,7 @@ class Vehicle extends BaseModel
                         foreach ($value as $key => $row) {
                             $value[$key]['registration_number'] = reArrengeRegistrationNumber($value[$key]['registration_number']);
 
-                            unset($value[$key]['finance_company_id']);
+                            // unset($value[$key]['finance_company_id']);
                         }
                     }
                 }

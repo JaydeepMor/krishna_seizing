@@ -32,6 +32,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::post('subseizer/report/export', 'UserController@export')->name('subseizer.report.export');
 
+    Route::post('subseizer/sync/export', 'UserController@export')->name('subseizer.report.export');
+
     Route::resource('constant', 'ConstantController');
 
     Route::resource('vehicle', 'VehicleController');
