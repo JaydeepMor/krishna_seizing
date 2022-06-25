@@ -32,7 +32,7 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::post('subseizer/report/export', 'UserController@export')->name('subseizer.report.export');
 
-    Route::post('subseizer/sync/export', 'UserController@export')->name('subseizer.report.export');
+    Route::get('subseizer/sync/check/{id}', 'Api\ApiController@checkSync')->name('subseizer.sync.check');
 
     Route::resource('constant', 'ConstantController');
 

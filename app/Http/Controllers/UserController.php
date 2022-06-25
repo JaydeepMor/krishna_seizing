@@ -243,7 +243,7 @@ class UserController extends BaseController
                 } else {
                     Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading. Store File : " . $storeFile)));
 
-                    return redirect()->route('subseizer.index')->with('error', __('We aren\'t able to store id proof. Please contact administrator'));
+                    return redirect()->route('subseizer.index')->with('danger', __('We aren\'t able to store id proof. Please contact administrator'));
                 }
             }
         }
@@ -264,7 +264,7 @@ class UserController extends BaseController
                 } else {
                     Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading. Store File : " . $storeFile)));
 
-                    return redirect()->route('subseizer.index')->with('error', __('We aren\'t able to store selfie. Please contact administrator'));
+                    return redirect()->route('subseizer.index')->with('danger', __('We aren\'t able to store selfie. Please contact administrator'));
                 }
             }
         }
@@ -382,7 +382,7 @@ class UserController extends BaseController
                 } else {
                     Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading. Store File : " . $storeFile)));
 
-                    return redirect()->route('subseizer.index')->with('error', __('We aren\'t able to store id proof. Please contact administrator'));
+                    return redirect()->route('subseizer.index')->with('danger', __('We aren\'t able to store id proof. Please contact administrator'));
                 }
             }
         }
@@ -403,7 +403,7 @@ class UserController extends BaseController
                 } else {
                     Notification::route('mail', config('mail.mine.email', 'it.jaydeep.mor@gmail.com'))->notify(new CommonException(__("User id proof not uploading. Store File : " . $storeFile)));
 
-                    return redirect()->route('subseizer.index')->with('error', __('We aren\'t able to store selfie. Please contact administrator'));
+                    return redirect()->route('subseizer.index')->with('danger', __('We aren\'t able to store selfie. Please contact administrator'));
                 }
             }
         }

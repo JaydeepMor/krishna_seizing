@@ -338,6 +338,17 @@ class ApiController extends BaseController
         return $this->returnError(__('User not found.'));
     }
 
+    public function checkSync(int $id)
+    {
+        $updateSync = UserSynchronization::updateSync($id, true);
+
+        if ($updateSync) {
+            return redirect()->back()->with('success', __('Subseizer synced successfully!'));
+        }
+
+        return redirect()->back()->with('danger', __('Something went wrong! Please try again later.'));
+    }
+
     public function checkVehicles(Request $request)
     {
         $model = new Vehicle();
@@ -379,30 +390,7 @@ class ApiController extends BaseController
                                    ->update(['is_synced' => UserSynchronization::IS_SYNCED_NOPE]);
 
                 // Remaining finance companies.
-                $financeCompanies = DB::table(FinanceCompany::getTableName())->select('id')->whereNotIn('id',function($query) use($userId) {
-                    $query->select('finance_company_id as id')->from(UserSynchronization::getTableName())->where('user_id', $userId);
-                })->get();
-
-                foreach ($financeCompanies as $financeCompany) {
-                    $financeCompanyId = $financeCompany->id;
-
-                    $getVehiclesCount = Vehicle::where('finance_company_id', $financeCompanyId)->whereNotNull('registration_number')->where('registration_number', '!=', '')->count();
-
-                    $match = [
-                        'user_id' => $userId,
-                        'finance_company_id' => $financeCompanyId
-                    ];
-
-                    $create = [
-                        'user_id' => $userId,
-                        'finance_company_id' => $financeCompanyId,
-                        'vehicle_count' => $getVehiclesCount,
-                        'is_synced' => UserSynchronization::IS_SYNCED_NOPE,
-                        'is_deleted' => UserSynchronization::IS_DELETED_NOPE
-                    ];
-
-                    UserSynchronization::updateOrCreate($match, $create);
-                }
+                UserSynchronization::updateSync($userId);
             }
         }
 
