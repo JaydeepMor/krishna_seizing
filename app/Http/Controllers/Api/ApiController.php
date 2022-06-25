@@ -347,7 +347,9 @@ class ApiController extends BaseController
         $financeCompanyIds = $request->get('finance_company_ids', []);
 
         // If finance company blank then set all finance vehicle blank.
-        UserSynchronization::setIsSynced($userId);
+        if (empty($financeCompanyIds)) {
+            UserSynchronization::setIsSynced($userId);
+        }
 
         $isFromMySql = $this->isFromMySql($financeCompanyIds, $userId);
 
