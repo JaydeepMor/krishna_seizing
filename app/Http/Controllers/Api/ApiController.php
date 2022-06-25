@@ -342,9 +342,12 @@ class ApiController extends BaseController
     {
         $model = new Vehicle();
 
+        $userId = $request->get('user_id', null);
+
         $financeCompanyIds = $request->get('finance_company_ids', []);
 
-        $userId = $request->get('user_id', null);
+        // If finance company blank then set all finance vehicle blank.
+        UserSynchronization::setIsSynced($userId);
 
         $isFromMySql = $this->isFromMySql($financeCompanyIds, $userId);
 
