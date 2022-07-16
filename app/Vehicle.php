@@ -87,9 +87,14 @@ class Vehicle extends BaseModel
     const MAX_IMPORTABLE_ROWS   = 50000;
 
     // Fixed now as we stored in Redis cache.
+    // REMEMBER : If you change this then MUST run daily:redis:cache:pagination:vehicles command.
     const API_PAGINATION = 1000;
 
     const VEHICLE_REDIS_KEY = 'vehicles:';
+
+    const VEHICLE_REDIS_KEY_SINGLE = 'vehicle:';
+
+    const VEHICLE_REDIS_PAGINATION_KEY = 'pagination:vehicles:';
 
     const VEHICLE_COUNT_CACHE_KEY = 'vehicles_count';
 
