@@ -45,6 +45,15 @@ class ApiController extends BaseController
 
         $isFromMySql         = $this->isFromMySql($financeCompanyIds, $userId);
 
+        // For development testing
+        if (env('APP_DEBUG', false) && $isFromMySql) {
+            $testUserIds = (!empty(env('TEST_USER_ID', [])) ? explode(",", env('TEST_USER_ID', [])) : []);
+
+            if (!in_array($userId, $testUserIds)) {
+                $isFromMySql = false;
+            }
+        }
+
         if ($isFromMySql) {
             $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->whereIn('finance_company_id', array_keys($financeCompanyIds))->paginate($perPage, ['*'], 'page', $pageNo);
 
@@ -60,16 +69,19 @@ class ApiController extends BaseController
 
                 $vehiclesData = Vehicle::arrangeApiData($vehicles);
             } else {
-                $vehiclesData['data'] = array_values($vehiclesData['data']);
+                $vehiclesData['data']       = array_values($vehiclesData['data']);
 
-                $count = Vehicle::getCount();
+                $count                      = Vehicle::getCount();
 
-                $chunkSize            = Vehicle::API_PAGINATION;
+                $chunkSize                  = Vehicle::API_PAGINATION;
 
-                $lastPage             = (int)ceil($count / $chunkSize);
+                $lastPage                   = (int)ceil($count / $chunkSize);
 
                 $vehiclesData['last_page']  = $lastPage;
+
                 $vehiclesData['total']      = $count;
+
+                $vehiclesData['current_page_total'] = count($vehiclesData['data']);
             }
         }
 
