@@ -12,6 +12,7 @@ use App\ApiKey;
 use App\UserVehicleFieldPermission;
 use App\Vehicle;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redis;
 
 class User extends Authenticatable
 {
@@ -275,7 +276,29 @@ class User extends Authenticatable
 
             $user['user_subscriptions'] = $user->getCurrentSubscriptionTimestamps();
 
-            $user['total_vehicles'] = Vehicle::getCount();
+            // $user['total_vehicles'] = Vehicle::getCount();
+            $totalVehicles = 0;
+
+            if (env('VEHICLE_API_CACHE', false)) {
+                $redis   = Redis::connection();
+                $allKeys = $redis->keys(Vehicle::VEHICLE_REDIS_KEY . '*');
+                
+                if (!empty($allKeys)) {
+                    foreach ($allKeys as $key) {
+                        $vehiclesData = json_decode($redis->get($key), true);
+
+                        if (!empty($vehiclesData['data']) && is_array($vehiclesData['data'])) {
+                            $totalVehicles = $totalVehicles + count($vehiclesData['data']);
+                        }
+                    }
+                }
+            }
+
+            if ($totalVehicles <= 0) {
+                $totalVehicles = Vehicle::getCount();
+            }
+
+            $user['total_vehicles'] = $totalVehicles;
         }
 
         return $user;
