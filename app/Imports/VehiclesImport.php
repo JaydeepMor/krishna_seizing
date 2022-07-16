@@ -96,7 +96,7 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
         // Add in Redis cache as well.
         $keyPrefix = Vehicle::VEHICLE_REDIS_KEY_SINGLE;
 
-        $this->redis->set($keyPrefix . $this->financeCompanyId . ":" . $create->id, json_encode($data));
+        $redis->set($keyPrefix . $this->financeCompanyId . ":" . $create->id, json_encode($data));
 
         return $create;
     }

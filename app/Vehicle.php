@@ -245,14 +245,19 @@ class Vehicle extends BaseModel
 
     public static function removeFromRedisCache(int $financeCompanyId)
     {
+        $return       = false;
+
         $redis        = Redis::connection();
 
         $existingKeys = $redis->keys(Vehicle::VEHICLE_REDIS_KEY_SINGLE . $financeCompanyId . ':*');
 
         if (count($existingKeys) > 0) {
-            return $redis->del($existingKeys);
+            $return = $redis->del($existingKeys);
         }
 
-        return false;
+        // Sync Redis cache pagination as well.
+        \Artisan::call("daily:redis:cache:pagination:vehicles");
+
+        return $return;
     }
 }
