@@ -38,14 +38,58 @@ class ApiController extends BaseController
         // Fixed now as we stored in Redis cache.
         $perPage = Vehicle::API_PAGINATION;
 
+        $redis         = Redis::connection();
+
+        $redisVehicles = [];
+
+        // Get records from Redis cache.
+        if (env('VEHICLE_API_CACHE', false)) {
+            $paginationKey   = Vehicle::VEHICLE_REDIS_PAGINATION_KEY . $pageNo . ':' . $perPage;
+
+            $redisRecordKeys = json_decode($redis->get($paginationKey), true);
+
+            if (!empty($redisRecordKeys)) {
+                $redisVehicles = $redis->mGet($redisRecordKeys);
+
+                if (!empty($redisVehicles)) {
+                    foreach ($redisVehicles as &$vehicle) {
+                        $vehicle = json_decode($vehicle, true);
+                    }
+                }
+            }
+        }
+
+        if (empty($redisVehicles)) {
+            $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->paginate($perPage, ['*'], 'page', $pageNo);
+
+            $vehiclesData = Vehicle::arrangeApiData($vehicles);
+        } else {
+            $vehiclesData['data']               = array_values($redisVehicles);
+
+            $count                              = Vehicle::getCount();
+
+            $lastPage                           = (int)ceil($count / $perPage);
+
+            $vehiclesData['current_page']       = $pageNo;
+
+            $vehiclesData['per_page']           = $perPage;
+
+            $vehiclesData['last_page']          = $lastPage;
+
+            $vehiclesData['total']              = (int)$count;
+
+            $vehiclesData['current_page_total'] = count($vehiclesData['data']);
+        }
+
+        // For development testing
+
         // Check user synced.
-        $userSynchronization = UserSynchronization::select("finance_company_id", "vehicle_count")->where('user_id', $userId)->where('is_synced', UserSynchronization::IS_SYNCED_NOPE);
+        /* $userSynchronization = UserSynchronization::select("finance_company_id", "vehicle_count")->where('user_id', $userId)->where('is_synced', UserSynchronization::IS_SYNCED_NOPE);
 
         $financeCompanyIds   = $userSynchronization->pluck('vehicle_count', 'finance_company_id')->toArray();
 
         $isFromMySql         = $this->isFromMySql($financeCompanyIds, $userId);
 
-        // For development testing
         if (env('APP_DEBUG', false) && $isFromMySql) {
             $testUserIds = (!empty(env('TEST_USER_ID', [])) ? explode(",", env('TEST_USER_ID', [])) : []);
 
@@ -59,8 +103,6 @@ class ApiController extends BaseController
 
             $vehiclesData = Vehicle::arrangeApiData($vehicles);
         } else {
-            $redis   = Redis::connection();
-
             // Get all vehicles from Redis cache first if not found than get from MySql.
             $vehiclesData = env('VEHICLE_API_CACHE', false) ? json_decode($redis->get(Vehicle::VEHICLE_REDIS_KEY . $pageNo . ":" . $perPage), true) : [];
 
@@ -83,7 +125,7 @@ class ApiController extends BaseController
 
                 $vehiclesData['current_page_total'] = count($vehiclesData['data']);
             }
-        }
+        } */
 
         // Get current user field permissions.
         /* $userFieldPermissions = UserVehicleFieldPermission::select('vehicle_allowed_fields')->where('user_id', $userId)->first();
