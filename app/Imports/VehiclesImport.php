@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use Notification;
 use App\Notifications\VehicleImportFailed;
+use Illuminate\Support\Facades\Redis;
 
 class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQueue, WithCalculatedFormulas
 {
@@ -26,8 +27,12 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
 
     public $tries   = 5;
 
+    private $redis;
+
     public function __construct(int $lotNumber, int $financeCompanyId)
     {
+        $this->redis            = Redis::connection();
+
         $this->lotNumber        = $lotNumber;
 
         $this->financeCompanyId = $financeCompanyId;
@@ -58,11 +63,13 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
     */
     public function model(array $row)
     {
+        $redis = $this->redis;
+
         for ($i = 0; $i <= 16; $i++) {
             $row[$i] = !isset($row[$i]) ? null : $row[$i];
         }
 
-        return new Vehicle([
+        $data = [
             'loan_number'                 => trim((string)$row[0]),
             'customer_name'               => trim((string)$row[1]),
             'model'                       => trim((string)$row[2]),
@@ -82,7 +89,16 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
             'region'                      => trim((string)$row[16]),
             'lot_number'                  => trim($this->lotNumber),
             'finance_company_id'          => trim($this->financeCompanyId)
-        ]);
+        ];
+
+        $create = new Vehicle($data);
+
+        // Add in Redis cache as well.
+        $keyPrefix = Vehicle::VEHICLE_REDIS_KEY_SINGLE;
+
+        $this->redis->set($keyPrefix . $this->financeCompanyId . ":" . $create->id, json_encode($data));
+
+        return $create;
     }
 
     /**

@@ -7,6 +7,7 @@ use App\FinanceCompany;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 use Cache;
 
 class Vehicle extends BaseModel
@@ -240,5 +241,18 @@ class Vehicle extends BaseModel
     public function getInstalledDateAttribute($value)
     {
         return strtotime($value) * 1000;
+    }
+
+    public static function removeFromRedisCache(int $financeCompanyId)
+    {
+        $redis        = Redis::connection();
+
+        $existingKeys = $redis->keys(Vehicle::VEHICLE_REDIS_KEY_SINGLE . $financeCompanyId . ':*');
+
+        if (count($existingKeys) > 0) {
+            return $redis->del($existingKeys);
+        }
+
+        return false;
     }
 }

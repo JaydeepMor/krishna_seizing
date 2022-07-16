@@ -144,6 +144,9 @@ class VehicleController extends BaseController
                         // Remove old finance company data.
                         $this->removeFinanceVehicles($request, $data['finance_company_id']);
 
+                        // Remove finance company wise data from Redis cache.
+                        $model::removeFromRedisCache($data['finance_company_id']);
+
                         Excel::import(new VehiclesImport($nextLotNumber, $data['finance_company_id']), "public/" . $storeFile);
                     } catch (\Exception $e) {
                         return redirect()->route('vehicle.index')->with('danger', __($e->getMessage()));
@@ -421,6 +424,8 @@ class VehicleController extends BaseController
         UserSynchronization::setIsDeletedByFinanceCompany($financeCompanyId);
 
         Vehicle::setCount();
+
+        Vehicle::removeFromRedisCache($financeCompanyId);
 
         return redirect()->route('vehicle.index')->with('success', __($msg));
     }

@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Vehicle;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
-use Cache;
 use DB;
 
 class redisCacheVehicle extends Command

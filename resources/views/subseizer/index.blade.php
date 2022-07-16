@@ -166,7 +166,7 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group">
-                                            <a href="{{ route('subseizer.sync.check', $user->id) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Clear Sync') }}"><i class="fa fa-circle-o-notch"></i></a>
+                                            <!-- <a href="{{ route('subseizer.sync.check', $user->id) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Clear Sync') }}"><i class="fa fa-circle-o-notch"></i></a> -->
                                             <a href="{{ route('subseizer.edit', $user->id) }}" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="{{ __('Edit') }}"><i class="fa fa-pencil"></i></a>
                                             <a href="javascript:void(0);" data-toggle="tooltip" title="" class="btn btn-danger remove-button" data-original-title="{{ __('Remove') }}" data-id="{{ $user->id }}"><i class="fa fa-times"></i></a>
                                             <form id="remove-form-{{ $user->id }}" action="{{ route('subseizer.destroy', $user->id) }}" method="POST" class="d-none">
