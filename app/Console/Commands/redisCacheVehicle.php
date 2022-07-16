@@ -55,7 +55,7 @@ class redisCacheVehicle extends Command
             $this->redis->del($existingKeys);
         }
 
-        Vehicle::chunk($chunkSize, function($vehicles) {
+        Vehicle::chunk($chunkSize, function($vehicles) use($keyPrefix) {
             foreach ($vehicles as $vehicle) {
                 $vehicle->registration_number = reArrengeRegistrationNumber($vehicle->registration_number);
 
