@@ -172,9 +172,9 @@
                                             <a type="button" data-toggle="tooltip" href="{{ route('vehicle.sample.export') }}" title="" class="btn btn-default" data-original-title="{{ __('Download sample file.') }}" rel="nofollow">
                                                 <i class="fa fa-download"></i>
                                             </a>
-                                            <a type="button" data-toggle="tooltip" href="{{ route('vehicle.sync.redis') }}" title="" class="btn btn-default" data-original-title="{{ __('Sync to Redis.') }}" rel="nofollow">
+                                            <!-- <a type="button" data-toggle="tooltip" href="{{ route('vehicle.sync.redis') }}" title="" class="btn btn-default" data-original-title="{{ __('Sync to Redis.') }}" rel="nofollow">
                                                 <i class="fa fa-circle-o-notch"></i>
-                                            </a>
+                                            </a> -->
                                         </span>
                                     </div>
                                     @error('excel_import')
