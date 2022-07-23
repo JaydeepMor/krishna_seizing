@@ -83,6 +83,16 @@ class ApiController extends BaseController
 
         // For development testing
 
+        if ($userId == '34') {
+            $userSynchronization = UserSynchronization::select("finance_company_id", "vehicle_count")->where('user_id', $userId)->where('is_synced', UserSynchronization::IS_SYNCED_NOPE);
+
+            $financeCompanyIds   = $userSynchronization->pluck('vehicle_count', 'finance_company_id')->toArray();
+
+            $isFromMySql         = $this->isFromMySql($financeCompanyIds, $userId);
+
+            dd($isFromMySql);
+        }
+
         // Check user synced.
         /* $userSynchronization = UserSynchronization::select("finance_company_id", "vehicle_count")->where('user_id', $userId)->where('is_synced', UserSynchronization::IS_SYNCED_NOPE);
 
