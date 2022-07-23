@@ -64,7 +64,7 @@ class redisCacheVehicle extends Command
             sleep(1);
         });
 
-        \Artisan::call("daily:redis:cache:pagination:vehicles");
+        // \Artisan::call("daily:redis:cache:pagination:vehicles");
 
         return null;
     }

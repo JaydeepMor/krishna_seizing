@@ -26,6 +26,10 @@ class UserSynchronization extends BaseModel
     const IS_DELETED_NOPE = '0';
     const IS_DELETED_YES = '1';
 
+    const QUERY_CACHE_USERS = 'user_sync_cache:';
+
+    const QUERY_CACHE_SECONDS = 600;
+
     public function validator(array $data, int $id = NULL)
     {
         return Validator::make($data, [
