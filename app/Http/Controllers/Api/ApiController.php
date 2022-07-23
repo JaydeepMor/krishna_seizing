@@ -71,7 +71,7 @@ class ApiController extends BaseController
 
                 if (empty($redisData) || $redisData->isEmpty()) {
                     foreach ($userSynchronization as $financeCompanyId) {
-                        $redisRecordKey = Vehicle::VEHICLE_REDIS_KEY . $financeCompanyId . ':*';
+                        $redisRecordKey = Vehicle::VEHICLE_REDIS_KEY_SINGLE . $financeCompanyId . ':*';
 
                         $redisCacheData = $redis->keys($redisRecordKey);
 
