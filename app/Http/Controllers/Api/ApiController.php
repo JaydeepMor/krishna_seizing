@@ -23,6 +23,17 @@ use DB;
 
 class ApiController extends BaseController
 {
+    public static function getUserSync(int $userId)
+    {
+        return Cache::remember(UserSynchronization::QUERY_CACHE_USERS . $userId, UserSynchronization::QUERY_CACHE_SECONDS, function() use($userId) {
+            return UserSynchronization::select("finance_company_id", "vehicle_count")
+                                ->where('user_id', $userId)
+                                ->where('is_synced', UserSynchronization::IS_SYNCED_NOPE)
+                                ->where('is_deleted', UserSynchronization::IS_DELETED_NOPE)
+                                ->pluck('finance_company_id');
+        });
+    }
+
     public function getVehicles(Request $request)
     {
         $userId  = $request->get('user_id', NULL);
@@ -38,13 +49,56 @@ class ApiController extends BaseController
         // Fixed now as we stored in Redis cache.
         $perPage = Vehicle::API_PAGINATION;
 
-        $redis         = Redis::connection();
+        $redis               = Redis::connection();
 
-        $redisVehicles = [];
+        $redisVehicles       = [];
+
+        $userSynchronization = self::getUserSync($userId);
+
+        // Try once to check sync.
+        if (empty($userSynchronization)) {
+            UserSynchronization::updateSync($userId);
+
+            $userSynchronization = self::getUserSync($userId);
+        }
 
         // Get records from Redis cache.
         if (env('VEHICLE_API_CACHE', false)) {
-            $paginationKey   = Vehicle::VEHICLE_REDIS_PAGINATION_KEY . $pageNo . ':' . $perPage;
+            if (!empty($userSynchronization) && !$userSynchronization->isEmpty()) {
+                $redisKeyCache = Vehicle::REDIS_KEYS_CACHE . $userId;
+
+                $redisData = collect(Cache::get($redisKeyCache, []));
+
+                if (empty($redisData) || $redisData->isEmpty()) {
+                    foreach ($userSynchronization as $financeCompanyId) {
+                        $redisRecordKey = Vehicle::VEHICLE_REDIS_KEY . $financeCompanyId . ':*';
+
+                        $redisCacheData = $redis->keys($redisRecordKey);
+
+                        if (!empty($redisCacheData)) {
+                            foreach ($redisCacheData as $cacheData) {
+                                $redisData->push($cacheData);
+                            }
+                        }
+                    }
+
+                    Cache::put($redisKeyCache, $redisData, Vehicle::QUERY_CACHE_SECONDS);
+                }
+
+                if (!empty($redisData) && !$redisData->isEmpty()) {
+                    $redisRecordKeys = $redisData->slice(($pageNo - 1), $perPage);
+
+                    $redisVehicles   = $redis->mGet($redisRecordKeys->toArray());
+
+                    if (!empty($redisVehicles)) {
+                        foreach ($redisVehicles as &$vehicle) {
+                            $vehicle = json_decode($vehicle, true);
+                        }
+                    }
+                }
+            }
+
+            /* $paginationKey   = Vehicle::VEHICLE_REDIS_PAGINATION_KEY . $pageNo . ':' . $perPage;
 
             $redisRecordKeys = json_decode($redis->get($paginationKey), true);
 
@@ -56,13 +110,15 @@ class ApiController extends BaseController
                         $vehicle = json_decode($vehicle, true);
                     }
                 }
-            }
+            } */
         }
 
         if (empty($redisVehicles)) {
-            $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->paginate($perPage, ['*'], 'page', $pageNo);
+            $userSynchronization = self::getUserSync($userId);
 
-            $vehiclesData = Vehicle::arrangeApiData($vehicles);
+            $vehicles            = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->whereIn('finance_company_id', $userSynchronization)->paginate($perPage, ['*'], 'page', $pageNo);
+
+            $vehiclesData        = Vehicle::arrangeApiData($vehicles);
         } else {
             $vehiclesData['data']               = array_values($redisVehicles);
 
@@ -79,74 +135,14 @@ class ApiController extends BaseController
             $vehiclesData['total']              = (int)$count;
 
             $vehiclesData['current_page_total'] = count($vehiclesData['data']);
-        }
 
-        // For development testing
-
-        if ($userId == '34') {
-            $userSynchronization = UserSynchronization::select("finance_company_id", "vehicle_count")->where('user_id', $userId)->where('is_synced', UserSynchronization::IS_SYNCED_NOPE);
-
-            $financeCompanyIds   = $userSynchronization->pluck('vehicle_count', 'finance_company_id')->toArray();
-
-            $isFromMySql         = $this->isFromMySql($financeCompanyIds, $userId);
-
-            dd($isFromMySql);
-        }
-
-        // Check user synced.
-        /* $userSynchronization = UserSynchronization::select("finance_company_id", "vehicle_count")->where('user_id', $userId)->where('is_synced', UserSynchronization::IS_SYNCED_NOPE);
-
-        $financeCompanyIds   = $userSynchronization->pluck('vehicle_count', 'finance_company_id')->toArray();
-
-        $isFromMySql         = $this->isFromMySql($financeCompanyIds, $userId);
-
-        if (env('APP_DEBUG', false) && $isFromMySql) {
-            $testUserIds = (!empty(env('TEST_USER_ID', [])) ? explode(",", env('TEST_USER_ID', [])) : []);
-
-            if (!in_array($userId, $testUserIds)) {
-                $isFromMySql = false;
+            // Remove query cache when sync complete.
+            if ($lastPage == $pageNo) {
+                Cache::forget(UserSynchronization::QUERY_CACHE_USERS . $userId);
+                Cache::forget($redisKeyCache);
             }
         }
 
-        if ($isFromMySql) {
-            $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->whereIn('finance_company_id', array_keys($financeCompanyIds))->paginate($perPage, ['*'], 'page', $pageNo);
-
-            $vehiclesData = Vehicle::arrangeApiData($vehicles);
-        } else {
-            // Get all vehicles from Redis cache first if not found than get from MySql.
-            $vehiclesData = env('VEHICLE_API_CACHE', false) ? json_decode($redis->get(Vehicle::VEHICLE_REDIS_KEY . $pageNo . ":" . $perPage), true) : [];
-
-            if (empty($vehiclesData) || empty($vehiclesData['data'])) {
-                $vehicles     = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->paginate($perPage, ['*'], 'page', $pageNo);
-
-                $vehiclesData = Vehicle::arrangeApiData($vehicles);
-            } else {
-                $vehiclesData['data']       = array_values($vehiclesData['data']);
-
-                $count                      = Vehicle::getCount();
-
-                $chunkSize                  = Vehicle::API_PAGINATION;
-
-                $lastPage                   = (int)ceil($count / $chunkSize);
-
-                $vehiclesData['last_page']  = $lastPage;
-
-                $vehiclesData['total']      = $count;
-
-                $vehiclesData['current_page_total'] = count($vehiclesData['data']);
-            }
-        } */
-
-        // Get current user field permissions.
-        /* $userFieldPermissions = UserVehicleFieldPermission::select('vehicle_allowed_fields')->where('user_id', $userId)->first();
-        $vehicleAllowedFields = !empty($userFieldPermissions->vehicle_allowed_fields) ? json_decode($userFieldPermissions->vehicle_allowed_fields, true) : []; */
-
-        // Get current user subscriptions.
-        // $currentUser = User::find($userId);
-
-        // Old Response as below,
-        // , 'user_field_permissions' => $vehicleAllowedFields, 'user_subscriptions' => $currentUser->getCurrentSubscriptionTimestamps(), 'api_key' => $currentUser->getApiKey()
-        // return $this->returnSuccess(__('Records get successfully!'), ['vehicles' => $vehiclesData]);
         return json_encode([
             'code' => $this->successCode,
             'msg'  => __('Records get successfully!'),

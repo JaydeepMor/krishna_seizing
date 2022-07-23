@@ -106,6 +106,11 @@ class Vehicle extends BaseModel
     // If less than API then sync all vehicles from Redis cache.
     const VEHICLE_COMPARE_PERCENTAGE = 40;
 
+    // For set key cache for GET vehicles API.
+    const REDIS_KEYS_CACHE = 'redis_keys_cache:';
+
+    const QUERY_CACHE_SECONDS = 600;
+
     public $appends = ['finance_company'];
 
     public function validator(array $data, int $id = NULL)
