@@ -64,31 +64,47 @@ class ApiController extends BaseController
 
         // Get records from Redis cache.
         if (env('VEHICLE_API_CACHE', false)) {
-            if (!empty($userSynchronization) && !$userSynchronization->isEmpty()) {
-                $redisKeyCache = Vehicle::REDIS_KEYS_CACHE . $userId;
+            if (in_array($userId, explode(",", env('TEST_USER_ID', [])))) {
+                if (!empty($userSynchronization) && !$userSynchronization->isEmpty()) {
+                    $redisKeyCache = Vehicle::REDIS_KEYS_CACHE . $userId;
 
-                $redisData = collect(Cache::get($redisKeyCache, []));
+                    $redisData = collect(Cache::get($redisKeyCache, []));
 
-                if (empty($redisData) || $redisData->isEmpty()) {
-                    foreach ($userSynchronization as $financeCompanyId) {
-                        $redisRecordKey = Vehicle::VEHICLE_REDIS_KEY_SINGLE . $financeCompanyId . ':*';
+                    if (empty($redisData) || $redisData->isEmpty()) {
+                        foreach ($userSynchronization as $financeCompanyId) {
+                            $redisRecordKey = Vehicle::VEHICLE_REDIS_KEY_SINGLE . $financeCompanyId . ':*';
 
-                        $redisCacheData = $redis->keys($redisRecordKey);
+                            $redisCacheData = $redis->keys($redisRecordKey);
 
-                        if (!empty($redisCacheData)) {
-                            foreach ($redisCacheData as $cacheData) {
-                                $redisData->push($cacheData);
+                            if (!empty($redisCacheData)) {
+                                foreach ($redisCacheData as $cacheData) {
+                                    $redisData->push($cacheData);
+                                }
+                            }
+                        }
+
+                        Cache::put($redisKeyCache, $redisData, Vehicle::QUERY_CACHE_SECONDS);
+                    }
+
+                    if (!empty($redisData) && !$redisData->isEmpty()) {
+                        $redisRecordKeys = $redisData->slice(($pageNo - 1), $perPage);
+
+                        $redisVehicles   = $redis->mGet($redisRecordKeys->toArray());
+
+                        if (!empty($redisVehicles)) {
+                            foreach ($redisVehicles as &$vehicle) {
+                                $vehicle = json_decode($vehicle, true);
                             }
                         }
                     }
-
-                    Cache::put($redisKeyCache, $redisData, Vehicle::QUERY_CACHE_SECONDS);
                 }
+            } else {
+                $paginationKey   = Vehicle::VEHICLE_REDIS_PAGINATION_KEY . $pageNo . ':' . $perPage;
 
-                if (!empty($redisData) && !$redisData->isEmpty()) {
-                    $redisRecordKeys = $redisData->slice(($pageNo - 1), $perPage);
+                $redisRecordKeys = json_decode($redis->get($paginationKey), true);
 
-                    $redisVehicles   = $redis->mGet($redisRecordKeys->toArray());
+                if (!empty($redisRecordKeys)) {
+                    $redisVehicles = $redis->mGet($redisRecordKeys);
 
                     if (!empty($redisVehicles)) {
                         foreach ($redisVehicles as &$vehicle) {
@@ -97,20 +113,6 @@ class ApiController extends BaseController
                     }
                 }
             }
-
-            /* $paginationKey   = Vehicle::VEHICLE_REDIS_PAGINATION_KEY . $pageNo . ':' . $perPage;
-
-            $redisRecordKeys = json_decode($redis->get($paginationKey), true);
-
-            if (!empty($redisRecordKeys)) {
-                $redisVehicles = $redis->mGet($redisRecordKeys);
-
-                if (!empty($redisVehicles)) {
-                    foreach ($redisVehicles as &$vehicle) {
-                        $vehicle = json_decode($vehicle, true);
-                    }
-                }
-            } */
         }
 
         if (empty($redisVehicles)) {
@@ -139,7 +141,7 @@ class ApiController extends BaseController
             // Remove query cache when sync complete.
             if ($lastPage == $pageNo) {
                 Cache::forget(UserSynchronization::QUERY_CACHE_USERS . $userId);
-                Cache::forget($redisKeyCache);
+                empty($redisKeyCache) ?: Cache::forget($redisKeyCache);
             }
         }
 
