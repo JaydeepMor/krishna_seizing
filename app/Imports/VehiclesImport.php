@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use Notification;
 use App\Notifications\VehicleImportFailed;
 use Illuminate\Support\Facades\Redis;
+use DB;
 
 class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQueue, WithCalculatedFormulas
 {
@@ -69,36 +70,45 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
             $row[$i] = !isset($row[$i]) ? null : $row[$i];
         }
 
-        $data = [
-            'loan_number'                 => trim((string)$row[0]),
-            'customer_name'               => trim((string)$row[1]),
-            'model'                       => trim((string)$row[2]),
-            'registration_number'         => trim((string)$row[3]),
-            'chassis_number'              => trim((string)$row[4]),
-            'engine_number'               => trim((string)$row[5]),
-            'arm_rrm'                     => trim((string)$row[6]),
-            'mobile_number'               => trim((string)$row[7]),
-            'brm'                         => trim((string)$row[8]),
-            'final_confirmation'          => trim((string)$row[9]),
-            'final_manager_name'          => trim((string)$row[10]),
-            'final_manager_mobile_number' => trim((string)$row[11]),
-            'address'                     => trim((string)$row[12]),
-            'branch'                      => trim((string)$row[13]),
-            'bkt'                         => trim((string)$row[14]),
-            'area'                        => trim((string)$row[15]),
-            'region'                      => trim((string)$row[16]),
-            'lot_number'                  => trim($this->lotNumber),
-            'finance_company_id'          => trim($this->financeCompanyId)
-        ];
+        $statement = DB::select("SHOW TABLE STATUS LIKE '" . Vehicle::getTableName() . "'");
 
-        $create = new Vehicle($data);
+        if (!empty($statement[0]) && !empty($statement[0]->Auto_increment)) {
+            $nextId = $statement[0]->Auto_increment;
 
-        // Add in Redis cache as well.
-        $keyPrefix = Vehicle::VEHICLE_REDIS_KEY_SINGLE;
+            $data = [
+                'id'                          => $nextId,
+                'loan_number'                 => trim((string)$row[0]),
+                'customer_name'               => trim((string)$row[1]),
+                'model'                       => trim((string)$row[2]),
+                'registration_number'         => trim((string)$row[3]),
+                'chassis_number'              => trim((string)$row[4]),
+                'engine_number'               => trim((string)$row[5]),
+                'arm_rrm'                     => trim((string)$row[6]),
+                'mobile_number'               => trim((string)$row[7]),
+                'brm'                         => trim((string)$row[8]),
+                'final_confirmation'          => trim((string)$row[9]),
+                'final_manager_name'          => trim((string)$row[10]),
+                'final_manager_mobile_number' => trim((string)$row[11]),
+                'address'                     => trim((string)$row[12]),
+                'branch'                      => trim((string)$row[13]),
+                'bkt'                         => trim((string)$row[14]),
+                'area'                        => trim((string)$row[15]),
+                'region'                      => trim((string)$row[16]),
+                'lot_number'                  => trim($this->lotNumber),
+                'finance_company_id'          => trim($this->financeCompanyId)
+            ];
 
-        $redis->set($keyPrefix . $this->financeCompanyId . ":" . $create->id, json_encode($data));
+            $create = new Vehicle($data);
 
-        return $create;
+            // Add in Redis cache as well.
+            $keyPrefix = Vehicle::VEHICLE_REDIS_KEY_SINGLE;
+
+            $redis->set($keyPrefix . $this->financeCompanyId . ":" . $nextId, json_encode($data));
+
+            return $create;
+        }
+
+        return null;
     }
 
     /**
