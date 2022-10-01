@@ -281,9 +281,11 @@ class User extends Authenticatable
 
             if (env('VEHICLE_API_CACHE', false)) {
                 $redis   = Redis::connection();
-                $allKeys = $redis->keys(Vehicle::VEHICLE_REDIS_KEY . '*');
-                
-                if (!empty($allKeys)) {
+                $allKeys = $redis->keys(Vehicle::VEHICLE_REDIS_KEY_SINGLE . '*');
+
+                $totalVehicles = (!empty($allKeys) && is_array($allKeys)) ? count($allKeys) : 0;
+
+                /* if (!empty($allKeys)) {
                     foreach ($allKeys as $key) {
                         $vehiclesData = json_decode($redis->get($key), true);
 
@@ -291,7 +293,7 @@ class User extends Authenticatable
                             $totalVehicles = $totalVehicles + count($vehiclesData['data']);
                         }
                     }
-                }
+                } */
             }
 
             if ($totalVehicles <= 0) {
