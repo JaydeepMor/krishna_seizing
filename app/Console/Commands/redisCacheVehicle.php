@@ -56,15 +56,17 @@ class redisCacheVehicle extends Command
 
         Vehicle::chunk($chunkSize, function($vehicles) use($keyPrefix) {
             foreach ($vehicles as $vehicle) {
+                $vehicle->installed_date = $vehicle->created_at;
+
                 $vehicle->registration_number = reArrengeRegistrationNumber($vehicle->registration_number);
 
-                $this->redis->set($keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->id, $vehicle);
+                $this->redis->set($keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number, $vehicle);
             }
 
             sleep(1);
         });
 
-        // \Artisan::call("daily:redis:cache:pagination:vehicles");
+        $this->call("daily:redis:cache:pagination:vehicles");
 
         return null;
     }

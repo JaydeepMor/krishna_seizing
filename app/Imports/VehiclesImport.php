@@ -75,6 +75,8 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
         if (!empty($statement[0]) && !empty($statement[0]->Auto_increment)) {
             $nextId = $statement[0]->Auto_increment;
 
+            $now = now();
+
             $data = [
                 'id'                          => $nextId,
                 'loan_number'                 => trim((string)$row[0]),
@@ -95,15 +97,19 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
                 'area'                        => trim((string)$row[15]),
                 'region'                      => trim((string)$row[16]),
                 'lot_number'                  => trim($this->lotNumber),
-                'finance_company_id'          => trim($this->financeCompanyId)
+                'finance_company_id'          => trim($this->financeCompanyId),
+                'created_at'                  => $now
             ];
 
             $create = new Vehicle($data);
 
+            // Set installed date.
+            $data['installed_date'] = $data['created_at'];
+
             // Add in Redis cache as well.
             $keyPrefix = Vehicle::VEHICLE_REDIS_KEY_SINGLE;
 
-            $redis->set($keyPrefix . $this->financeCompanyId . ":" . $nextId, json_encode($data));
+            $redis->set($keyPrefix . $this->financeCompanyId . ":" . reArrengeRegistrationNumber($create->registration_number), json_encode($data));
 
             return $create;
         }

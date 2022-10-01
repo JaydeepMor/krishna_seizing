@@ -433,7 +433,7 @@ class VehicleController extends BaseController
     public function syncToRedis()
     {
         // Run vehicle Redis cache.
-        Artisan::call("daily:redis_vehicle");
+        Artisan::call("redis:cache:vehicles");
 
         return redirect()->route('vehicle.index')->with('success', __("Records synced successfully!"));
     }
