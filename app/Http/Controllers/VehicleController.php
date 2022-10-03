@@ -84,11 +84,11 @@ class VehicleController extends BaseController
 
         $todayDate        = strtotime(date(DEFAULT_DATE_FORMAT));
 
-        $vehicles         = $query->leftJoin($modal::getTableName() . " as v1", function ($join) use($modal) {
+        $vehicles         = $query/*->leftJoin($modal::getTableName() . " as v1", function ($join) use($modal) {
                                     $join->on($modal::getTableName() . '.registration_number', '=', 'v1.registration_number')
                                           ->whereRaw(DB::raw($modal::getTableName() . '.created_at < v1.created_at'));
                                   })
-                                  ->whereNull('v1.registration_number')
+                                  ->whereNull('v1.registration_number') */
                                   ->paginate(parent::DEFAULT_PAGINATION_SIZE);
 
         $financeCompanies = $modalFinanceCompany::orderBy('name')->get();
