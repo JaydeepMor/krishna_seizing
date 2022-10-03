@@ -20,6 +20,7 @@ use Maatwebsite\Excel\HeadingRowImport;
 use Illuminate\Support\Facades\Artisan;
 use Jenssegers\Agent\Agent;
 use Cache;
+use Illuminate\Support\Facades\DB;
 
 class VehicleController extends BaseController
 {
@@ -30,6 +31,10 @@ class VehicleController extends BaseController
      */
     public function index(Request $request)
     {
+        // Disable MySql strict mode.
+        config(['database.connections.mysql.strict' => false]);
+        DB::reconnect();
+
         $modal               = new Vehicle();
 
         $modalFinanceCompany = new FinanceCompany();
@@ -79,11 +84,20 @@ class VehicleController extends BaseController
 
         $todayDate        = strtotime(date(DEFAULT_DATE_FORMAT));
 
-        $vehicles         = $query->paginate(parent::DEFAULT_PAGINATION_SIZE);
+        $vehicles         = $query->leftJoin($modal::getTableName() . " as v1", function ($join) use($modal) {
+                                    $join->on($modal::getTableName() . '.registration_number', '=', 'v1.registration_number')
+                                          ->whereRaw(DB::raw($modal::getTableName() . '.created_at < v1.created_at'));
+                                  })
+                                  ->whereNull('v1.registration_number')
+                                  ->paginate(parent::DEFAULT_PAGINATION_SIZE);
 
         $financeCompanies = $modalFinanceCompany::orderBy('name')->get();
 
         $vehiclesCount = $modal::getCount();
+
+        // Enable MySql strict mode.
+        config(['database.connections.mysql.strict' => true]);
+        DB::reconnect();
 
         return view('vehicle.index', compact('vehicles', 'users', 'todayDate', 'financeCompanies', 'vehiclesCount'));
     }

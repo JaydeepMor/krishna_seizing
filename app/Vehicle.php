@@ -9,6 +9,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 use Cache;
+use Illuminate\Support\Facades\DB;
 
 class Vehicle extends BaseModel
 {
@@ -216,10 +217,17 @@ class Vehicle extends BaseModel
         if (Cache::has($cacheKey)) {
             $total = Cache::get($cacheKey);
         } else {
-            $query = self::whereNotNull('registration_number')->where('registration_number', '!=', '');
+            $query = self::
+                         leftJoin(self::getTableName() . " as v1", function ($join) {
+                             $join->on(self::getTableName() . '.registration_number', '=', 'v1.registration_number')
+                                  ->whereRaw(DB::raw(self::getTableName() . '.created_at < v1.created_at'));
+                         })
+                         ->whereNotNull(self::getTableName() . '.registration_number')
+                         ->whereNull('v1.registration_number')
+                         ->where(self::getTableName() . '.registration_number', '!=', '');
 
             if (!empty($financeCompanyId)) {
-                $total = $query->where('finance_company_id', $financeCompanyId)->count();
+                $total = $query->where(self::getTableName() . '.finance_company_id', $financeCompanyId)->count();
             } else {
                 $total = $query->count();
             }
