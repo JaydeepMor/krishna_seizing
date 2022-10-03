@@ -217,19 +217,21 @@ class Vehicle extends BaseModel
         if (Cache::has($cacheKey)) {
             $total = Cache::get($cacheKey);
         } else {
-            $query = self::
-                         leftJoin(self::getTableName() . " as v1", function ($join) {
-                             $join->on(self::getTableName() . '.registration_number', '=', 'v1.registration_number')
-                                  ->whereRaw(DB::raw(self::getTableName() . '.created_at < v1.created_at'));
-                         })
-                         ->whereNotNull(self::getTableName() . '.registration_number')
-                         ->whereNull('v1.registration_number')
-                         ->where(self::getTableName() . '.registration_number', '!=', '');
+            if (env('VEHICLE_API_CACHE', false)) {
+                $redis   = Redis::connection();
+                $allKeys = $redis->keys(self::VEHICLE_REDIS_KEY_SINGLE . '*');
 
-            if (!empty($financeCompanyId)) {
-                $total = $query->where(self::getTableName() . '.finance_company_id', $financeCompanyId)->count();
+                $total   = (!empty($allKeys) && is_array($allKeys)) ? count($allKeys) : 0;
             } else {
-                $total = $query->count();
+                $query = self::whereNotNull('registration_number')
+                             ->where('registration_number', '!=', '')
+                             ->groupBy('registration_number');
+
+                if (!empty($financeCompanyId)) {
+                    $total = $query->where('finance_company_id', $financeCompanyId)->count();
+                } else {
+                    $total = $query->count();
+                }
             }
 
             Cache::put($cacheKey, $total, self::VEHICLE_COUNT_CACHE_MINUTES);
