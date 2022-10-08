@@ -54,7 +54,7 @@ class redisCacheVehicle extends Command
             $this->redis->del($existingKeys);
         }
 
-        Vehicle::chunk($chunkSize, function($vehicles) use($keyPrefix) {
+        Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->chunk($chunkSize, function($vehicles) use($keyPrefix) {
             foreach ($vehicles as $vehicle) {
                 $vehicle->installed_date = $vehicle->created_at;
 
