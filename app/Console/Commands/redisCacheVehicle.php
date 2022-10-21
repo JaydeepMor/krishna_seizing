@@ -54,17 +54,20 @@ class redisCacheVehicle extends Command
             $this->redis->del($existingKeys);
         }
 
-        Vehicle::whereNotNull('registration_number')->where('registration_number', '!=', '')->chunk($chunkSize, function($vehicles) use($keyPrefix) {
-            foreach ($vehicles as $vehicle) {
-                $vehicle->installed_date = $vehicle->created_at;
+        Vehicle::
+            select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])
+            ->whereNotNull('registration_number')->where('registration_number', '!=', '')
+            ->chunk($chunkSize, function($vehicles) use($keyPrefix) {
+                foreach ($vehicles as $vehicle) {
+                    //$vehicle->installed_date = $vehicle->created_at;
 
-                $vehicle->registration_number = reArrengeRegistrationNumber($vehicle->registration_number);
+                    $vehicle->registration_number = reArrengeRegistrationNumber($vehicle->registration_number);
 
-                $this->redis->set($keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number, $vehicle);
-            }
+                    $this->redis->set($keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number, $vehicle);
+                }
 
-            sleep(1);
-        });
+                sleep(1);
+            });
 
         $this->call("daily:redis:cache:pagination:vehicles");
 
