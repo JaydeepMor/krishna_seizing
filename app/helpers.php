@@ -98,7 +98,7 @@ function reArrengeRegistrationNumber(string $regNo)
         strpos($regNo, '*') !== false || 
         strpos($regNo, '|') !== false
     ) {
-        return $regNo;
+        // return $regNo;
     }
 
     $regNoTemp   = str_split(str_replace(' ', '', trim($regNo)), 2);

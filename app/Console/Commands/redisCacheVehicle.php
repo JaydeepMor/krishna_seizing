@@ -63,7 +63,17 @@ class redisCacheVehicle extends Command
 
                     $vehicle->registration_number = reArrengeRegistrationNumber($vehicle->registration_number);
 
-                    $this->redis->set($keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number, $vehicle);
+                    $redisKey           = $keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number;
+
+                    $wildcardRedisKey   = $keyPrefix . "*:" . $vehicle->registration_number;
+
+                    $existKeys          = $this->redis->keys($wildcardRedisKey);
+
+                    if (count($existKeys) > 0) {
+                        $this->redis->del($existKeys);
+                    }
+
+                    $this->redis->set($redisKey, $vehicle);
                 }
 
                 sleep(1);

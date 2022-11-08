@@ -242,7 +242,7 @@ class Vehicle extends BaseModel
 
     public static function setCount()
     {
-        $cacheKey = self::VEHICLE_COUNT_CACHE_KEY;
+        /* $cacheKey = self::VEHICLE_COUNT_CACHE_KEY;
 
         Cache::forget($cacheKey);
 
@@ -250,7 +250,9 @@ class Vehicle extends BaseModel
 
         Cache::put($cacheKey, $total, self::VEHICLE_COUNT_CACHE_MINUTES);
 
-        return $total;
+        return $total; */
+
+        return self::getCount(true);
     }
 
     public function getInstalledDateAttribute($value)
