@@ -98,7 +98,7 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
                 'region'                      => trim((string)$row[16]),
                 'lot_number'                  => trim($this->lotNumber),
                 'finance_company_id'          => trim($this->financeCompanyId),
-                'created_at'                  => $now
+                'created_at'                  => $now->timestamp
             ];
 
             $create = new Vehicle($data);
