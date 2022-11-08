@@ -82,7 +82,7 @@ class VehiclesImport implements ToModel, WithStartRow, WithChunkReading, ShouldQ
                 'loan_number'                 => trim((string)$row[0]),
                 'customer_name'               => trim((string)$row[1]),
                 'model'                       => trim((string)$row[2]),
-                'registration_number'         => trim((string)$row[3]),
+                'registration_number'         => preg_replace('/[^[:alnum:]]/u', '', trim((string)$row[3])),
                 'chassis_number'              => trim((string)$row[4]),
                 'engine_number'               => trim((string)$row[5]),
                 'arm_rrm'                     => trim((string)$row[6]),
