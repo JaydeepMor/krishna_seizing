@@ -54,30 +54,39 @@ class redisCacheVehicle extends Command
             $this->redis->del($existingKeys);
         }
 
+        $vehiclesArray = [];
+
         Vehicle::
             select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])
             ->whereNotNull('registration_number')->where('registration_number', '!=', '')
-            ->chunk($chunkSize, function($vehicles) use($keyPrefix) {
+            ->chunk($chunkSize, function($vehicles) use(&$vehiclesArray) {
                 foreach ($vehicles as $vehicle) {
-                    //$vehicle->installed_date = $vehicle->created_at;
-
                     $vehicle->registration_number = reArrengeRegistrationNumber($vehicle->registration_number);
 
-                    $redisKey           = $keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number;
-
-                    $wildcardRedisKey   = $keyPrefix . "*:" . $vehicle->registration_number;
-
-                    $existKeys          = $this->redis->keys($wildcardRedisKey);
-
-                    if (count($existKeys) > 0) {
-                        $this->redis->del($existKeys);
-                    }
-
-                    $this->redis->set($redisKey, $vehicle);
+                    $vehiclesArray[$vehicle->registration_number] = $vehicle;
                 }
 
-                sleep(1);
+                usleep(500000);
             });
+
+        if (!empty($vehiclesArray)) {
+            $increment = 0;
+            $slab      = 5000;
+
+            foreach ($vehiclesArray as $vehicle) {
+                $redisKey = $keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number;
+
+                $this->redis->set($redisKey, $vehicle);
+
+                $increment++;
+
+                if ($increment === $slab) {
+                    $increment = 0;
+
+                    usleep(500000);
+                }
+            }
+        }
 
         $this->call("daily:redis:cache:pagination:vehicles");
 
