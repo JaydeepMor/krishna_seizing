@@ -177,6 +177,6 @@ class FinanceHoController extends BaseController
 
         User::isDownloadableForAll();
 
-        return redirect()->route('ho.index')->with('success', __('Record deleted successfully! Old same vehicles from other finance companies will be affected tomorrow.'));
+        return redirect()->route('ho.index')->with('success', __('Record deleted successfully!<br />Old same vehicles from other finance companies will be affected tomorrow.'));
     }
 }

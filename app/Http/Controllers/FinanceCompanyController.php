@@ -166,6 +166,6 @@ class FinanceCompanyController extends BaseController
 
         Vehicle::removeFromRedisCache($id);
 
-        return redirect()->route('company.index')->with('success', __('Record deleted successfully! Old same vehicles from other finance company will be affected tomorrow.'));
+        return redirect()->route('company.index')->with('success', __('Record deleted successfully!<br />Old same vehicles from other finance company will be affected tomorrow.'));
     }
 }
