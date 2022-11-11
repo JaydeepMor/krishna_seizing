@@ -155,12 +155,12 @@
                                         <span class="sidebar-nav-mini-hide">{{ __('Finance Company') }}</span>
                                     </a>
                                 </li>
-                                <li>
+                                {{-- <li>
                                     <a href="{{ route('group.index') }}" class="{{ request()->is('group*') ? 'active' : '' }}">
                                         <i class="gi gi-group sidebar-nav-icon"></i>
                                         <span class="sidebar-nav-mini-hide">{{ __('Group') }}</span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="{{ (request()->is('subseizer*') || request()->is('activity*')) ? 'active' : '' }}">
                                     <a href="#" class="sidebar-nav-menu">
                                         <i class="fa fa-angle-left sidebar-nav-indicator sidebar-nav-mini-hide"></i>
@@ -188,12 +188,12 @@
                                         <span class="sidebar-nav-mini-hide">{{ __('Reports') }}</span>
                                     </a>
                                 </li>
-                                <li>
+                                {{-- <li>
                                     <a href="{{ route('constant.index') }}" class="{{ request()->is('constant*') ? 'active' : '' }}">
                                         <i class="fa fa-database sidebar-nav-icon"></i>
                                         <span class="sidebar-nav-mini-hide">{{ __('Constants') }}</span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li>
                                     <a href="{{ route('privacy.policy') }}" class="{{ request()->is('privacy*') ? 'active' : '' }}">
                                         <i class="fa fa-lock sidebar-nav-icon"></i>

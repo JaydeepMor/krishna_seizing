@@ -80,7 +80,7 @@ class AppServiceProvider extends ServiceProvider
 
                     if (!empty($financeCompanyId)) {
                         // Run vehicle Redis cache.
-                        // Artisan::call("daily:redis_vehicle");
+                        Artisan::call("redis:cache:vehicles:finance:company {$financeCompanyId}");
 
                         $userModel::isDownloadableForAll();
 

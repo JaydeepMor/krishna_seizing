@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\FinanceHo;
 use App\City;
+use App\FinanceCompany;
+use App\User;
+use App\UserSynchronization;
+use App\Vehicle;
 use Illuminate\Http\Request;
 
 class FinanceHoController extends BaseController
@@ -152,8 +156,27 @@ class FinanceHoController extends BaseController
      */
     public function destroy(Request $request, $id)
     {
+        // Get finnance company first and delete it.
+        $financeCompanys = FinanceCompany::where('finance_ho_id', $id)->get();
+        
+        if (!empty($financeCompanys) && !$financeCompanys->isEmpty()) {
+            foreach ($financeCompanys as $financeCompany) {
+                // Delete vehicles.
+                Vehicle::where('finance_company_id', $financeCompany->id)->delete();
+
+                // Delete finance company.
+                FinanceCompany::where('id', $financeCompany->id)->delete();
+
+                UserSynchronization::setIsDeletedByFinanceCompany($financeCompany->id);
+
+                Vehicle::removeFromRedisCache($financeCompany->id);
+            }
+        }
+
         FinanceHo::where('id', $id)->delete();
 
-        return redirect()->route('ho.index')->with('success', __('Record deleted successfully!'));
+        User::isDownloadableForAll();
+
+        return redirect()->route('ho.index')->with('success', __('Record deleted successfully! Old same vehicles from other finance companies will be affected tomorrow.'));
     }
 }

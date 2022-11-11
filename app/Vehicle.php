@@ -275,6 +275,8 @@ class Vehicle extends BaseModel
         // Sync Redis cache pagination as well.
         \Artisan::call("daily:redis:cache:pagination:vehicles");
 
+        Vehicle::setCount();
+
         return $return;
     }
 }

@@ -79,7 +79,7 @@ class ApiController extends BaseController
             }
         }
 
-        if (empty($redisVehicles)) {
+        if (empty($redisVehicles) && !env('VEHICLE_API_CACHE', false)) {
             $vehicles            = Vehicle::select(['id', 'loan_number', 'customer_name', 'model', DB::raw("REGEXP_REPLACE(`registration_number`, '[^[:alnum:]]+', '') as registration_number"), 'chassis_number', 'engine_number', 'arm_rrm', 'mobile_number', 'brm', 'final_confirmation', 'final_manager_name', 'final_manager_mobile_number', 'address', 'branch', 'bkt', 'area', 'region', 'is_confirm', 'is_cancel', 'lot_number', 'finance_company_id', 'created_at as installed_date'])->whereNotNull('registration_number')->where('registration_number', '!=', '')->paginate($perPage, ['*'], 'page', $pageNo);
 
             $vehiclesData        = Vehicle::arrangeApiData($vehicles);
