@@ -89,8 +89,6 @@ class AppServiceProvider extends ServiceProvider
                         // Set vehicle count to the laravel file cache.
                         $vehicleModel::setCount();
 
-                        sleep(120);
-
                         Notification::route('mail', $importEmail)->notify(new VehicleImportComplete($financeCompanyId));
                     }
 
