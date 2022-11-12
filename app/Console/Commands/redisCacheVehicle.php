@@ -74,11 +74,13 @@ class redisCacheVehicle extends Command
             $slab      = 5000;
 
             foreach ($vehiclesArray as $vehicle) {
-                $redisKey = $keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number;
+                if (!empty($vehicle)) {
+                    $redisKey = $keyPrefix . $vehicle->finance_company_id . ":" . $vehicle->registration_number;
 
-                $this->redis->set($redisKey, $vehicle);
+                    $this->redis->set($redisKey, $vehicle);
 
-                $increment++;
+                    $increment++;
+                }
 
                 if ($increment === $slab) {
                     $increment = 0;

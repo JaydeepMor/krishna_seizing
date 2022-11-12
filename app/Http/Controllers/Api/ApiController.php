@@ -86,7 +86,6 @@ class ApiController extends BaseController
         } else {
             foreach ($redisVehicles as $key => $redisVehicle) {
                 if (empty($redisVehicle)) {
-                    \Log::info(json_encode($redisVehicle));
                     unset($redisVehicles[$key]);
                 }
             }
