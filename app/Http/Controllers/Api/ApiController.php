@@ -84,6 +84,12 @@ class ApiController extends BaseController
 
             $vehiclesData        = Vehicle::arrangeApiData($vehicles);
         } else {
+            foreach ($redisVehicles as $key => $redisVehicle) {
+                if (empty($redisVehicle)) {
+                    unset($redisVehicles[$key]);
+                }
+            }
+
             $vehiclesData['data']               = array_values($redisVehicles);
 
             $count                              = Vehicle::getCount();
