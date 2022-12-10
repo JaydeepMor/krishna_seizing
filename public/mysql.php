@@ -14,7 +14,7 @@ $ACCESS_PWD='shivLing$143456'; #!!!IMPORTANT!!! this is script access password, 
 #DEFAULT db connection settings
 # --- WARNING! --- if you set defaults - it's recommended to set $ACCESS_PWD to protect your db!
 $DBDEF=array(
-'remote_jaydeep'=>"",#required
+'krishna_seizing'=>"",#required
 'root@Krupa1434'=>"", #required
 #optional:
 'db'=>"krishna_seizing",  #default DB
