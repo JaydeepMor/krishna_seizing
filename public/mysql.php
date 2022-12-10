@@ -9,13 +9,13 @@
  Dual licensed: GPL v2 and MIT, see texts at http://opensource.org/licenses/
 */
 
-$ACCESS_PWD=''; #!!!IMPORTANT!!! this is script access password, SET IT if you want to protect you DB from public access
+$ACCESS_PWD='shivLing$143456'; #!!!IMPORTANT!!! this is script access password, SET IT if you want to protect you DB from public access
 
 #DEFAULT db connection settings
 # --- WARNING! --- if you set defaults - it's recommended to set $ACCESS_PWD to protect your db!
 $DBDEF=array(
-'jaydeep'=>"",#required
-'shivLing$143456'=>"", #required
+'remote_jaydeep'=>"",#required
+'root@Krupa1434'=>"", #required
 #optional:
 'db'=>"krishna_seizing",  #default DB
 'host'=>"localhost",
